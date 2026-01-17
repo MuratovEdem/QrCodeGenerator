@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Создание клиента</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<!--<nav class="navbar navbar-expand-lg navbar-dark bg-dark">-->
+<!--    <div class="container">-->
+<!--        <a class="navbar-brand" href="/clients">QR База данных</a>-->
+<!--        <div class="navbar-nav ms-auto">-->
+<!--            <span sec:authentication="name" class="nav-item nav-link"></span>-->
+<!--            <form th:action="@{/logout}" method="post">-->
+<!--                <button class="btn btn-outline-light">Выйти</button>-->
+<!--            </form>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</nav>-->
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Создание нового клиента</h4>
+                </div>
+
+                <div class="card-body">
+                    <!-- Сообщения об успехе/ошибке -->
+<!--                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">-->
+<!--                        <span th:text="${successMessage}"></span>-->
+<!--                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>-->
+<!--                    </div>-->
+
+<!--                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">-->
+<!--                        <span th:text="${errorMessage}"></span>-->
+<!--                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>-->
+<!--                    </div>-->
+
+                    <!-- Форма -->
+                    <form>
+
+                        <!-- Имя -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">
+                                Имя клиента <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="name"
+                                   required
+                                   minlength="2"
+                                   maxlength="100">
+                            <div class="form-text">От 2 до 100 символов</div>
+<!--                            <div th:if="${#fields.hasErrors('name')}" class="text-danger">-->
+<!--                                <span th:errors="*{name}"></span>-->
+<!--                            </div>-->
+                        </div>
+
+                        <!-- Кнопки -->
+<!--                        <div class="d-flex justify-content-between mt-4">-->
+<!--                            <a th:href="@{/clients}" class="btn btn-secondary">-->
+<!--                                <i class="fas fa-arrow-left"></i> Назад к списку-->
+<!--                            </a>-->
+<!--                            <div>-->
+<!--                                <button type="submit" class="btn btn-success">-->
+<!--                                    <i class="fas fa-save"></i>-->
+<!--                                    <span th:text="${isEdit ? 'Сохранить изменения' : 'Создать клиента'}">-->
+<!--                                            Создать клиента-->
+<!--                                        </span>-->
+<!--                                </button>-->
+<!--                            </div>-->
+<!--                        </div>-->
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

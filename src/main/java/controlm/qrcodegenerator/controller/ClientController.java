@@ -31,6 +31,11 @@ public class ClientController {
         return "clients/list";
     }
 
+    @GetMapping("/create")
+    public String createClientForm() {
+        return "clients/create-form"; // вернет create-form.html
+    }
+
     @GetMapping("/{id}")
     public String viewClient(@PathVariable Long id, Model model) {
         Client client = clientService.getClientById(id);
@@ -42,10 +47,11 @@ public class ClientController {
     @ResponseBody
     public ResponseEntity<byte[]> getQRCode(@PathVariable Long id) throws Exception {
         byte[] qrCode = qrCodeService.getQRCodeImageBytes(id);
+        Client clientById = clientService.getClientById(id);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"client_" + id + "_qr.png\"")
+                        "attachment; filename=\"" + clientById.getName() + "_qr.png\"")
                 .contentType(MediaType.IMAGE_PNG)
                 .body(qrCode);
     }

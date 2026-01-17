@@ -11,7 +11,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://control_m_db:5432/control_m
       - SPRING_DATASOURCE_USERNAME=control_m
       - SPRING_DATASOURCE_PASSWORD=control_m_pass
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
       - SPRING_JPA_SHOW_SQL=true
     depends_on:
       - control_m_db
