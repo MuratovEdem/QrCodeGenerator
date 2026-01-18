@@ -20,4 +20,10 @@ public class RoleService {
         return roleRepository.findById(id).orElseThrow(() ->
                 new NotFoundException("Role with id = " + id + " not found"));
     }
+
+    public Role create(String roleName) {
+        Role role = new Role();
+        role.setName(roleName);
+        return roleRepository.save(role);
+    }
 }

@@ -2,9 +2,13 @@ package controlm.qrcodegenerator;
 
 import controlm.qrcodegenerator.dto.request.ClientRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
+import controlm.qrcodegenerator.dto.request.RegistrationUserDto;
+import controlm.qrcodegenerator.enums.RoleEnum;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.service.ClientService;
 import controlm.qrcodegenerator.service.ProtocolService;
+import controlm.qrcodegenerator.service.RoleService;
+import controlm.qrcodegenerator.service.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -14,6 +18,19 @@ public class QrCodeGeneratorApplication {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(QrCodeGeneratorApplication.class, args);
+
+        RoleService roleService = context.getBean(RoleService.class);
+
+        roleService.create(RoleEnum.ADMIN.getName());
+
+        UserService userService = context.getBean(UserService.class);
+
+        RegistrationUserDto registrationUserDto = new RegistrationUserDto();
+        registrationUserDto.setUsername("admin");
+        registrationUserDto.setPassword("admin");
+
+        userService.create(registrationUserDto);
+
 
         ClientService clientService = context.getBean(ClientService.class);
 
