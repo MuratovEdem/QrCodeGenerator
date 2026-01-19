@@ -1,5 +1,6 @@
 package controlm.qrcodegenerator.config;
 
+import controlm.qrcodegenerator.enums.RoleEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -24,14 +27,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName("_csrf");
         http
-                .csrf(csrf -> csrf.disable()) // Для упрощения, можно включить для production
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(requestHandler)
+                        .ignoringRequestMatchers(
+                                "/client/**" // Публичные страницы для QR кодов
+                        )
+                )
                 .authorizeHttpRequests(auth -> auth
                         // Публичные ресурсы
                         .requestMatchers(
                                 "/",
                                 "/login",
-                                "/register",
                                 "/client/**", // публичный доступ к просмотру клиента по QR
                                 "/css/**",
                                 "/js/**",
@@ -43,6 +53,7 @@ public class SecurityConfig {
 
                         // Требуют аутентификации
                         .requestMatchers(
+                                "/register",
                                 "/dashboard/**",
                                 "/clients/**",
                                 "/protocols/**",
@@ -69,9 +80,10 @@ public class SecurityConfig {
 
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout=true")
+                        .logoutSuccessUrl("/auth/login?logout=true")
                         .deleteCookies("JSESSIONID")
                         .invalidateHttpSession(true)
+                        .clearAuthentication(true)
                         .permitAll()
                 )
 
@@ -87,7 +99,7 @@ public class SecurityConfig {
                 )
 
                 .exceptionHandling(exceptions -> exceptions
-                        .accessDeniedPage("/access-denied")
+                        .accessDeniedPage("/auth/access-denied")
                 );
 
         return http.build();
@@ -101,7 +113,7 @@ public class SecurityConfig {
 
             // Проверяем роль пользователя
             boolean isAdmin = authentication.getAuthorities().stream()
-                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(RoleEnum.ADMIN.getName()));
 
             if (isAdmin) {
                 redirectUrl = "/clients";

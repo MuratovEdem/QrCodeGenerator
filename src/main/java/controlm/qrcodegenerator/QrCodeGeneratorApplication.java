@@ -62,9 +62,6 @@ public class QrCodeGeneratorApplication {
         ProtocolRequestDto protocolRequestDto3 = new ProtocolRequestDto();
         protocolRequestDto3.setName("НК-55-11");
 
-        protocolService.createProtocolByClientId(protocolRequestDto2, client1.getId());
-        protocolService.createProtocolByClientId(protocolRequestDto3, client1.getId());
-
         ProtocolRequestDto protocolRequestDto4 = new ProtocolRequestDto();
         protocolRequestDto4.setName("НК-14-15");
         ProtocolRequestDto protocolRequestDto5 = new ProtocolRequestDto();
@@ -72,6 +69,9 @@ public class QrCodeGeneratorApplication {
 
         protocolService.createProtocolByClientId(protocolRequestDto4, client2.getId());
         protocolService.createProtocolByClientId(protocolRequestDto5, client2.getId());
+        protocolService.createProtocolByClientId(protocolRequestDto2, client2.getId());
+        protocolService.createProtocolByClientId(protocolRequestDto3, client2.getId());
+
 
     }
 

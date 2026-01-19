@@ -60,6 +60,7 @@
                 <div class="register-body">
                     <!-- Форма регистрации -->
                     <form th:action="@{/auth/register}" method="post" th:object="${user}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <!-- Ошибки формы -->
                         <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
                             <ul class="mb-0">
@@ -125,7 +126,7 @@
                                 <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
                             </button>
                             <a th:href="@{/login}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>Назад к входу
+                                <i class="fas fa-arrow-left me-2"></i>Назад ко входу
                             </a>
                         </div>
                     </form>

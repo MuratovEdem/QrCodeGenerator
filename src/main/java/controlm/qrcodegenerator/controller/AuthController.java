@@ -1,15 +1,12 @@
 package controlm.qrcodegenerator.controller;
 
 import controlm.qrcodegenerator.dto.request.RegistrationUserDto;
-import controlm.qrcodegenerator.model.Role;
 import controlm.qrcodegenerator.model.User;
-import controlm.qrcodegenerator.service.RoleService;
 import controlm.qrcodegenerator.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

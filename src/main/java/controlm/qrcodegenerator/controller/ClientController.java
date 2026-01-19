@@ -45,10 +45,10 @@ public class ClientController {
     public String viewClient(@PathVariable Long id, Model model) {
         Client client = clientService.getClientById(id);
         model.addAttribute("client", client);
-        return "public/client-view";
+        return "clients/protocols-view";
     }
 
-    @PostMapping("/{id}/create-protocol")
+    @PostMapping("/{id}/create-protocols")
     public String createProtocolByClientId(@PathVariable Long id, BindingResult result) {
 //        ProtocolRequestDto protocolRequestDto = new ProtocolRequestDto();
 //        protocolRequestDto.setName(result.getObjectName());
@@ -60,11 +60,11 @@ public class ClientController {
     @ResponseBody
     public ResponseEntity<byte[]> getQRCode(@PathVariable Long id) throws Exception {
         byte[] qrCode = qrCodeService.getQRCodeImageBytes(id);
-        Client clientById = clientService.getClientById(id);
+        String name = clientService.getClientById(id).getName();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + clientById.getName() + "_qr.png\"")
+                        "attachment; filename=\"" + name + "_qr.png\"")
                 .contentType(MediaType.IMAGE_PNG)
                 .body(qrCode);
     }

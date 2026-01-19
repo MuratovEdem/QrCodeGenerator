@@ -1,22 +1,72 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Клиенты</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- CSRF мета-тег для JavaScript -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <style>
+        .navbar-brand {
+            font-weight: 600;
+        }
+        .user-info {
+            color: white;
+            margin-right: 15px;
+        }
+        .logout-btn {
+            color: white !important;
+            border: 1px solid rgba(255,255,255,0.5) !important;
+        }
+        .logout-btn:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+            border-color: white !important;
+        }
+    </style>
 </head>
 <body>
-<!--<nav class="navbar navbar-expand-lg navbar-dark bg-dark">-->
-<!--    <div class="container">-->
-<!--        <a class="navbar-brand" href="/clients">QR База данных</a>-->
-<!--        <div class="navbar-nav ms-auto">-->
-<!--            <form th:action="@{/logout}" method="post">-->
-<!--                <button class="btn btn-outline-light">Выйти</button>-->
-<!--            </form>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</nav>-->
+
+<!-- Навигационная панель -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <!-- Логотип и название -->
+        <a class="navbar-brand">
+            <i class="fas fa-qrcode me-2"></i>Control-M
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Навигационные ссылки -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/clients}">
+                        <i class="fas fa-users me-1"></i> Клиенты
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-flex align-items-center">
+                <!-- Кнопка выхода -->
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-outline-light logout-btn">
+                        <i class="fas fa-sign-out-alt me-1"></i> Выйти
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -58,5 +108,48 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+    // Получаем CSRF токен из мета-тегов
+    var token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+    var header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+    // Настройка всех AJAX запросов для отправки CSRF токена
+    if (token && header) {
+        var ajaxSetup = {
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader(header, token);
+            }
+        };
+
+        // Применяем настройки ко всем AJAX запросам
+        if (window.jQuery) {
+            $.ajaxSetup(ajaxSetup);
+        }
+
+        // Настройка для fetch API
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options = {}) {
+            options.headers = options.headers || {};
+            options.headers[header] = token;
+            return originalFetch(url, options);
+        };
+    }
+</script>
+
+<!-- Подтверждение выхода (опционально) -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutForm = document.querySelector('form[action*="logout"]');
+        if (logoutForm) {
+            const logoutBtn = logoutForm.querySelector('button[type="submit"]');
+            logoutBtn.addEventListener('click', function(e) {
+                if (!confirm('Вы уверены, что хотите выйти из системы?')) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>

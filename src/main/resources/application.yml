@@ -13,6 +13,8 @@ spring:
     prefix: classpath:/templates/
     suffix: .html
 
+  security:
+    s
 app:
   base-url: http://localhost:8080
   qr-code:
