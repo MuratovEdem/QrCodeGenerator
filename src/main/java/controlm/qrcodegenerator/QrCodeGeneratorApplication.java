@@ -49,28 +49,46 @@ public class QrCodeGeneratorApplication {
         ProtocolService protocolService = context.getBean(ProtocolService.class);
 
         ProtocolRequestDto protocolRequestDto = new ProtocolRequestDto();
-        protocolRequestDto.setName("НК-100-11");
+        protocolRequestDto.setCipher("НК");
+        protocolRequestDto.setUniqueNumber("100а");
+        protocolRequestDto.setSequentialNumber("15");
+        protocolRequestDto.setClientId(client.getId());
 
         ProtocolRequestDto protocolRequestDto1 = new ProtocolRequestDto();
-        protocolRequestDto1.setName("НК-100-12");
+        protocolRequestDto1.setCipher("НК");
+        protocolRequestDto1.setUniqueNumber("100а");
+        protocolRequestDto1.setSequentialNumber("12");
+        protocolRequestDto1.setClientId(client.getId());
 
-        protocolService.createProtocolByClientId(protocolRequestDto, client.getId());
-        protocolService.createProtocolByClientId(protocolRequestDto1, client.getId());
+        protocolService.createProtocol(protocolRequestDto);
+        protocolService.createProtocol(protocolRequestDto1);
 
         ProtocolRequestDto protocolRequestDto2 = new ProtocolRequestDto();
-        protocolRequestDto2.setName("НК-55а-11");
+        protocolRequestDto2.setCipher("КБ");
+        protocolRequestDto2.setUniqueNumber("17");
+        protocolRequestDto2.setSequentialNumber("16");
+        protocolRequestDto2.setClientId(client2.getId());
         ProtocolRequestDto protocolRequestDto3 = new ProtocolRequestDto();
-        protocolRequestDto3.setName("НК-55-11");
+        protocolRequestDto3.setCipher("НК");
+        protocolRequestDto3.setUniqueNumber("17");
+        protocolRequestDto3.setSequentialNumber("17");
+        protocolRequestDto3.setClientId(client2.getId());
 
         ProtocolRequestDto protocolRequestDto4 = new ProtocolRequestDto();
-        protocolRequestDto4.setName("НК-14-15");
+        protocolRequestDto4.setCipher("НК");
+        protocolRequestDto4.setUniqueNumber("17");
+        protocolRequestDto4.setSequentialNumber("18");
+        protocolRequestDto4.setClientId(client2.getId());
         ProtocolRequestDto protocolRequestDto5 = new ProtocolRequestDto();
-        protocolRequestDto5.setName("НК-14г-13");
+        protocolRequestDto5.setCipher("НК");
+        protocolRequestDto5.setUniqueNumber("17");
+        protocolRequestDto5.setSequentialNumber("19");
+        protocolRequestDto5.setClientId(client2.getId());
 
-        protocolService.createProtocolByClientId(protocolRequestDto4, client2.getId());
-        protocolService.createProtocolByClientId(protocolRequestDto5, client2.getId());
-        protocolService.createProtocolByClientId(protocolRequestDto2, client2.getId());
-        protocolService.createProtocolByClientId(protocolRequestDto3, client2.getId());
+        protocolService.createProtocol(protocolRequestDto4);
+        protocolService.createProtocol(protocolRequestDto5);
+        protocolService.createProtocol(protocolRequestDto2);
+        protocolService.createProtocol(protocolRequestDto3);
 
 
     }

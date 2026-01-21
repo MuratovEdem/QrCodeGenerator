@@ -14,7 +14,7 @@ public class ProtocolMapper {
         List<ProtocolResponseDto> protocolResponseDtos = new ArrayList<>();
         for (int i = 0; i < protocols.size(); i++) {
             ProtocolResponseDto protocolResponseDto = new ProtocolResponseDto();
-            protocolResponseDto.setName(protocols.get(i).getName());
+            protocolResponseDto.setName(protocols.get(i).getFullProtocolNumber());
             protocolResponseDtos.add(protocolResponseDto);
         }
         return protocolResponseDtos;

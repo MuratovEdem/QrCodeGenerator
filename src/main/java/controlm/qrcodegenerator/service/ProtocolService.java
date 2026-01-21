@@ -24,10 +24,12 @@ public class ProtocolService {
         return protocolMapper.protocolsToProtocolsDto(protocols);
     }
 
-    public Protocol createProtocolByClientId(ProtocolRequestDto protocolRequestDto, Long clientId) {
-        Client client = clientService.getClientById(clientId);
+    public Protocol createProtocol(ProtocolRequestDto protocolRequestDto) {
+        Client client = clientService.getClientById(protocolRequestDto.getClientId());
         Protocol protocol = new Protocol();
-        protocol.setName(protocolRequestDto.getName());
+        protocol.setCipher(protocolRequestDto.getCipher());
+        protocol.setUniqueNumber(protocolRequestDto.getUniqueNumber());
+        protocol.setSequentialNumber(protocolRequestDto.getSequentialNumber());
         protocol.setClient(client);
 
         return protocolRepository.save(protocol);

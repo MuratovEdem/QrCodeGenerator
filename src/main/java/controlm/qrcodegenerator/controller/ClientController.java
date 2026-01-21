@@ -5,6 +5,7 @@ import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.service.ClientService;
 import controlm.qrcodegenerator.service.ProtocolService;
 import controlm.qrcodegenerator.service.QRCodeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,10 +14,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -48,12 +51,46 @@ public class ClientController {
         return "clients/protocols-view";
     }
 
+    @GetMapping("/{id}/create-protocols")
+    public String createProtocolByClientId(@PathVariable Long id, Model model) {
+        ProtocolRequestDto protocolRequestDto = new ProtocolRequestDto();
+
+        Client client = clientService.getClientById(id);
+
+        protocolRequestDto.setClientId(id);
+        model.addAttribute("protocolForm", protocolRequestDto);
+        model.addAttribute("client", client);
+        model.addAttribute("pageTitle", "Добавить протокол для " + client.getName());
+
+        return "protocols/create-protocol";
+    }
+
     @PostMapping("/{id}/create-protocols")
-    public String createProtocolByClientId(@PathVariable Long id, BindingResult result) {
-//        ProtocolRequestDto protocolRequestDto = new ProtocolRequestDto();
-//        protocolRequestDto.setName(result.getObjectName());
-//        protocolService.createProtocolByClientId(result, id);
-        return "protocols/create-protocol-form";
+    public String createProtocolByClientId(@PathVariable Long id,
+                                           @Valid @ModelAttribute("protocolForm") ProtocolRequestDto formDto,
+                                           BindingResult bindingResult,
+                                           Model model,
+                                           RedirectAttributes redirectAttributes) {
+
+        Client client = clientService.getClientById(id);
+        formDto.setClientId(id);
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("client", client);
+            model.addAttribute("pageTitle", "Добавить протокол для " + client.getName());
+            return "protocols/create-protocol";
+        }
+
+        try {
+            protocolService.createProtocol(formDto);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Протокол успешно добавлен");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Ошибка при добавлении протокола: " + e.getMessage());
+        }
+
+        return "redirect:/clients/" + id;
     }
 
     @GetMapping("/{id}/qr")

@@ -26,7 +26,7 @@
                     </thead>
                     <tbody>
                     <tr th:each="protocol : ${client.protocols}">
-                        <td th:text="${protocol.getName()}"></td>
+                        <td th:text="${protocol.getFullProtocolNumber()}"></td>
                     </tr>
                     </tbody>
                 </table>
