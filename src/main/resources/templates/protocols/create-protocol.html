@@ -41,6 +41,15 @@
         .back-btn {
             margin-right: 10px;
         }
+        .history-badge {
+            font-size: 0.75em;
+            cursor: pointer;
+            margin: 2px;
+        }
+        .clear-history-btn {
+            font-size: 0.8em;
+            padding: 2px 8px;
+        }
     </style>
 </head>
 <body>
@@ -49,7 +58,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container-fluid">
         <!-- Логотип и название -->
-        <a class="navbar-brand">
+        <a class="navbar-brand" th:href="@{/clients}">
             <i class="fas fa-qrcode me-2"></i>Control-M
         </a>
 
@@ -67,22 +76,7 @@
                         <i class="fas fa-users me-1"></i> Клиенты
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="#">
-                        <i class="fas fa-file-contract me-1"></i> Добавить протокол
-                    </a>
-                </li>
             </ul>
-
-            <div class="d-flex align-items-center">
-                <!-- Кнопка выхода -->
-                <form th:action="@{/logout}" method="post" class="d-inline">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="btn btn-outline-light logout-btn">
-                        <i class="fas fa-sign-out-alt me-1"></i> Выйти
-                    </button>
-                </form>
-            </div>
         </div>
     </div>
 </nav>
@@ -98,7 +92,7 @@
                 Добавить новый протокол
             </h2>
             <p class="text-muted mb-0">
-                Заполните все поля для создания нового протокола
+                Клиент: <strong th:text="${client.name}"></strong>
             </p>
         </div>
 
@@ -124,24 +118,61 @@
             <!-- ID клиента (скрытое поле) -->
             <input type="hidden" th:field="*{clientId}" />
 
-            <!-- Поле 1: Шифр протокола -->
+            <!-- Поле 1: Шифр протокола с datalist -->
             <div class="form-group">
                 <label for="cipher" class="form-label">
-                    <i class="fas fa-heading me-1"></i>Шифр протокола *
+                    <i class="fas fa-key me-1"></i>Шифр протокола *
                 </label>
                 <input type="text"
                        class="form-control"
                        id="cipher"
                        th:field="*{cipher}"
+                       list="cipherList"
                        placeholder="Введите шифр протокола"
+                       autocomplete="off"
                        required>
-                <div class="form-text">Например: "НК, КБ, ВИК и т.п."</div>
+
+                <!-- Datalist для автозаполнения шифров -->
+                <datalist id="cipherList">
+                    <option th:each="cipherItem : ${cipherHistory}"
+                            th:value="${cipherItem}">
+                </datalist>
+
+                <div class="form-text">
+                    Например: "НК, КБ, ВИК и т.п."
+                    <span th:if="${cipherHistory != null and !cipherHistory.empty}"
+                          class="text-muted"> | История:
+                        <span th:each="cipherItem, stat : ${cipherHistory}">
+                            <span th:text="${cipherItem}"></span>
+                            <span th:unless="${stat.last}">, </span>
+                        </span>
+                    </span>
+                </div>
+
+                <!-- Быстрый выбор из истории -->
+                <div th:if="${cipherHistory != null and !cipherHistory.empty}"
+                     class="mt-2">
+                    <small class="text-muted d-block mb-1">Быстрый выбор:</small>
+                    <div class="d-flex flex-wrap">
+                        <span th:each="cipherItem : ${cipherHistory}"
+                              class="badge bg-light text-dark border history-badge"
+                              th:attr="data-value=${cipherItem}"
+                              onclick="document.getElementById('cipher').value = this.getAttribute('data-value')">
+                            <span th:text="${cipherItem}"></span>
+                        </span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary clear-history-btn ms-2"
+                                onclick="document.getElementById('cipher').value = ''">
+                            Очистить
+                        </button>
+                    </div>
+                </div>
+
                 <div th:if="${#fields.hasErrors('cipher')}" class="text-danger mt-1">
                     <small th:errors="*{cipher}"></small>
                 </div>
             </div>
 
-            <!-- Поле 2: Номер заказчика -->
+            <!-- Поле 2: Номер заказчика с datalist -->
             <div class="form-group">
                 <label for="uniqueNumber" class="form-label">
                     <i class="fas fa-hashtag me-1"></i>Номер заказчика *
@@ -150,17 +181,55 @@
                        class="form-control"
                        id="uniqueNumber"
                        th:field="*{uniqueNumber}"
+                       list="uniqueNumberList"
                        placeholder="Введите номер заказчика"
+                       autocomplete="off"
                        required>
-                <div class="form-text">Например: "35, 35а"</div>
+
+                <!-- Datalist для автозаполнения номеров -->
+                <datalist id="uniqueNumberList">
+                    <option th:each="numberItem : ${uniqueNumberHistory}"
+                            th:value="${numberItem}">
+                </datalist>
+
+                <div class="form-text">
+                    Например: "35, 35а"
+                    <span th:if="${uniqueNumberHistory != null and !uniqueNumberHistory.empty}"
+                          class="text-muted"> | История:
+                        <span th:each="numberItem, stat : ${uniqueNumberHistory}">
+                            <span th:text="${numberItem}"></span>
+                            <span th:unless="${stat.last}">, </span>
+                        </span>
+                    </span>
+                </div>
+
+                <!-- Быстрый выбор из истории -->
+                <div th:if="${uniqueNumberHistory != null and !uniqueNumberHistory.empty}"
+                     class="mt-2">
+                    <small class="text-muted d-block mb-1">Быстрый выбор:</small>
+                    <div class="d-flex flex-wrap">
+                        <span th:each="numberItem : ${uniqueNumberHistory}"
+                              class="badge bg-light text-dark border history-badge"
+                              th:attr="data-value=${numberItem}"
+                              onclick="document.getElementById('uniqueNumber').value = this.getAttribute('data-value')">
+                            <span th:text="${numberItem}"></span>
+                        </span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary clear-history-btn ms-2"
+                                onclick="document.getElementById('uniqueNumber').value = ''">
+                            Очистить
+                        </button>
+                    </div>
+                </div>
+
                 <div th:if="${#fields.hasErrors('uniqueNumber')}" class="text-danger mt-1">
                     <small th:errors="*{uniqueNumber}"></small>
                 </div>
             </div>
 
+            <!-- Поле 3: Порядковый номер протокола -->
             <div class="form-group">
                 <label for="sequentialNumber" class="form-label">
-                    <i class="fas fa-hashtag me-1"></i>Порядковый номер протокола *
+                    <i class="fas fa-list-ol me-1"></i>Порядковый номер протокола *
                 </label>
                 <input type="text"
                        class="form-control"
@@ -168,7 +237,7 @@
                        th:field="*{sequentialNumber}"
                        placeholder="Введите порядковый номер протокола"
                        required>
-                <div class="form-text">Например: "11, 12, 13"</div>
+                <div class="form-text">Например: "11, 11-18"</div>
                 <div th:if="${#fields.hasErrors('sequentialNumber')}" class="text-danger mt-1">
                     <small th:errors="*{sequentialNumber}"></small>
                 </div>
@@ -199,18 +268,75 @@
         // Валидация формы перед отправкой
         const form = document.querySelector('form');
         form.addEventListener('submit', function(event) {
-            const name = document.getElementById('cipher').value.trim();
-            const protocolNumber = document.getElementById('uniqueNumber').value.trim();
+            const cipher = document.getElementById('cipher').value.trim();
+            const uniqueNumber = document.getElementById('uniqueNumber').value.trim();
             const sequentialNumber = document.getElementById('sequentialNumber').value.trim();
 
-            if (!name || !protocolNumber || !sequentialNumber) {
+            if (!cipher || !uniqueNumber || !sequentialNumber) {
                 event.preventDefault();
-                alert('Пожалуйста, заполните обязательные поля (отмечены *)');
+                alert('Пожалуйста, заполните все обязательные поля (отмечены *)');
                 return false;
             }
 
             return true;
         });
+
+        // Автозаполнение порядкового номера при выборе шифра и номера
+        const cipherInput = document.getElementById('cipher');
+        const uniqueNumberInput = document.getElementById('uniqueNumber');
+
+
+        // Обработка клавиши Enter для перехода между полями
+        const inputs = document.querySelectorAll('input[type="text"]');
+        inputs.forEach((input, index) => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    } else {
+                        form.querySelector('button[type="submit"]').click();
+                    }
+                }
+            });
+        });
+
+        // Подсказка для datalist
+        function setupDatalistEnhancement(inputId, datalistId) {
+            const input = document.getElementById(inputId);
+            const datalist = document.getElementById(datalistId);
+
+            if (input && datalist) {
+                // Показывать/скрывать историю при фокусе
+                input.addEventListener('focus', function() {
+                    this.setAttribute('aria-expanded', 'true');
+                });
+
+                input.addEventListener('blur', function() {
+                    setTimeout(() => {
+                        this.setAttribute('aria-expanded', 'false');
+                    }, 200);
+                });
+
+                // Быстрый поиск при вводе
+                input.addEventListener('input', function() {
+                    const value = this.value.toLowerCase();
+                    const options = datalist.querySelectorAll('option');
+
+                    options.forEach(option => {
+                        if (option.value.toLowerCase().includes(value)) {
+                            option.style.display = '';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        }
+
+        // Настраиваем улучшения для datalist
+        setupDatalistEnhancement('cipher', 'cipherList');
+        setupDatalistEnhancement('uniqueNumber', 'uniqueNumberList');
     });
 </script>
 

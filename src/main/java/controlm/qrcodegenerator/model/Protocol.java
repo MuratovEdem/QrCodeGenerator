@@ -12,6 +12,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -30,11 +33,15 @@ public class Protocol {
     private String uniqueNumber;
 
     @Column(name = "sequential_number", nullable = false)
-    private String sequentialNumber;
+    private Long sequentialNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Transient
     public String getFullProtocolNumber() {

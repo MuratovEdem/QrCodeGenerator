@@ -60,8 +60,8 @@ public class QrCodeGeneratorApplication {
         protocolRequestDto1.setSequentialNumber("12");
         protocolRequestDto1.setClientId(client.getId());
 
-        protocolService.createProtocol(protocolRequestDto);
-        protocolService.createProtocol(protocolRequestDto1);
+        protocolService.createProtocols(protocolRequestDto);
+        protocolService.createProtocols(protocolRequestDto1);
 
         ProtocolRequestDto protocolRequestDto2 = new ProtocolRequestDto();
         protocolRequestDto2.setCipher("КБ");
@@ -85,10 +85,10 @@ public class QrCodeGeneratorApplication {
         protocolRequestDto5.setSequentialNumber("19");
         protocolRequestDto5.setClientId(client2.getId());
 
-        protocolService.createProtocol(protocolRequestDto4);
-        protocolService.createProtocol(protocolRequestDto5);
-        protocolService.createProtocol(protocolRequestDto2);
-        protocolService.createProtocol(protocolRequestDto3);
+        protocolService.createProtocols(protocolRequestDto4);
+        protocolService.createProtocols(protocolRequestDto5);
+        protocolService.createProtocols(protocolRequestDto2);
+        protocolService.createProtocols(protocolRequestDto3);
 
 
     }

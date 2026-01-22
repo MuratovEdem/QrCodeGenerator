@@ -1,12 +1,14 @@
 package controlm.qrcodegenerator.controller;
 
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
+import controlm.qrcodegenerator.dto.response.ProtocolHistoryDto;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.service.ClientService;
 import controlm.qrcodegenerator.service.ProtocolService;
 import controlm.qrcodegenerator.service.QRCodeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequestMapping("/clients")
 @RequiredArgsConstructor
@@ -41,7 +44,7 @@ public class ClientController {
 
     @GetMapping("/create")
     public String createClientForm() {
-        return "clients/create-form"; // вернет create-form.html
+        return "clients/create-form";
     }
 
     @GetMapping("/{id}")
@@ -52,17 +55,35 @@ public class ClientController {
     }
 
     @GetMapping("/{id}/create-protocols")
-    public String createProtocolByClientId(@PathVariable Long id, Model model) {
-        ProtocolRequestDto protocolRequestDto = new ProtocolRequestDto();
+    public String showCreateFrom(@PathVariable Long id, Model model) {
+        try {
+            Client client = clientService.getClientById(id);
 
-        Client client = clientService.getClientById(id);
+            // Получаем историю протоколов для автозаполнения
+            ProtocolHistoryDto history = protocolService.getProtocolHistoryByClientId(id);
 
-        protocolRequestDto.setClientId(id);
-        model.addAttribute("protocolForm", protocolRequestDto);
-        model.addAttribute("client", client);
-        model.addAttribute("pageTitle", "Добавить протокол для " + client.getName());
+            // Создаем DTO с предзаполненными значениями
+            ProtocolRequestDto formDto = new ProtocolRequestDto();
+            formDto.setClientId(id);
+            formDto.setCipher(history.getLastCipher());
+            formDto.setUniqueNumber(history.getLastUniqueNumber());
 
-        return "protocols/create-protocol";
+            model.addAttribute("client", client);
+            model.addAttribute("protocolForm", formDto);
+            model.addAttribute("cipherHistory", history.getCipherHistory());
+            model.addAttribute("uniqueNumberHistory", history.getUniqueNumberHistory());
+            model.addAttribute("clientId", id);
+            model.addAttribute("pageTitle", "Добавить протокол для " + client.getName());
+
+            log.info("Отображение формы для клиента ID: {}, история шифров: {}, история номеров: {}",
+                    id, history.getCipherHistory().size(), history.getUniqueNumberHistory().size());
+
+            return "protocols/create-protocol";
+
+        } catch (Exception e) {
+            log.error("Ошибка при загрузке формы: {}", e.getMessage());
+            return "redirect:/clients?error=Ошибка загрузки формы";
+        }
     }
 
     @PostMapping("/{id}/create-protocols")
@@ -72,17 +93,25 @@ public class ClientController {
                                            Model model,
                                            RedirectAttributes redirectAttributes) {
 
-        Client client = clientService.getClientById(id);
-        formDto.setClientId(id);
-
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("client", client);
-            model.addAttribute("pageTitle", "Добавить протокол для " + client.getName());
-            return "protocols/create-protocol";
-        }
-
         try {
-            protocolService.createProtocol(formDto);
+            Client client = clientService.getClientById(id);
+            formDto.setClientId(id);
+
+            if (bindingResult.hasErrors()) {
+                ProtocolHistoryDto history = protocolService.getProtocolHistoryByClientId(id);
+
+                model.addAttribute("client", client);
+                model.addAttribute("cipherHistory", history.getCipherHistory());
+                model.addAttribute("uniqueNumberHistory", history.getUniqueNumberHistory());
+                model.addAttribute("pageTitle", "Добавить протокол для " + client.getName());
+
+                log.warn("Ошибки валидации при сохранении протокола для клиента: {}", id);
+                return "protocols/create-protocol";
+            }
+
+            protocolService.createProtocols(formDto);
+            log.info("Протокол сохранен для клиента ID: {}, шифр: {}, номер: {}",
+                    id, formDto.getCipher(), formDto.getUniqueNumber());
             redirectAttributes.addFlashAttribute("successMessage",
                     "Протокол успешно добавлен");
         } catch (Exception e) {
@@ -90,7 +119,7 @@ public class ClientController {
                     "Ошибка при добавлении протокола: " + e.getMessage());
         }
 
-        return "redirect:/clients/" + id;
+        return "redirect:/clients/" + id + "/create-protocols";
     }
 
     @GetMapping("/{id}/qr")
