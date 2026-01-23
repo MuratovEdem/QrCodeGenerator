@@ -27,6 +27,32 @@
             background-color: rgba(255,255,255,0.1) !important;
             border-color: white !important;
         }
+        .search-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .search-input-group {
+            max-width: 500px;
+        }
+        .clear-search-btn {
+            margin-left: 10px;
+        }
+        .no-clients-message {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .client-name-highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .table-actions {
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -35,7 +61,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container-fluid">
         <!-- Логотип и название -->
-        <a class="navbar-brand">
+        <a class="navbar-brand" th:href="@{/clients}">
             <i class="fas fa-qrcode me-2"></i>Control-M
         </a>
 
@@ -69,20 +95,76 @@
 </nav>
 
 <div class="container mt-4">
+    <!-- Заголовок и кнопка добавления -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Список клиентов</h2>
+        <h2><i class="fas fa-users me-2"></i>Список клиентов</h2>
         <a th:href="@{/clients/create}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Добавить клиента
         </a>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover">
+    <!-- Поиск клиентов -->
+    <div class="search-container">
+        <form id="searchForm" th:action="@{/clients}" method="get" class="mb-0">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <label for="searchInput" class="form-label fw-bold mb-2">
+                        <i class="fas fa-search me-2"></i>Поиск клиента по наименованию
+                    </label>
+                    <div class="input-group search-input-group">
+                        <input type="text"
+                               class="form-control"
+                               id="searchInput"
+                               name="search"
+                               th:value="${param.search}"
+                               placeholder="Введите наименование клиента..."
+                               aria-label="Поиск клиента">
+                        <button class="btn btn-outline-primary" type="submit" id="searchButton">
+                            <i class="fas fa-search"></i> Найти
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary clear-search-btn"
+                                onclick="clearSearch()">
+                            <i class="fas fa-times"></i> Очистить
+                        </button>
+                    </div>
+                    <div class="form-text mt-1">
+                        Поиск осуществляется по полному или частичному совпадению наименования
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center justify-content-end h-100">
+                        <div class="text-muted">
+                            <span th:if="${param.search}">
+                                Найдено: <strong th:text="${clients.size()}"></strong> клиентов
+                                <span th:if="${param.search}">
+                                    по запросу: "<strong th:text="${param.search}"></strong>"
+                                </span>
+                            </span>
+                            <span th:unless="${param.search}">
+                                Всего клиентов: <strong th:text="${clients.size()}"></strong>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div th:if="${clients.empty}" class="no-clients-message">
+        <i class="fas fa-users fa-4x mb-3"></i>
+        Ничего не найдено
+    </div>
+
+    <div th:unless="${clients.empty}" class="table-responsive">
+        <table class="table table-hover table-striped">
             <thead class="table-dark">
             <tr>
                 <th>ID</th>
                 <th>Наименование</th>
-                <th>Кол-во протоколов</th>
+                <th>Кол-во протоколов НК</th>
+                <th>Кол-во протоколов КБ</th>
+                <th>Кол-во других протоколов</th>
                 <th>Действия</th>
             </tr>
             </thead>
@@ -90,15 +172,24 @@
             <tr th:each="client : ${clients}">
                 <td th:text="${client.id}"></td>
                 <td th:text="${client.name}"></td>
-                <td th:text="${client.protocols.size()}"></td>
-                <td>
+                <td th:text="${protocolService.getNumberNKCipherById(client.getId())}"></td>
+                <td th:text="${protocolService.getNumberKBCipherById(client.getId())}"></td>
+                <td th:text="${protocolService.getNumberOtherCipherById(client.getId())}"></td>
+                <td class="table-actions">
                     <a th:href="@{/clients/{id}(id=${client.id})}"
-                       class="btn btn-sm btn-info">
+                       class="btn btn-sm btn-info me-1"
+                       title="Просмотр">
                         <i class="fas fa-eye"></i>
                     </a>
+                    <a th:href="@{/clients/{id}/create-protocols(id=${client.id})}"
+                       class="btn btn-sm btn-primary me-1"
+                       title="Добавить протокол">
+                        <i class="fas fa-file-contract"></i>
+                    </a>
                     <a th:href="@{/clients/{id}/qr/display(id=${client.id})}"
-                       class="btn btn-sm btn-success">
-                        <i class="fas fa-qrcode"></i> QR
+                       class="btn btn-sm btn-success"
+                       title="Показать QR код">
+                        <i class="fas fa-qrcode"></i>
                     </a>
                 </td>
             </tr>
@@ -107,9 +198,11 @@
     </div>
 </div>
 
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script th:inline="javascript">
+    /*<![CDATA[*/
     // Получаем CSRF токен из мета-тегов
     var token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
     var header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
@@ -135,11 +228,32 @@
             return originalFetch(url, options);
         };
     }
-</script>
 
-<!-- Подтверждение выхода (опционально) -->
-<script>
+    // Функция для очистки поиска
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        window.location.href = '/clients';
+    }
+
+    // Автофокус на поле поиска при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.focus();
+            // Выделяем текст, если он есть
+            if (searchInput.value) {
+                searchInput.select();
+            }
+        }
+
+        // Обработка нажатия Enter для поиска
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('searchForm').submit();
+            }
+        });
+
+        // Подтверждение выхода
         const logoutForm = document.querySelector('form[action*="logout"]');
         if (logoutForm) {
             const logoutBtn = logoutForm.querySelector('button[type="submit"]');
@@ -150,6 +264,7 @@
             });
         }
     });
+
 </script>
 </body>
 </html>

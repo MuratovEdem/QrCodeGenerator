@@ -30,4 +30,7 @@ public class ClientService {
         return clientRepository.save(client);
     }
 
+    public List<Client> searchClientsByName(String name) {
+        return clientRepository.findByNameIsContainingIgnoreCase(name);
+    }
 }

@@ -30,4 +30,7 @@ public interface ProtocolRepository extends JpaRepository<Protocol, Long> {
     @Query("SELECT DISTINCT p.uniqueNumber FROM Protocol p WHERE p.client.id = :clientId")
     List<String> findDistinctUniqueNumberByClientId(@Param("clientId") Long clientId);
 
+    Long countByCipherAndClientId(String cipher, Long clientId);
+
+    Long countByCipherNotInAndClientId(List<String> excludedCiphers, Long clientId);
 }

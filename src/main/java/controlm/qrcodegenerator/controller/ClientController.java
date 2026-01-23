@@ -3,6 +3,7 @@ package controlm.qrcodegenerator.controller;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.response.ProtocolHistoryDto;
 import controlm.qrcodegenerator.model.Client;
+import controlm.qrcodegenerator.model.Protocol;
 import controlm.qrcodegenerator.service.ClientService;
 import controlm.qrcodegenerator.service.ProtocolService;
 import controlm.qrcodegenerator.service.QRCodeService;
@@ -20,10 +21,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -36,8 +40,16 @@ public class ClientController {
     private final ProtocolService protocolService;
 
     @GetMapping
-    public String listClients(Model model) {
-        List<Client> clients = clientService.getAllClients();
+    public String listClients(@RequestParam(value = "search", required = false) String searchQuery, Model model) {
+        List<Client> clients;
+
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            clients = clientService.searchClientsByName(searchQuery.trim());
+        } else {
+            clients = clientService.getAllClients();
+        }
+
+        model.addAttribute("protocolService", protocolService);
         model.addAttribute("clients", clients);
         return "clients/list";
     }
@@ -48,8 +60,24 @@ public class ClientController {
     }
 
     @GetMapping("/{id}")
-    public String viewClient(@PathVariable Long id, Model model) {
+    public String viewClient(@PathVariable Long id,
+                             @RequestParam(value = "search", required = false) String searchQuery,
+                             Model model) {
         Client client = clientService.getClientById(id);
+
+        List<Protocol> protocols = client.getProtocols();
+
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+
+            String searchTerm = searchQuery.trim().toLowerCase();
+            protocols = client.getProtocols().stream()
+                    .filter(protocol -> (protocol.getFullProtocolNumber() != null &&
+                            protocol.getFullProtocolNumber().toLowerCase().contains(searchTerm))
+                    )
+                    .toList();
+        }
+
+        model.addAttribute("filteredProtocols", protocols);
         model.addAttribute("client", client);
         return "clients/protocols-view";
     }
@@ -126,11 +154,11 @@ public class ClientController {
     @ResponseBody
     public ResponseEntity<byte[]> getQRCode(@PathVariable Long id) throws Exception {
         byte[] qrCode = qrCodeService.getQRCodeImageBytes(id);
-        String name = clientService.getClientById(id).getName();
+        String fileName = qrCodeService.generateSafeFileName(clientService.getClientById(id));
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + name + "_qr.png\"")
+                        "attachment; filename=\"" + fileName + "\"")
                 .contentType(MediaType.IMAGE_PNG)
                 .body(qrCode);
     }

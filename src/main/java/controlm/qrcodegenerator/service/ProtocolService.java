@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,5 +104,20 @@ public class ProtocolService {
 
             protocolRepository.save(protocol);
         }
+    }
+
+    public Long getNumberNKCipherById(Long id) {
+        return protocolRepository.countByCipherAndClientId("НК", id);
+    }
+
+    public Long getNumberKBCipherById(Long id) {
+        return protocolRepository.countByCipherAndClientId("КБ", id);
+    }
+
+    public Long getNumberOtherCipherById(Long id) {
+        List<String> excludedCiphers = new ArrayList<>();
+        excludedCiphers.add("НК");
+        excludedCiphers.add("КБ");
+        return protocolRepository.countByCipherNotInAndClientId(excludedCiphers, id);
     }
 }
