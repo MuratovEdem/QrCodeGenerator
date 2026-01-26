@@ -1,9 +1,9 @@
 package controlm.qrcodegenerator.controller;
 
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
+import controlm.qrcodegenerator.dto.response.PaginatedProtocolsDto;
 import controlm.qrcodegenerator.dto.response.ProtocolHistoryDto;
 import controlm.qrcodegenerator.model.Client;
-import controlm.qrcodegenerator.model.Protocol;
 import controlm.qrcodegenerator.service.ClientService;
 import controlm.qrcodegenerator.service.ProtocolService;
 import controlm.qrcodegenerator.service.QRCodeService;
@@ -25,9 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -62,23 +60,22 @@ public class ClientController {
     @GetMapping("/{id}")
     public String viewClient(@PathVariable Long id,
                              @RequestParam(value = "search", required = false) String searchQuery,
+                             @RequestParam(value = "page", defaultValue = "0") int page,
+                             @RequestParam(value = "size", defaultValue = "20") int pageSize,
                              Model model) {
-        Client client = clientService.getClientById(id);
 
-        List<Protocol> protocols = client.getProtocols();
+        PaginatedProtocolsDto paginatedDto = clientService.getClientWithPaginatedProtocols(
+                id, searchQuery, page, pageSize);
 
-        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+        model.addAttribute("client", paginatedDto.getClient());
+        model.addAttribute("filteredProtocols", paginatedDto.getProtocols());
+        model.addAttribute("protocolsByCipher", paginatedDto.getProtocolsByCipher());
+        model.addAttribute("uniqueCiphers", paginatedDto.getUniqueCiphers());
+        model.addAttribute("currentPage", paginatedDto.getCurrentPage());
+        model.addAttribute("pageSize", paginatedDto.getPageSize());
+        model.addAttribute("totalPages", paginatedDto.getTotalPages());
+        model.addAttribute("searchQuery", paginatedDto.getSearchQuery());
 
-            String searchTerm = searchQuery.trim().toLowerCase();
-            protocols = client.getProtocols().stream()
-                    .filter(protocol -> (protocol.getFullProtocolNumber() != null &&
-                            protocol.getFullProtocolNumber().toLowerCase().contains(searchTerm))
-                    )
-                    .toList();
-        }
-
-        model.addAttribute("filteredProtocols", protocols);
-        model.addAttribute("client", client);
         return "clients/protocols-view";
     }
 
@@ -87,10 +84,8 @@ public class ClientController {
         try {
             Client client = clientService.getClientById(id);
 
-            // Получаем историю протоколов для автозаполнения
             ProtocolHistoryDto history = protocolService.getProtocolHistoryByClientId(id);
 
-            // Создаем DTO с предзаполненными значениями
             ProtocolRequestDto formDto = new ProtocolRequestDto();
             formDto.setClientId(id);
             formDto.setCipher(history.getLastCipher());
@@ -148,6 +143,23 @@ public class ClientController {
         }
 
         return "redirect:/clients/" + id + "/create-protocols";
+    }
+
+    @PostMapping("/{clientId}/protocols/{protocolId}/edit")
+    public String updateProtocol(@PathVariable Long clientId,
+                                 @PathVariable Long protocolId,
+                                 @ModelAttribute ProtocolRequestDto protocolDto) {
+        log.info("Updating protocol {} for client {}", protocolId, clientId);
+        protocolService.updateProtocol(protocolId, protocolDto);
+        return "redirect:/clients/" + clientId;
+    }
+
+    @PostMapping("/{clientId}/protocols/{protocolId}/delete")
+    public String deleteProtocol(@PathVariable Long clientId,
+                                 @PathVariable Long protocolId) {
+        log.info("Deleting protocol {} for client {}", protocolId, clientId);
+        protocolService.deleteProtocolById(protocolId);
+        return "redirect:/clients/" + clientId;
     }
 
     @GetMapping("/{id}/qr")

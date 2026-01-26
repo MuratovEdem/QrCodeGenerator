@@ -4,35 +4,354 @@
     <meta charset="UTF-8">
     <title th:text="${client.name}"></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        .navbar-brand {
+            font-weight: 600;
+        }
+        .search-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .search-input-group {
+            max-width: 500px;
+        }
+        .clear-search-btn {
+            margin-left: 10px;
+        }
+        .no-protocols-message {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .protocol-number {
+            font-family: monospace;
+            font-weight: 500;
+        }
+        .table th {
+            background-color: #2c3e50;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .table-bordered td {
+            border: 1px solid #dee2e6;
+            vertical-align: top !important;
+        }
+        .cipher-column {
+            min-width: 180px;
+            min-height: 100px;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .pagination-info {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .page-size-selector {
+            max-width: 100px;
+            display: inline-block;
+        }
+        .protocols-count {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-5">
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h2 th:text="${client.name}"></h2>
+
+<!-- Навигационная панель -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <!-- Логотип и название -->
+        <a class="navbar-brand">
+            <i class="fas fa-qrcode me-2"></i>Control-M
+        </a>
+
+        <div class="d-flex align-items-center">
+            <span class="text-white me-3">
+                <i class="fas fa-user me-1"></i>
+                <span th:text="${client.name}"></span>
+            </span>
         </div>
-        <div class="card-body">
-            <h4 class="mt-4">Выданные протоколы</h4>
-            <div th:if="${client.protocols.empty}" class="alert alert-info">
-                Нет выданных протоколов
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <!-- Карточка с информацией о клиенте -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0"><i class="fas fa-user me-2"></i><span th:text="${client.name}"></span></h4>
+                </div>
+                <div>
+                    <span class="badge bg-light text-dark">
+                        Всего протоколов: <span th:text="${totalProtocols != null ? totalProtocols : client.protocols.size()}"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Поиск протоколов -->
+    <div class="search-container">
+        <form id="searchForm" th:action="@{/client/{id}(id=${client.id})}" method="get" class="mb-0" onsubmit="handleSearchSubmit(event)">
+            <input type="hidden" name="page" th:value="${currentPage != null ? currentPage : 0}">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <label for="searchInput" class="form-label fw-bold mb-2">
+                        <i class="fas fa-search me-2"></i>Поиск протоколов
+                    </label>
+                    <div class="input-group search-input-group">
+                        <input type="text"
+                               class="form-control"
+                               id="searchInput"
+                               name="search"
+                               th:value="${searchQuery != null ? searchQuery : param.search}"
+                               placeholder="Введите номер..."
+                               aria-label="Поиск протоколов">
+                        <button class="btn btn-outline-primary" type="submit" id="searchButton">
+                            <i class="fas fa-search"></i> Найти
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary clear-search-btn"
+                                onclick="clearSearch()">
+                            <i class="fas fa-times"></i> Очистить
+                        </button>
+                    </div>
+                    <div class="form-text mt-1">
+                        Поиск осуществляется по полному или частичному совпадению номера протокола
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="pageSizeSelect" class="form-label fw-bold mb-2">
+                                <i class="fas fa-file-alt me-2"></i>Протоколов на страницу
+                            </label>
+                            <select class="form-select page-size-selector"
+                                    id="pageSizeSelect"
+                                    name="size"
+                                    onchange="updatePageSize(this.value)">
+                                <option value="10" th:selected="${pageSize == 10}">10</option>
+                                <option value="20" th:selected="${pageSize == 20}">20</option>
+                                <option value="30" th:selected="${pageSize == 30}">30</option>
+                                <option value="50" th:selected="${pageSize == 50}">50</option>
+                                <option value="100" th:selected="${pageSize == 100}">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Динамическая таблица протоколов -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-file-contract me-2"></i>Выданные протоколы</h5>
+                <span class="badge bg-primary">
+                    <i class="fas fa-list me-1"></i>
+                    <span th:text="${filteredProtocols != null ? filteredProtocols.size() : 0}"></span>
+                </span>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <!-- Сообщение, если нет протоколов -->
+            <div th:if="${(filteredProtocols != null and filteredProtocols.empty) or (filteredProtocols == null and client.protocols.empty)}"
+                 class="no-protocols-message">
+                <i class="fas fa-file-contract fa-4x mb-3"></i>
+                <h5>Нет протоколов</h5>
+                <p class="text-muted">Не найдено ни одного протокола</p>
             </div>
 
-            <div th:unless="${client.protocols.empty}" class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
+            <!-- Динамическая таблица с колонками по шифрам -->
+            <div th:unless="${(filteredProtocols != null and filteredProtocols.empty) or (filteredProtocols == null and client.protocols.empty)}"
+                 class="table-responsive">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-dark">
                     <tr>
-                        <th>Номер протокола</th>
+                        <!-- Динамические заголовки колонок на основе уникальных шифров -->
+                        <th th:each="cipher : ${uniqueCiphers}"
+                            th:text="${cipher}"
+                            class="text-center cipher-column">
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="protocol : ${client.protocols}">
-                        <td th:text="${protocol.getFullProtocolNumber()}"></td>
+                    <tr>
+                        <!-- Колонки с протоколами для каждого шифра -->
+                        <td th:each="cipher : ${uniqueCiphers}"
+                            th:classappend="${(protocolsByCipher.get(cipher) == null or protocolsByCipher.get(cipher).empty)} ? 'empty-column' : ''"
+                            class="cipher-column">
+
+                            <div th:if="${protocolsByCipher.get(cipher) != null and not protocolsByCipher.get(cipher).empty}">
+                                <!-- Список протоколов -->
+                                <div th:each="protocol : ${protocolsByCipher.get(cipher)}">
+                                    <div class="protocol-number text-center fw-bold mb-1"
+                                         th:text="${protocol.getFullProtocolNumber()}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Пустая колонка -->
+                            <div th:if="${protocolsByCipher.get(cipher) == null or protocolsByCipher.get(cipher).empty}"
+                                 class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x mb-2"></i>
+                                <div>Нет протоколов</div>
+                            </div>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    <!-- Пагинация -->
+    <div th:if="${totalPages > 1}" class="pagination-container">
+        <nav aria-label="Навигация по страницам">
+            <ul class="pagination mb-0">
+                <!-- Кнопка "Назад" -->
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                    <a class="page-link"
+                       th:href="@{/client/{id}(id=${client.id}, search=${searchQuery}, page=${currentPage - 1}, size=${pageSize})}"
+                       th:if="${currentPage > 0}"
+                       aria-label="Предыдущая">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                    <span class="page-link" th:unless="${currentPage > 0}" aria-hidden="true">&laquo;</span>
+                </li>
+
+                <!-- Первая страница -->
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'active' : ''">
+                    <a class="page-link"
+                       th:href="@{/client/{id}(id=${client.id}, search=${searchQuery}, page=0, size=${pageSize})}"
+                       th:text="1">
+                    </a>
+                </li>
+
+                <!-- Многоточие если нужно -->
+                <li class="page-item disabled" th:if="${currentPage > 3}">
+                    <span class="page-link">...</span>
+                </li>
+
+                <!-- Страницы вокруг текущей -->
+                <li th:each="i : ${#numbers.sequence(T(java.lang.Math).max(1, currentPage - 2), T(java.lang.Math).min(totalPages - 2, currentPage + 2))}"
+                    class="page-item"
+                    th:classappend="${i == currentPage} ? 'active' : ''">
+                    <a class="page-link"
+                       th:href="@{/client/{id}(id=${client.id}, search=${searchQuery}, page=${i}, size=${pageSize})}"
+                       th:text="${i + 1}">
+                    </a>
+                </li>
+
+                <!-- Многоточие если нужно -->
+                <li class="page-item disabled" th:if="${currentPage < totalPages - 4}">
+                    <span class="page-link">...</span>
+                </li>
+
+                <!-- Последняя страница -->
+                <li class="page-item" th:if="${totalPages > 1}"
+                    th:classappend="${currentPage == totalPages - 1} ? 'active' : ''">
+                    <a class="page-link"
+                       th:href="@{/client/{id}(id=${client.id}, search=${searchQuery}, page=${totalPages - 1}, size=${pageSize})}"
+                       th:text="${totalPages}">
+                    </a>
+                </li>
+
+                <!-- Кнопка "Вперед" -->
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                    <a class="page-link"
+                       th:href="@{/client/{id}(id=${client.id}, search=${searchQuery}, page=${currentPage + 1}, size=${pageSize})}"
+                       th:if="${currentPage < totalPages - 1}"
+                       aria-label="Следующая">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                    <span class="page-link" th:unless="${currentPage < totalPages - 1}" aria-hidden="true">&raquo;</span>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript для поиска и взаимодействия -->
+<script>
+    // Функция для очистки поиска
+    function clearSearch() {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('search');
+        url.searchParams.set('page', '0');
+        window.location.href = url.toString();
+    }
+
+    // Функция для обновления размера страницы
+    function updatePageSize(size) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('size', size);
+        url.searchParams.set('page', '0'); // Сбрасываем на первую страницу при изменении размера
+        window.location.href = url.toString();
+    }
+
+    // Обработка отправки формы поиска
+    function handleSearchSubmit(event) {
+        event.preventDefault();
+        const searchInput = document.getElementById('searchInput');
+        const url = new URL(window.location.href);
+        const searchValue = searchInput.value.trim();
+
+        if (searchValue) {
+            url.searchParams.set('search', searchValue);
+        } else {
+            url.searchParams.delete('search');
+        }
+
+        url.searchParams.set('page', '0'); // Всегда сбрасываем на первую страницу при поиске
+        // Сохраняем текущий размер страницы
+        const pageSize = document.getElementById('pageSizeSelect').value;
+        url.searchParams.set('size', pageSize);
+
+        window.location.href = url.toString();
+    }
+
+    // Автофокус на поле поиска при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.focus();
+            // Выделяем текст, если он есть
+            if (searchInput.value) {
+                searchInput.select();
+            }
+        }
+
+        // Обработка нажатия Enter для поиска
+        searchInput?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleSearchSubmit(new Event('submit'));
+            }
+        });
+    });
+</script>
 </body>
 </html>

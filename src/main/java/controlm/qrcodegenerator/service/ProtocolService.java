@@ -3,6 +3,7 @@ package controlm.qrcodegenerator.service;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.response.ProtocolHistoryDto;
 import controlm.qrcodegenerator.dto.response.ProtocolResponseDto;
+import controlm.qrcodegenerator.exception.NotFoundException;
 import controlm.qrcodegenerator.mapper.ProtocolMapper;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.model.Protocol;
@@ -24,10 +25,15 @@ public class ProtocolService {
     private final ProtocolMapper protocolMapper;
     private final ClientService clientService;
 
-    public List<ProtocolResponseDto> findByClientId(Long clientId) {
+    public List<ProtocolResponseDto> findAllByClientId(Long clientId) {
         List<Protocol> protocols = protocolRepository.findByClientId(clientId);
 
         return protocolMapper.protocolsToProtocolsDto(protocols);
+    }
+
+    public Protocol findById(Long id) {
+        return protocolRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Client not found with id: " + id));
     }
 
     @Transactional(readOnly = true)
@@ -119,5 +125,19 @@ public class ProtocolService {
         excludedCiphers.add("НК");
         excludedCiphers.add("КБ");
         return protocolRepository.countByCipherNotInAndClientId(excludedCiphers, id);
+    }
+
+    public Protocol updateProtocol(Long id, ProtocolRequestDto dto) {
+        Protocol protocol = findById(id);
+
+        protocol.setSequentialNumber(Long.parseLong(dto.getSequentialNumber()));
+        protocol.setCipher(dto.getCipher());
+        protocol.setUniqueNumber(dto.getUniqueNumber());
+
+        return protocolRepository.save(protocol);
+    }
+
+    public void deleteProtocolById(Long id) {
+        protocolRepository.deleteById(id);
     }
 }
