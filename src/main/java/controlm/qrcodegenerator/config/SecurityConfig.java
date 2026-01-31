@@ -43,6 +43,7 @@ public class SecurityConfig {
                                 "/",
                                 "/login",
                                 "/client/**", // публичный доступ к просмотру клиента по QR
+                                "/public/**", // публичный доступ к просмотру клиента по QR
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",

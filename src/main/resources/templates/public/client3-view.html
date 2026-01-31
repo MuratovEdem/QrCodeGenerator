@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Control-M — Страница клиента</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Manrope:wght@600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #1E2A38;
+            --accent: #F4A300;
+            --bg: #F2F4F7;
+            --card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-secondary: #6B7280;
+            --border: #E5E7EB;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 18px 20px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-block {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .logo-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+
+        .logo-sub {
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        .page-status {
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border-radius: 6px;
+            padding: 22px 24px;
+            margin-bottom: 32px;
+            border: 1px solid var(--border);
+        }
+
+        .block-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .block-title::before {
+            content: "";
+            width: 6px;
+            height: 18px;
+            background: var(--accent);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 40px;
+            font-size: 14px;
+        }
+
+        .label {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* TABLE */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .protocol-number {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .issued { background: var(--primary-dark); }
+        .in-progress { background: var(--accent); }
+        .archive { background: #9CA3AF; }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid var(--primary-dark);
+            background: transparent;
+            color: var(--primary-dark);
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            color: white;
+        }
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .header-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo-block">
+            <div class="logo-title">CONTROL-M</div>
+            <div class="logo-sub">Строительная испытательная лаборатория</div>
+        </div>
+        <div class="page-status">Персональная страница клиента</div>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- CLIENT INFO -->
+    <div class="card">
+        <div class="block-title">ИНФОРМАЦИЯ О КЛИЕНТЕ</div>
+        <div class="grid-2">
+            <div><div class="label">Организация</div><div th:text="${client.name}"></div></div>
+            <div><div class="label">Объект</div><div ></div></div>
+            <div><div class="label">Ответственный</div><div ></div></div>
+            <div><div class="label">Начало работ</div><div ></div></div>
+            <div><div class="label">ID клиента</div><div ></div></div>
+            <div><div class="label">Статус сотрудничества</div><div></div></div>
+        </div>
+    </div>
+<!-- PROTOCOLS -->
+<div class="card">
+    <div class="block-title">ВЫДАННЫЕ ПРОТОКОЛЫ ИСПЫТАНИЙ</div>
+
+    <!-- 🔍 ПОИСК -->
+    <form method="get" th:action="@{/client/{id}(id=${client.id})}" style="margin-bottom:16px; display:flex; gap:10px;">
+        <input type="text" name="search" th:value="${searchQuery}"
+               placeholder="Поиск по номеру протокола..."
+               style="padding:8px 10px; border:1px solid #E5E7EB; border-radius:4px; width:260px; font-size:14px;">
+
+        <button type="submit" class="btn">Найти</button>
+
+        <a th:href="@{/client/{id}(id=${client.id})}"
+           style="align-self:center; font-size:13px; color:#6B7280; text-decoration:none;">
+            Сбросить
+        </a>
+    </form>
+
+    <!-- 📋 ТАБЛИЦА -->
+    <table>
+        <thead>
+        <tr>
+            <th>№ протокола</th>
+            <th>Вид испытаний</th>
+            <th>Дата выдачи</th>
+            <th>Статус</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${filteredProtocols}">
+            <td class="protocol-number" th:text="${p.getFullProtocolNumber()}"></td>
+            <td th:text="${p.cipher}"></td>
+            <td th:text="${currentDate}"></td>
+<!--            <td>Выдан</td>-->
+            <td>
+                <div class="status">
+                    <div class="dot">Выдан</div>
+<!--                    <span th:text="${p.status}"></span>-->
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 📄 ПАГИНАЦИЯ -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px; font-size:13px;">
+
+        <div>
+            Показано
+<!--            <b th:text="${filteredProtocols.number * filteredProtocols.size + 1}"></b>–-->
+<!--            <b th:text="${protocolPage.number * protocolPage.size + protocolPage.numberOfElements}"></b>-->
+<!--            из <b th:text="${protocolPage.totalElements}"></b>-->
+        </div>
+        <div style="display:flex; gap:6px;">
+            <!-- Назад -->
+            <a class="btn">
+<!--               th:if="${protocolPage.hasPrevious()}"-->
+<!--               th:href="@{/client/{id}(id=${client.id}, page=${f.number - 1}, size=${protocolPage.size}, search=${search})}">-->
+<!--                ←-->
+            </a>
+
+            <!-- Номера страниц -->
+            <a class="btn">
+<!--               th:each="i : ${#numbers.sequence(0, protocolPage.totalPages - 1)}"-->
+<!--               th:if="${i >= protocolPage.number - 2 and i <= protocolPage.number + 2}"-->
+<!--               th:href="@{/client/{id}(id=${client.clientId}, page=${i}, size=${protocolPage.size}, search=${search})}"-->
+<!--               th:text="${i + 1}"-->
+<!--               th:style="${i == protocolPage.number} ? 'background:#1E2A38;color:white;' : ''">-->
+            </a>
+
+            <!-- Вперёд -->
+            <a class="btn">
+<!--               th:if="${protocolPage.hasNext()}"-->
+<!--               th:href="@{/client/{id}(id=${client.clientId}, page=${protocolPage.number + 1}, size=${protocolPage.size}, search=${search})}">-->
+<!--                →-->
+            </a>
+        </div>
+    </div>
+
+</div>
+
+    <!-- LEGEND -->
+    <div class="card" style="background:#F9FAFB">
+        <div class="block-title">ОБОЗНАЧЕНИЯ</div>
+        <div style="font-size:14px">
+            НК — неразрушающий контроль<br>
+            ВИК — визуально-измерительный контроль
+        </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div class="card">
+        <div class="block-title">КОНТАКТЫ ЛАБОРАТОРИИ</div>
+        <div class="grid-2">
+            <div>
+                <div class="label">Телефон</div>
+<!--                <div th:text="${lab.phone}"></div>-->
+                <div class="label">Email</div>
+<!--                <div th:text="${lab.email}"></div>-->
+                <div class="label">Адрес</div>
+<!--                <div th:text="${lab.address}"></div>-->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div>© Control-M • Внутренняя система протоколов</div>
+        <div>Данные актуальны на: <span th:text="${currentDate}"></span> 🔒 Страница доступна по индивидуальной ссылке</div>
+    </footer>
+
+</div>
+
+</body>
+</html>
