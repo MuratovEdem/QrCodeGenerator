@@ -11,7 +11,7 @@
     <style>
         :root {
             --primary-dark: #1E2A38;
-            --accent: #FF0000;
+            --accent: #F4A300;
             --bg: #F2F4F7;
             --card: #FFFFFF;
             --text-main: #1A1A1A;
@@ -22,35 +22,16 @@
         * { box-sizing: border-box; }
 
         body {
-            background-image: url('/images/background.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
             margin: 0;
             font-family: 'Inter', sans-serif;
-            /*background: var(--bg);*/
+            background: var(--bg);
             color: var(--text-main);
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.85);
-            z-index: -1;
-        }
-
         .container {
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             max-width: 1100px;
             margin: 0 auto;
             padding: 32px 20px 60px;
-
         }
 
         /* HEADER */
@@ -164,6 +145,10 @@
             border-radius: 50%;
         }
 
+        .issued { background: var(--primary-dark); }
+        .in-progress { background: var(--accent); }
+        .archive { background: #9CA3AF; }
+
         .btn {
             padding: 6px 12px;
             border: 1px solid var(--primary-dark);
@@ -214,86 +199,105 @@
 
     <!-- CLIENT INFO -->
     <div class="card">
-        <div class="block-title"><div th:text="${client.name}"></div></div>
-    </div>
-<!-- PROTOCOLS -->
-<div class="card">
-    <div class="block-title">ВЫДАННЫЕ ПРОТОКОЛЫ ИСПЫТАНИЙ</div>
-
-    <!-- 🔍 ПОИСК -->
-    <form method="get" th:action="@{/client/{id}(id=${client.id})}" style="margin-bottom:16px; display:flex; gap:10px;">
-        <input type="text" name="search" th:value="${searchQuery}"
-               placeholder="Поиск по номеру протокола..."
-               style="padding:8px 10px; border:1px solid #E5E7EB; border-radius:4px; width:260px; font-size:14px;">
-
-        <button type="submit" class="btn">Найти</button>
-
-        <a th:href="@{/client/{id}(id=${client.id})}"
-           style="align-self:center; font-size:13px; color:#6B7280; text-decoration:none;">
-            Сбросить
-        </a>
-    </form>
-
-    <!-- 📋 ТАБЛИЦА -->
-    <table>
-        <thead>
-        <tr>
-            <th>№ протокола</th>
-            <th>Вид испытаний</th>
-            <th>Статус</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="p : ${filteredProtocols}">
-            <td class="protocol-number" th:text="${p.getFullProtocolNumber()}"></td>
-            <td th:text="${p.cipher}"></td>
-<!--            <td>Выдан</td>-->
-            <td>
-                <div class="status">
-                    <div class="dot">Выдан</div>
-<!--                    <span th:text="${p.status}"></span>-->
-                </div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- 📄 ПАГИНАЦИЯ -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px; font-size:13px;">
-
-        <div>
-            Показано
-<!--            <b th:text="${filteredProtocols.number * filteredProtocols.size + 1}"></b>–-->
-<!--            <b th:text="${protocolPage.number * protocolPage.size + protocolPage.numberOfElements}"></b>-->
-<!--            из <b th:text="${protocolPage.totalElements}"></b>-->
-        </div>
-        <div style="display:flex; gap:6px;">
-            <!-- Назад -->
-            <a class="btn">
-<!--               th:if="${protocolPage.hasPrevious()}"-->
-<!--               th:href="@{/client/{id}(id=${client.id}, page=${f.number - 1}, size=${protocolPage.size}, search=${search})}">-->
-<!--                ←-->
-            </a>
-
-            <!-- Номера страниц -->
-            <a class="btn">
-<!--               th:each="i : ${#numbers.sequence(0, protocolPage.totalPages - 1)}"-->
-<!--               th:if="${i >= protocolPage.number - 2 and i <= protocolPage.number + 2}"-->
-<!--               th:href="@{/client/{id}(id=${client.clientId}, page=${i}, size=${protocolPage.size}, search=${search})}"-->
-<!--               th:text="${i + 1}"-->
-<!--               th:style="${i == protocolPage.number} ? 'background:#1E2A38;color:white;' : ''">-->
-            </a>
-
-            <!-- Вперёд -->
-            <a class="btn">
-<!--               th:if="${protocolPage.hasNext()}"-->
-<!--               th:href="@{/client/{id}(id=${client.clientId}, page=${protocolPage.number + 1}, size=${protocolPage.size}, search=${search})}">-->
-<!--                →-->
-            </a>
+        <div class="block-title">ИНФОРМАЦИЯ О КЛИЕНТЕ</div>
+        <div class="grid-2">
+            <div><div class="label">Организация</div><div th:text="${client.name}"></div></div>
+            <div><div class="label">Объект</div><div ></div></div>
+            <div><div class="label">Ответственный</div><div ></div></div>
+            <div><div class="label">Начало работ</div><div ></div></div>
+            <div><div class="label">ID клиента</div><div ></div></div>
+            <div><div class="label">Статус сотрудничества</div><div></div></div>
         </div>
     </div>
+    <!-- PROTOCOLS -->
+    <div class="card">
+        <div class="block-title">ВЫДАННЫЕ ПРОТОКОЛЫ ИСПЫТАНИЙ</div>
 
-</div>
+        <!-- 🔍 ПОИСК -->
+        <form method="get" th:action="@{/client/{id}(id=${client.id})}" style="margin-bottom:16px; display:flex; gap:10px;">
+            <input type="text" name="search" th:value="${searchQuery}"
+                   placeholder="Поиск по номеру протокола..."
+                   style="padding:8px 10px; border:1px solid #E5E7EB; border-radius:4px; width:260px; font-size:14px;">
+
+            <button type="submit" class="btn">Найти</button>
+
+            <a th:href="@{/client/{id}(id=${client.id})}"
+               style="align-self:center; font-size:13px; color:#6B7280; text-decoration:none;">
+                Сбросить
+            </a>
+        </form>
+
+        <!-- 📋 ТАБЛИЦА -->
+        <table>
+            <thead>
+            <tr>
+                <th>№ протокола</th>
+                <th>Вид испытаний</th>
+                <th>Дата выдачи</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${filteredProtocols}">
+                <td class="protocol-number" th:text="${p.getFullProtocolNumber()}"></td>
+                <td th:text="${p.cipher}"></td>
+                <td th:text="${currentDate}"></td>
+                <!--            <td>Выдан</td>-->
+                <td>
+                    <div class="status">
+                        <div class="dot">Выдан</div>
+                        <!--                    <span th:text="${p.status}"></span>-->
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 📄 ПАГИНАЦИЯ -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px; font-size:13px;">
+
+            <div>
+                Показано
+                <!--            <b th:text="${filteredProtocols.number * filteredProtocols.size + 1}"></b>–-->
+                <!--            <b th:text="${protocolPage.number * protocolPage.size + protocolPage.numberOfElements}"></b>-->
+                <!--            из <b th:text="${protocolPage.totalElements}"></b>-->
+            </div>
+            <div style="display:flex; gap:6px;">
+                <!-- Назад -->
+                <a class="btn">
+                    <!--               th:if="${protocolPage.hasPrevious()}"-->
+                    <!--               th:href="@{/client/{id}(id=${client.id}, page=${f.number - 1}, size=${protocolPage.size}, search=${search})}">-->
+                    <!--                ←-->
+                </a>
+
+                <!-- Номера страниц -->
+                <a class="btn">
+                    <!--               th:each="i : ${#numbers.sequence(0, protocolPage.totalPages - 1)}"-->
+                    <!--               th:if="${i >= protocolPage.number - 2 and i <= protocolPage.number + 2}"-->
+                    <!--               th:href="@{/client/{id}(id=${client.clientId}, page=${i}, size=${protocolPage.size}, search=${search})}"-->
+                    <!--               th:text="${i + 1}"-->
+                    <!--               th:style="${i == protocolPage.number} ? 'background:#1E2A38;color:white;' : ''">-->
+                </a>
+
+                <!-- Вперёд -->
+                <a class="btn">
+                    <!--               th:if="${protocolPage.hasNext()}"-->
+                    <!--               th:href="@{/client/{id}(id=${client.clientId}, page=${protocolPage.number + 1}, size=${protocolPage.size}, search=${search})}">-->
+                    <!--                →-->
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LEGEND -->
+    <div class="card" style="background:#F9FAFB">
+        <div class="block-title">ОБОЗНАЧЕНИЯ</div>
+        <div style="font-size:14px">
+            НК — неразрушающий контроль<br>
+            ВИК — визуально-измерительный контроль
+        </div>
+    </div>
 
     <!-- CONTACTS -->
     <div class="card">
@@ -301,11 +305,11 @@
         <div class="grid-2">
             <div>
                 <div class="label">Телефон</div>
-<!--                <div th:text="${lab.phone}"></div>-->
+                <!--                <div th:text="${lab.phone}"></div>-->
                 <div class="label">Email</div>
-<!--                <div th:text="${lab.email}"></div>-->
+                <!--                <div th:text="${lab.email}"></div>-->
                 <div class="label">Адрес</div>
-<!--                <div th:text="${lab.address}"></div>-->
+                <!--                <div th:text="${lab.address}"></div>-->
             </div>
         </div>
     </div>

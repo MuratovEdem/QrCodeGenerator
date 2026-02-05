@@ -14,7 +14,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -33,7 +33,13 @@ public class Protocol {
     private String uniqueNumber;
 
     @Column(name = "sequential_number", nullable = false)
-    private Long sequentialNumber;
+    private Long sequentialNumber;  // TODO изменить тип данных на строку
+
+    @Column(name = "issue_date") //TODO поставить обязательную дату
+    private LocalDate issueDate;
+
+    @Column(name = "file_path")
+    private String filePath;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
@@ -41,10 +47,12 @@ public class Protocol {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 
     @Transient
     public String getFullProtocolNumber() {
         return String.format("%s-%s-%s", cipher, uniqueNumber, sequentialNumber);
     }
+
+    // TODO сделать кем создан протокол
 }

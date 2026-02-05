@@ -91,7 +91,7 @@ public class SecurityConfig {
                 .rememberMe(remember -> remember
                         .key("uniqueAndSecret")
                         .tokenValiditySeconds(86400) // 24 часа
-                        .userDetailsService(userDetailsService)
+                        .userDetailsService(userDetailsService) // TODO установить время жизни токена
                 )
 
                 .sessionManagement(session -> session

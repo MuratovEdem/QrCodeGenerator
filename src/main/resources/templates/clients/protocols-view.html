@@ -185,6 +185,11 @@
                 <i class="fas fa-plus"></i> Добавить протокол
             </a>
         </div>
+        <div>
+            <a th:href="@{/clients/{id}/save-pdf(id=${client.id})}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Добавить pdf
+            </a>
+        </div>
     </div>
 
     <!-- Карточка с информацией о клиенте -->
@@ -306,6 +311,15 @@
                                                 </div>
                                             </div>
                                             <div class="protocol-actions">
+                                                <!-- Кнопка скачивания PDF -->
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-info ms-1"
+                                                        th:data-protocol-id="${protocol.id}"
+                                                        onclick="downloadPdf(this)">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </button>
+
+                                                <!-- Кнопка редактирования -->
                                                 <button type="button"
                                                         class="btn btn-sm btn-outline-primary"
                                                         th:data-protocol-id="${protocol.id}"
@@ -316,6 +330,8 @@
                                                         onclick="openEditModal(this)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
+
+                                                <!-- Кнопка удаления -->
                                                 <button type="button"
                                                         class="btn btn-sm btn-outline-danger ms-1"
                                                         th:data-protocol-id="${protocol.id}"
@@ -471,6 +487,20 @@
 
 <!-- JavaScript для страницы -->
 <script>
+    // Функция для скачивания PDF файла протокола
+    function downloadPdf(button) {
+        const protocolId = button.getAttribute('data-protocol-id');
+
+        // Открываем в новой вкладке для скачивания
+        window.open(`/protocols/${protocolId}/file`, '_blank');
+    }
+
+    // Или если нужно открыть в текущей вкладке:
+    // function downloadPdf(button) {
+    //     const protocolId = button.getAttribute('data-protocol-id');
+    //     window.location.href = `/protocols/${protocolId}/file`;
+    // }
+
     // Функция для очистки поиска
     function clearSearch() {
         document.getElementById('searchInput').value = '';

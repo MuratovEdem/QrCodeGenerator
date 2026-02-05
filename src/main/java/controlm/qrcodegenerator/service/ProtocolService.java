@@ -5,14 +5,16 @@ import controlm.qrcodegenerator.dto.response.ProtocolHistoryDto;
 import controlm.qrcodegenerator.dto.response.ProtocolResponseDto;
 import controlm.qrcodegenerator.exception.NotFoundException;
 import controlm.qrcodegenerator.mapper.ProtocolMapper;
-import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.model.Protocol;
 import controlm.qrcodegenerator.repository.ProtocolRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +25,7 @@ import java.util.Optional;
 public class ProtocolService {
     private final ProtocolRepository protocolRepository;
     private final ProtocolMapper protocolMapper;
-    private final ClientService clientService;
+    private final FileStorageService fileStorageService;
 
     public List<ProtocolResponseDto> findAllByClientId(Long clientId) {
         List<Protocol> protocols = protocolRepository.findByClientId(clientId);
@@ -54,14 +56,10 @@ public class ProtocolService {
         history.setCipherHistory(cipherHistory);
         history.setUniqueNumberHistory(uniqueNumberHistory);
 
-        log.info("cipherHistory {}, uniqueNumberHistory {}, LastCipher {}, LastUniqueNumber {}",
-                cipherHistory, uniqueNumberHistory, history.getLastCipher(), history.getUniqueNumberHistory());
-
         return history;
     }
 
     public void createProtocols(ProtocolRequestDto protocolRequestDto) {
-        Client client = clientService.getClientById(protocolRequestDto.getClientId());
 
         if (protocolRepository.existsByUniqueNumberAndClientIdNot(protocolRequestDto.getUniqueNumber(),
                 protocolRequestDto.getClientId())) {
@@ -78,33 +76,18 @@ public class ProtocolService {
             }
 
             for (int i = start; i <= end; i++) {
-                Protocol protocol = new Protocol();
-                protocol.setCipher(protocolRequestDto.getCipher());
-                protocol.setUniqueNumber(protocolRequestDto.getUniqueNumber());
-                protocol.setSequentialNumber((long) i);
-                protocol.setClient(client);
+                Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(protocolRequestDto, (long) i);
 
-                if (protocolRepository.existsByCipherAndUniqueNumberAndSequentialNumberAndClientId(
-                        protocol.getCipher(),
-                        protocol.getUniqueNumber(),
-                        protocol.getSequentialNumber(),
-                        protocolRequestDto.getClientId())) {
+                if (existProtocol(protocol, protocolRequestDto.getClientId())) {
                     throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
                 }
                 protocolRepository.save(protocol);
             }
         } else {
-            Protocol protocol = new Protocol();
-            protocol.setCipher(protocolRequestDto.getCipher());
-            protocol.setUniqueNumber(protocolRequestDto.getUniqueNumber());
-            protocol.setSequentialNumber(Long.valueOf(protocolRequestDto.getSequentialNumber()));
-            protocol.setClient(client);
+            Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(protocolRequestDto,
+                    Long.valueOf(protocolRequestDto.getSequentialNumber()));
 
-            if (protocolRepository.existsByCipherAndUniqueNumberAndSequentialNumberAndClientId(
-                    protocol.getCipher(),
-                    protocol.getUniqueNumber(),
-                    protocol.getSequentialNumber(),
-                    protocolRequestDto.getClientId())) {
+            if (existProtocol(protocol, protocolRequestDto.getClientId())) {
                 throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
             }
 
@@ -127,6 +110,32 @@ public class ProtocolService {
         return protocolRepository.countByCipherNotInAndClientId(excludedCiphers, id);
     }
 
+    public Resource getProtocolFile(Long protocolId) throws MalformedURLException {
+        Protocol protocol = findById(protocolId);
+
+        return fileStorageService.loadAsResource(protocol.getFilePath());
+    }
+
+    public String getProtocolFileName(Long protocolId) {
+        Protocol protocol = findById(protocolId);
+
+        return Paths.get(protocol.getFilePath()).getFileName().toString();
+    }
+
+    public void createProtocolFromPdf(Long clientId, String number, String issueDate, String pathFile) {
+
+        Protocol protocol = protocolMapper.fieldsToProtocol(clientId, number, issueDate, pathFile);
+
+        log.info("{}, {}, {}, {}, {}", protocol.getCipher(), protocol.getUniqueNumber(), protocol.getSequentialNumber(), protocol.getIssueDate(), protocol.getFilePath());
+
+        if (existProtocol(protocol, clientId)) {
+            throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
+        }
+
+        protocolRepository.save(protocol);
+        // TODO: сделать проверку на совпадения
+    }
+
     public Protocol updateProtocol(Long id, ProtocolRequestDto dto) {
         Protocol protocol = findById(id);
 
@@ -135,9 +144,21 @@ public class ProtocolService {
         protocol.setUniqueNumber(dto.getUniqueNumber());
 
         return protocolRepository.save(protocol);
+
+        // TODO дата, файл
     }
 
     public void deleteProtocolById(Long id) {
         protocolRepository.deleteById(id);
+
+        // TODO файл
+    }
+
+    private boolean existProtocol(Protocol protocol, Long clientId) {
+        return protocolRepository.existsByCipherAndUniqueNumberAndSequentialNumberAndClientId(
+                protocol.getCipher(),
+                protocol.getUniqueNumber(),
+                protocol.getSequentialNumber(),
+                clientId);
     }
 }

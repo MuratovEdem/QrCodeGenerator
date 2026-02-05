@@ -3,10 +3,13 @@ package controlm.qrcodegenerator.controller;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.response.PaginatedProtocolsDto;
 import controlm.qrcodegenerator.dto.response.ProtocolHistoryDto;
+import controlm.qrcodegenerator.dto.response.ProtocolPreviewDto;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.service.ClientService;
+import controlm.qrcodegenerator.service.PdfProcessingService;
 import controlm.qrcodegenerator.service.ProtocolService;
 import controlm.qrcodegenerator.service.QRCodeService;
+import controlm.qrcodegenerator.service.TempFileStorageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +26,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -36,6 +43,8 @@ public class ClientController {
     private final ClientService clientService;
     private final QRCodeService qrCodeService;
     private final ProtocolService protocolService;
+    private final PdfProcessingService pdfProcessingService;
+    private final TempFileStorageService tempFileStorageService;
 
     @GetMapping
     public String listClients(@RequestParam(value = "search", required = false) String searchQuery, Model model) {
@@ -143,6 +152,83 @@ public class ClientController {
         }
 
         return "redirect:/clients/" + id + "/create-protocols";
+    }
+
+    @GetMapping("/{clientId}/save-pdf")
+    public String getSavePdfForm(@PathVariable Long clientId,
+                                 Model model) {
+        model.addAttribute("clientId", clientId);
+        return "clients/save-pdf-form";
+    }
+
+    @PostMapping("/{clientId}/analyze-pdf")
+    public String savePdf(@PathVariable Long clientId,
+                          @RequestParam("protocolSize") int protocolSize,
+                          @RequestParam("pdfFile") MultipartFile file,
+                          RedirectAttributes redirectAttributes,
+                          Model model) {
+
+        try {
+            File temp = File.createTempFile("upload", "pdf");
+            file.transferTo(temp);
+
+            List <ProtocolPreviewDto> result = pdfProcessingService.analyze(temp, protocolSize);
+            log.info(result.toString());
+
+            model.addAttribute("protocols", result);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    String.format("Файл успешно обработан. Создано %d протоколов", result.size()));
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Ошибка при загрузке файла: " + e.getMessage());
+            return "redirect:/clients/" + clientId;
+        }
+
+        return "clients/confirm-pdf-form";
+
+        // TODO обработать ошибки и сделать редирект
+    }
+
+    @PostMapping("/{clientId}/confirm-pdf")
+    public String confirmPdf(@PathVariable Long clientId,
+                             @RequestParam("protocolNumbers") String[] numbers,
+                             @RequestParam("protocolDates") String[] dates,
+                             @RequestParam(value = "fileName", required = false) String[] fileName) {
+        List<ProtocolPreviewDto> protocols = new ArrayList<>();
+
+        for (int i = 0; i < numbers.length; i++) {
+            ProtocolPreviewDto dto = new ProtocolPreviewDto();
+            dto.setNumber(numbers[i]);
+            dto.setIssueDate(dates[i]);
+            if (fileName != null && i < fileName.length) {
+                dto.setFileName(fileName[i]);
+            }
+            protocols.add(dto);
+        }
+
+        try {
+            pdfProcessingService.confirm(protocols, clientId);
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            e.printStackTrace();
+            return "redirect:/clients/" + clientId;
+        }
+        return "redirect:/clients/" + clientId;
+
+        // TODO обработать ошибки и сделать редирект
+    }
+
+    @PostMapping("/{clientId}/cancel-pdf")
+    public String cancelPdf(@PathVariable Long clientId,
+                            @RequestParam(value = "fileName", required = false) String[] fileName) throws IOException {
+        tempFileStorageService.deleteTempFiles(fileName);
+
+        return "redirect:/clients/" + clientId;
+        // TODO обработать ошибки и сделать редирект
     }
 
     @PostMapping("/{clientId}/protocols/{protocolId}/edit")
