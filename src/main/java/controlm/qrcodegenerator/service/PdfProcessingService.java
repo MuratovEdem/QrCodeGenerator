@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,51 +31,119 @@ public class PdfProcessingService {
     private final TempFileStorageService tempStorage;
     private final FinalFileStorageService finalStorage;
 
-    public List<ProtocolPreviewDto> analyze(File pdfFile, int protocolSize) throws Exception {
+//    public List<ProtocolPreviewDto> analyze(File pdfFile, int protocolSize) throws Exception {
+//        List<ProtocolPreviewDto> previews = new ArrayList<>();
+//
+//        try (RandomAccessReadBufferedFile rar = new RandomAccessReadBufferedFile(pdfFile)) {
+//            PDDocument source = Loader.loadPDF(rar);
+//
+//            PDFRenderer renderer = new PDFRenderer(source);
+//            ProtocolMetadata meta = null;
+//
+//            int indexPage = 0;
+//            int counter = 1;
+//            PDDocument protocolDoc = new PDDocument();
+//            for (PDPage page : source.getPages()) {
+//                try {
+//                    if (counter == 1) {
+//                        meta = findProtocolStart(renderer, indexPage);
+//                        protocolDoc = new PDDocument();
+//                    }
+//
+//                    protocolDoc.importPage(page);
+//
+//                    if (meta == null) {
+//                        indexPage++;
+//                        continue;
+//                    }
+//
+//                    if (counter >= protocolSize) {
+//                        String tempId = tempStorage.saveTemp(protocolDoc);
+//                        protocolDoc.close();
+//
+//                        previews.add(new ProtocolPreviewDto(
+//                                tempId,
+//                                meta.number(),
+//                                meta.issueDate()
+//                        ));
+//                        counter = 0;
+//                    }
+//                    counter++;
+//                    indexPage++;
+//
+//                } catch (Exception e) {
+//                    throw new IllegalArgumentException("Страница повреждена");
+//                }
+//            }
+//
+//        }
+//
+//        return previews;
+//    }
+
+    public List<ProtocolPreviewDto> analyze(File pdfFile, Integer protocolSize) throws Exception {
+
+        // TODO сделать добавление в протокол страницы идущей
         List<ProtocolPreviewDto> previews = new ArrayList<>();
 
-        try (RandomAccessReadBufferedFile rar = new RandomAccessReadBufferedFile(pdfFile)) {
-            PDDocument source = Loader.loadPDF(rar);
+        try (RandomAccessReadBufferedFile rar = new RandomAccessReadBufferedFile(pdfFile);
+             PDDocument source = Loader.loadPDF(rar)) {
 
             PDFRenderer renderer = new PDFRenderer(source);
-            ProtocolMetadata meta = null;
 
-            int index = 0;
-            int counter = 1;
-            PDDocument protocolDoc = null;
+            PDDocument currentProtocol = null;
+            ProtocolMetadata currentMeta = null;
+
+            int pageIndex = 0;
+            int pageCounter = 0;
+
             for (PDPage page : source.getPages()) {
+
                 try {
-                    if (counter == 1) {
-                        meta = findProtocolStart(renderer, index);
-                        protocolDoc = new PDDocument();
+                    boolean isFirstPageOfProtocol =
+                            currentProtocol == null || pageCounter == 0;
+
+                    ProtocolMetadata foundMeta = null;
+
+                    if (isFirstPageOfProtocol || protocolSize <= 0) {
+                        foundMeta = findProtocolStart(renderer, pageIndex);
                     }
 
-                    protocolDoc.importPage(page);
+                    if (foundMeta != null) {
 
-                    if (meta == null) {
-                        index++;
-                        continue;
+                        if (currentProtocol != null) {
+                            savePreview(currentProtocol, currentMeta, previews);
+                        }
+
+                        currentProtocol = new PDDocument();
+                        currentMeta = foundMeta;
+                        pageCounter = 0;
                     }
 
-                    if (counter >= protocolSize) {
-                        String tempId = tempStorage.saveTemp(protocolDoc);
-                        protocolDoc.close();
-
-                        previews.add(new ProtocolPreviewDto(
-                                tempId,
-                                meta.number(),
-                                meta.issueDate()
-                        ));
-                        counter = 0;
+                    if (currentProtocol != null) {
+                        currentProtocol.importPage(page);
+                        pageCounter++;
                     }
-                    counter++;
-                    index++;
+
+                    if (protocolSize > 0 && pageCounter >= protocolSize) {
+
+                        savePreview(currentProtocol, currentMeta, previews);
+
+                        currentProtocol = null;
+                        currentMeta = null;
+                        pageCounter = 0;
+                    }
+
+                    pageIndex++;
 
                 } catch (Exception e) {
-                    throw new IllegalArgumentException("Страница повреждена");
+                    throw new IllegalArgumentException("Страница повреждена: " + pageIndex, e);
                 }
             }
 
+            if (currentProtocol != null) {
+                savePreview(currentProtocol, currentMeta, previews);
+            }
         }
 
         return previews;
@@ -103,18 +172,31 @@ public class PdfProcessingService {
 
         BufferedImage img = renderer.renderImageWithDPI(index, 150);
         String text = fastOcrService.recognizeHeader(img);
-        ProtocolMetadata meta = recognizer.extract(text);
-        if (meta != null) return meta;
+        log.info(text);
+        return recognizer.extract(text);
+    }
 
-        for (int k = 1; k <= 2; k++) {
-            try {
-                img = renderer.renderImageWithDPI(index + k, 150);
-                text = fastOcrService.recognizeHeader(img);
-                meta = recognizer.extract(text);
-                if (meta != null) return meta;
-            } catch (Exception ignored) {}
-        }
+    private boolean looksLikeProtocolStart(String text) {
+        if (text == null || text.isBlank()) return false;
 
-        return null;
+        String normalized = text
+                .toLowerCase()
+                .replaceAll("\\s", " ");
+
+        return normalized.contains("инн") && normalized.contains("кпп");
+    }
+
+    private void savePreview(PDDocument currentProtocol,
+                             ProtocolMetadata meta,
+                             List<ProtocolPreviewDto> previews) throws IOException {
+
+        String tempId = tempStorage.saveTemp(currentProtocol);
+        currentProtocol.close();
+
+        previews.add(new ProtocolPreviewDto(
+                tempId,
+                meta.number(),
+                meta.issueDate()
+        ));
     }
 }

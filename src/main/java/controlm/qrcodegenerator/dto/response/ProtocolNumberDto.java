@@ -8,5 +8,5 @@ import lombok.Data;
 public class ProtocolNumberDto {
     private String cipher;
     private String uniqueNumber;
-    private Long sequentialNumber;
+    private String sequentialNumber;
 }

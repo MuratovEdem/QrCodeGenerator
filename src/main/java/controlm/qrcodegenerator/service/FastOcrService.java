@@ -25,8 +25,10 @@ public class FastOcrService {
     }
 
     private BufferedImage cropTop(BufferedImage img) {
-        int h = (int) (img.getHeight() * 0.3);
-        return img.getSubimage(0, 0, img.getWidth(), h);
+        int y = (int)  (img.getHeight() * 0.15);
+        int h = (int) (img.getHeight() * 0.20);
+        return img.getSubimage(0, y, img.getWidth(), h);
+        // TODO сделать возможность регулировать диапазон сканирования
     }
 
     private BufferedImage toGray(BufferedImage img) {

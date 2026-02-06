@@ -33,7 +33,7 @@ public class Protocol {
     private String uniqueNumber;
 
     @Column(name = "sequential_number", nullable = false)
-    private Long sequentialNumber;  // TODO изменить тип данных на строку
+    private String sequentialNumber;
 
     @Column(name = "issue_date") //TODO поставить обязательную дату
     private LocalDate issueDate;
@@ -55,4 +55,6 @@ public class Protocol {
     }
 
     // TODO сделать кем создан протокол
+
+    // TODO сделать пуличное и внутренне отображение протокола
 }

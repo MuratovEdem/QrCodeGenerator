@@ -76,7 +76,7 @@ public class ProtocolService {
             }
 
             for (int i = start; i <= end; i++) {
-                Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(protocolRequestDto, (long) i);
+                Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(protocolRequestDto, String.valueOf(i));
 
                 if (existProtocol(protocol, protocolRequestDto.getClientId())) {
                     throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
@@ -85,7 +85,7 @@ public class ProtocolService {
             }
         } else {
             Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(protocolRequestDto,
-                    Long.valueOf(protocolRequestDto.getSequentialNumber()));
+                    protocolRequestDto.getSequentialNumber());
 
             if (existProtocol(protocol, protocolRequestDto.getClientId())) {
                 throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
@@ -93,7 +93,7 @@ public class ProtocolService {
 
             protocolRepository.save(protocol);
         }
-    }
+    } // TODO убрать сохранение диапазоном ??
 
     public Long getNumberNKCipherById(Long id) {
         return protocolRepository.countByCipherAndClientId("НК", id);
@@ -139,7 +139,7 @@ public class ProtocolService {
     public Protocol updateProtocol(Long id, ProtocolRequestDto dto) {
         Protocol protocol = findById(id);
 
-        protocol.setSequentialNumber(Long.parseLong(dto.getSequentialNumber()));
+        protocol.setSequentialNumber(dto.getSequentialNumber());
         protocol.setCipher(dto.getCipher());
         protocol.setUniqueNumber(dto.getUniqueNumber());
 

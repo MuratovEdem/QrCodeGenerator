@@ -11,46 +11,23 @@ import java.util.regex.Pattern;
 @Component
 public class ProtocolRecognizer {
 
-    private static final Pattern PROTOCOL_PATTERN = Pattern.compile(
-            "Протокол\\s*№\\s*" +
-                    "([А-ЯA-Z]{1,4}\\s*[-—]\\s*\\d+[а-яa-z]?\\s*[-—]\\s*\\d+\\s*[а-нп-яa-z]?)" +
-                    "(?:\\s*(?:от|oт|0т|о\\s*т)\\s*[:.]?\\s*" +
-                    "(\\d{2}\\s*\\.\\s*\\d{2}\\s*\\.\\s*(?:\\d{4}|\\d{2})))?",
-            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
-    );
-
     private static final Pattern FALLBACK_PATTERN = Pattern.compile(
-            "([А-ЯA-Z]{1,4}\\s*[-—]\\s*\\d+[а-яa-z]?\\s*[-—]\\s*\\d+\\s*[а-нп-яa-z]?)" +
-                    "(?:\\s*(?:от|oт|0т|о\\s*т)\\s*[:.]?\\s*" +
-                    "(\\d{2}\\s*\\.\\s*\\d{2}\\s*\\.\\s*(?:\\d{4}|\\d{2})))?",
-            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
-    );
-
-    private static final Pattern NO_DASH_PATTERN = Pattern.compile(
-            "([А-ЯA-Z]{1,4})\\s+(\\d+[а-яa-z]?)\\s+(\\d+\\s*[а-нп-яa-z]?)" +
-                    "(?:\\s*(?:от|0т|oт|@т)?\\s*(\\d{2}\\.\\d{2}\\.(?:\\d{4}|\\d{2})))?",
-            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
-    );
-
-    private static final Pattern NO_SPACE_PATTERN = Pattern.compile(
-                    "([А-ЯA-Z]{1,4}\\s*(?:[-—]?\\s*\\d+[а-яa-z]?){2})" +
-                    "(?:\\s*(?:от|oт|0т|о\\s*т)\\s*[:.]?\\s*" +
-                    "(\\d{2}\\s*\\.\\s*\\d{2}\\s*\\.\\s*(?:\\d{4}|\\d{2})))?",
+            "([А-ЯA-Z]{2,4}" +
+                    "\\s*-\\s*" +
+                    "\\d+" +
+                    "[а-яa-z]?" +
+                    "\\s*-\\s*" +
+                    "\\d+" +
+                    "[а-нп-яa-z]?)" +
+                    "\\s*(?:от|oт|0т)\\s*" +
+                    "(\\d{2}\\s*\\.\\s*\\d{2}\\s*\\.\\s*(?:\\d{4}|\\d{2}))",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
     );
 
     public ProtocolMetadata extract(String text) {
-        Matcher main = PROTOCOL_PATTERN.matcher(text);
-        if (main.find()) {
-            log.info("main {} {}", main.group(1), main.group(2));
 
-            return new ProtocolMetadata(
-                    normalizeNumber(main.group(1)),
-                    main.group(2)
-            );
-        }
-
-        Matcher fallBack = FALLBACK_PATTERN.matcher(text);
+        String normalizeText = normalizeOcrText(text);
+        Matcher fallBack = FALLBACK_PATTERN.matcher(normalizeText);
         while (fallBack.find()) {
             if (looksLikeProtocol(fallBack.group(1))) {
                 log.info("fallback {} {}", fallBack.group(1), fallBack.group(2));
@@ -61,29 +38,32 @@ public class ProtocolRecognizer {
             }
         }
 
-        Matcher noDash = NO_DASH_PATTERN.matcher(text);
-        while (noDash.find()) {
-            if (noDash.group(1).matches("[А-ЯA-Z]+")) {
-                log.info("noDash {} {}", noDash.group(1), noDash.group(4));
-
-                return new ProtocolMetadata(
-                        normalizeNumber(noDash.group(2)),
-                        noDash.group(4));
-            }
-        }
-
-        Matcher noSpace = NO_SPACE_PATTERN.matcher(text);
-        while (noSpace.find()) {
-            if (noSpace.group(1).matches("[А-ЯA-Z]+")) {
-                log.info("noSpace {}, {}, {}, {}", noSpace.group(1), noSpace.group(2), noSpace.group(3), noSpace.group(4));
-
-                return new ProtocolMetadata(
-                        normalizeNumber(noSpace.group(2)),
-                        noSpace.group(4));
-            }
-        }
-
         return null;
+    }
+
+    private String normalizeOcrText(String text) {
+        return text
+                // похожие на тире → тире
+                .replaceAll("[—–−]", "-")
+
+                // шум между цифрами и буквами → тире
+                .replaceAll("(?<=\\d)\\p{Punct}&&[^.-]+(?=\\d)", "-")
+
+                // шум между буквами и цифрами
+                .replaceAll("(?<=[А-ЯA-Z])[\\p{Punct}\\s]+(?=\\d)", "-")
+
+                // шум между цифрами и буквами
+                .replaceAll("(?<=\\d)[\\p{Punct}\\s]+(?=[А-ЯA-Zа-яa-z])", "")
+
+                // "о т" → "от"
+                .replaceAll("о\\s*т", "от")
+
+                // лишние символы
+                .replaceAll("[`'\"|\\\\]", "")
+
+                // схлопываем пробелы
+                .replaceAll("\\s{2,}", " ")
+                .trim();
     }
 
     private String normalizeNumber(String n) {
@@ -98,4 +78,6 @@ public class ProtocolRecognizer {
 
         return normalize.split("-")[0].matches("[А-ЯA-Z]+");
     }
+
+    // TODO сделать шаблон для СШ (дата отдельно)
 }

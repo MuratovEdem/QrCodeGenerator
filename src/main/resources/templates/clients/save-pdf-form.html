@@ -93,9 +93,9 @@
                            class="form-control"
                            id="protocolSize"
                            name="protocolSize"
-                           min="1"
+                           min="0"
                            max="100"
-                           value="1"
+                           value="0"
                            required
                            onchange="validatePageCount()">
                     <span class="input-group-text">страниц</span>
@@ -104,7 +104,7 @@
                     Укажите, сколько страниц составляет один полный протокол
                 </div>
                 <div id="pageCountError" class="error-message" style="display: none;">
-                    Количество страниц должно быть от 1 до 100
+                    Количество страниц должно быть от 0 до 100
                 </div>
             </div>
 
@@ -162,7 +162,7 @@
         const errorDiv = document.getElementById('pageCountError');
         const value = parseInt(pageCountInput.value);
 
-        if (value < 1 || value > 100 || isNaN(value)) {
+        if (value < 0 || value > 100 || isNaN(value)) {
             errorDiv.style.display = 'block';
             pageCountInput.classList.add('is-invalid');
             return false;

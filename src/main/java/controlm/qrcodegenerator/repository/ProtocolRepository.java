@@ -21,7 +21,7 @@ public interface ProtocolRepository extends JpaRepository<Protocol, Long> {
 
     boolean existsByCipherAndUniqueNumberAndSequentialNumberAndClientId( String cipher,
                                                                          String uniqueNumber,
-                                                                         Long sequentialNumber,
+                                                                         String sequentialNumber,
                                                                          Long clientId);
 
     @Query("SELECT DISTINCT p.cipher FROM Protocol p WHERE p.client.id = :clientId")

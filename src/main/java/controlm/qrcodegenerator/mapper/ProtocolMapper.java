@@ -36,7 +36,7 @@ public class ProtocolMapper {
         return protocolResponseDtos;
     }
 
-    public Protocol protocolRequestDtoToProtocol(ProtocolRequestDto protocolRequestDto, Long sequentialNumber) {
+    public Protocol protocolRequestDtoToProtocol(ProtocolRequestDto protocolRequestDto, String sequentialNumber) {
         Protocol protocol = new Protocol();
         protocol.setCipher(protocolRequestDto.getCipher());
         protocol.setUniqueNumber(protocolRequestDto.getUniqueNumber());
@@ -74,7 +74,7 @@ public class ProtocolMapper {
             try {
                 String code = matcher.group(1);
                 String uniqueNumber = matcher.group(2);
-                Long serialNumber = Long.parseLong(matcher.group(3));
+                String serialNumber = matcher.group(3);
 
                 return Optional.of(new ProtocolNumberDto(code, uniqueNumber, serialNumber));
             } catch (NumberFormatException e) {
