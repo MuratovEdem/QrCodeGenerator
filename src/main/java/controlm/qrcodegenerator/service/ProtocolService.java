@@ -1,6 +1,7 @@
 package controlm.qrcodegenerator.service;
 
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
+import controlm.qrcodegenerator.dto.response.PaginatedProtocolsDto;
 import controlm.qrcodegenerator.dto.response.ProtocolHistoryDto;
 import controlm.qrcodegenerator.dto.response.ProtocolResponseDto;
 import controlm.qrcodegenerator.exception.NotFoundException;
@@ -17,7 +18,10 @@ import java.net.MalformedURLException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -152,6 +156,114 @@ public class ProtocolService {
         protocolRepository.deleteById(id);
 
         // TODO файл
+    }
+
+    public List<ProtocolResponseDto> getFilteredProtocolsByClientId(Long clientId, String filter) {
+        List<ProtocolResponseDto> protocols = findAllByClientId(clientId);
+
+        if (filter != null && !filter.trim().isEmpty()) {
+
+            String searchTerm = filter.trim().toLowerCase();
+            protocols = protocols.stream()
+                    .filter(protocol -> (protocol.getFullProtocolNumber() != null &&
+                            protocol.getFullProtocolNumber().toLowerCase().contains(searchTerm))
+                    )
+                    .toList();
+        }
+
+        return protocols;
+    }
+
+    public PaginatedProtocolsDto getDtoWithPaginatedProtocols(
+            Long clientId,
+            String filter,
+            int page,
+            int pageSize) {
+
+        List<ProtocolResponseDto> filteredProtocols = getFilteredProtocolsByClientId(clientId, filter);
+
+        Map<String, List<ProtocolResponseDto>> protocolsByCipher = filteredProtocols.stream()
+                .collect(Collectors.groupingBy(
+                        ProtocolResponseDto::getCipher,
+                        TreeMap::new,
+                        Collectors.toList()
+                ));
+
+        Map<String, List<ProtocolResponseDto>> paginatedProtocolsByCipher = getPaginatedProtocolsByCipher(page, pageSize, protocolsByCipher);
+
+        // Рассчитываем общее количество страниц
+        int maxProtocolsPerCipher = protocolsByCipher.values().stream()
+                .mapToInt(List::size)
+                .max()
+                .orElse(0);
+
+        int totalPages = (int) Math.ceil((double) maxProtocolsPerCipher / pageSize);
+
+        List<String> uniqueCiphers = new ArrayList<>(protocolsByCipher.keySet());
+
+        PaginatedProtocolsDto dto = new PaginatedProtocolsDto();
+        dto.setProtocolsByCipher(paginatedProtocolsByCipher);
+        dto.setUniqueCiphers(uniqueCiphers);
+        dto.setCurrentPage(page);
+        dto.setPageSize(pageSize);
+        dto.setTotalPages(totalPages);
+        dto.setSearchQuery(filter);
+        dto.setCountProtocols(filteredProtocols.size());
+
+        return dto; // TODO сделать пагинацию и фильтрацию через бд
+    }
+
+    public PaginatedProtocolsDto getFilteredAndPaginatedDtoForPublic( Long clientId,
+                                                                      String filter,
+                                                                      int page,
+                                                                      int pageSize) {
+        List<ProtocolResponseDto> filteredProtocols = getFilteredProtocolsByClientId(clientId, filter);
+
+        List<ProtocolResponseDto> paginatedProtocols = getPaginatedProtocols(page, pageSize, filteredProtocols);
+        log.info(paginatedProtocols.toString());
+
+        int totalPages = (int) Math.ceil((double) filteredProtocols.size() / pageSize);
+
+        PaginatedProtocolsDto dto = new PaginatedProtocolsDto();
+        dto.setProtocols(paginatedProtocols);
+        dto.setCountProtocols(filteredProtocols.size());
+        dto.setCurrentPage(page);
+        dto.setPageSize(pageSize);
+        dto.setTotalPages(totalPages);
+        dto.setSearchQuery(filter);
+        return dto;
+    }
+
+    private Map<String, List<ProtocolResponseDto>> getPaginatedProtocolsByCipher(int page, int pageSize, Map<String, List<ProtocolResponseDto>> protocolsByCipher) {
+        Map<String, List<ProtocolResponseDto>> paginatedProtocolsByCipher = new TreeMap<>();
+
+        for (Map.Entry<String, List<ProtocolResponseDto>> entry : protocolsByCipher.entrySet()) {
+            String cipher = entry.getKey();
+            List<ProtocolResponseDto> cipherProtocols = entry.getValue();
+
+            // Разбиваем на страницы по pageSize протоколов на колонку
+            int fromIndex = page * pageSize;
+            int toIndex = Math.min(fromIndex + pageSize, cipherProtocols.size());
+
+            if (fromIndex < cipherProtocols.size()) {
+                List<ProtocolResponseDto> pageProtocols = cipherProtocols.subList(fromIndex, toIndex);
+                paginatedProtocolsByCipher.put(cipher, pageProtocols);
+            }
+        }
+        return paginatedProtocolsByCipher;
+    }
+
+    private List<ProtocolResponseDto> getPaginatedProtocols(int page, int pageSize, List<ProtocolResponseDto> protocols) {
+        List<ProtocolResponseDto> paginatedProtocols = new ArrayList<>();
+
+        int fromIndex = page * pageSize;
+        int toIndex = Math.min(fromIndex + pageSize, protocols.size());
+
+        for (int i = fromIndex; i < toIndex; i++) {
+            paginatedProtocols.add(protocols.get(i));
+        }
+
+        return paginatedProtocols;
     }
 
     private boolean existProtocol(Protocol protocol, Long clientId) {

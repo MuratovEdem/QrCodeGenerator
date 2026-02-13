@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntConsumer;
 
 @Slf4j
 @Service
@@ -29,61 +30,10 @@ public class PdfProcessingService {
     private final ProtocolRecognizer recognizer;
     private final ProtocolService protocolService;
     private final TempFileStorageService tempStorage;
-    private final FinalFileStorageService finalStorage;
+    private final FileStorageService finalStorage;
 
-//    public List<ProtocolPreviewDto> analyze(File pdfFile, int protocolSize) throws Exception {
-//        List<ProtocolPreviewDto> previews = new ArrayList<>();
-//
-//        try (RandomAccessReadBufferedFile rar = new RandomAccessReadBufferedFile(pdfFile)) {
-//            PDDocument source = Loader.loadPDF(rar);
-//
-//            PDFRenderer renderer = new PDFRenderer(source);
-//            ProtocolMetadata meta = null;
-//
-//            int indexPage = 0;
-//            int counter = 1;
-//            PDDocument protocolDoc = new PDDocument();
-//            for (PDPage page : source.getPages()) {
-//                try {
-//                    if (counter == 1) {
-//                        meta = findProtocolStart(renderer, indexPage);
-//                        protocolDoc = new PDDocument();
-//                    }
-//
-//                    protocolDoc.importPage(page);
-//
-//                    if (meta == null) {
-//                        indexPage++;
-//                        continue;
-//                    }
-//
-//                    if (counter >= protocolSize) {
-//                        String tempId = tempStorage.saveTemp(protocolDoc);
-//                        protocolDoc.close();
-//
-//                        previews.add(new ProtocolPreviewDto(
-//                                tempId,
-//                                meta.number(),
-//                                meta.issueDate()
-//                        ));
-//                        counter = 0;
-//                    }
-//                    counter++;
-//                    indexPage++;
-//
-//                } catch (Exception e) {
-//                    throw new IllegalArgumentException("Страница повреждена");
-//                }
-//            }
-//
-//        }
-//
-//        return previews;
-//    }
+    public List<ProtocolPreviewDto> analyze(File pdfFile, IntConsumer progressCallback, Integer protocolSize) throws Exception {
 
-    public List<ProtocolPreviewDto> analyze(File pdfFile, Integer protocolSize) throws Exception {
-
-        // TODO сделать добавление в протокол страницы идущей
         List<ProtocolPreviewDto> previews = new ArrayList<>();
 
         try (RandomAccessReadBufferedFile rar = new RandomAccessReadBufferedFile(pdfFile);
@@ -113,6 +63,7 @@ public class PdfProcessingService {
 
                         if (currentProtocol != null) {
                             savePreview(currentProtocol, currentMeta, previews);
+                            currentProtocol.close();
                         }
 
                         currentProtocol = new PDDocument();
@@ -126,16 +77,18 @@ public class PdfProcessingService {
                     }
 
                     if (protocolSize > 0 && pageCounter >= protocolSize) {
-
                         savePreview(currentProtocol, currentMeta, previews);
+                        currentProtocol.close();
 
                         currentProtocol = null;
                         currentMeta = null;
                         pageCounter = 0;
                     }
 
-                    pageIndex++;
+                    int progress = (pageIndex + 1) * 100 / source.getNumberOfPages();
+                    progressCallback.accept(progress);
 
+                    pageIndex++;
                 } catch (Exception e) {
                     throw new IllegalArgumentException("Страница повреждена: " + pageIndex, e);
                 }
@@ -143,6 +96,7 @@ public class PdfProcessingService {
 
             if (currentProtocol != null) {
                 savePreview(currentProtocol, currentMeta, previews);
+                currentProtocol.close();
             }
         }
 
@@ -170,20 +124,10 @@ public class PdfProcessingService {
 
     private ProtocolMetadata findProtocolStart(PDFRenderer renderer, int index) throws Exception {
 
-        BufferedImage img = renderer.renderImageWithDPI(index, 150);
+        BufferedImage img = renderer.renderImageWithDPI(index, 200);
+
         String text = fastOcrService.recognizeHeader(img);
-        log.info(text);
         return recognizer.extract(text);
-    }
-
-    private boolean looksLikeProtocolStart(String text) {
-        if (text == null || text.isBlank()) return false;
-
-        String normalized = text
-                .toLowerCase()
-                .replaceAll("\\s", " ");
-
-        return normalized.contains("инн") && normalized.contains("кпп");
     }
 
     private void savePreview(PDDocument currentProtocol,
@@ -191,7 +135,6 @@ public class PdfProcessingService {
                              List<ProtocolPreviewDto> previews) throws IOException {
 
         String tempId = tempStorage.saveTemp(currentProtocol);
-        currentProtocol.close();
 
         previews.add(new ProtocolPreviewDto(
                 tempId,

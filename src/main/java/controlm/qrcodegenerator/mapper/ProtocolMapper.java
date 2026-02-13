@@ -30,7 +30,12 @@ public class ProtocolMapper {
         List<ProtocolResponseDto> protocolResponseDtos = new ArrayList<>();
         for (Protocol protocol : protocols) {
             ProtocolResponseDto protocolResponseDto = new ProtocolResponseDto();
-            protocolResponseDto.setName(protocol.getFullProtocolNumber());
+
+            protocolResponseDto.setId(protocol.getId());
+            protocolResponseDto.setCipher(protocol.getCipher());
+            protocolResponseDto.setUniqueNumber(protocol.getUniqueNumber());
+            protocolResponseDto.setSequentialNumber(protocol.getSequentialNumber());
+
             protocolResponseDtos.add(protocolResponseDto);
         }
         return protocolResponseDtos;

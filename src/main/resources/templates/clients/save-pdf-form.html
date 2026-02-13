@@ -3,90 +3,790 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Загрузка PDF файла</title>
-    <!-- Bootstrap для стилей -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Control-M — Загрузка PDF</title>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <!-- Шрифты как в оригинале -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
     <style>
-        .upload-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 30px;
-            border: 2px dashed #007bff;
-            border-radius: 10px;
-            text-align: center;
-            background-color: #f8f9fa;
+        :root {
+            --primary-dark: #1E2A38;
+            --accent: #FF0000;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --radius: 10px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
         }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 20px 0;
+            border-bottom: 3px solid var(--accent);
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 32px; /* Отступ между логотипом и навигацией */
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-block img {
+            height: 45px;
+            width: auto;
+            display: block;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        /* НАВИГАЦИЯ */
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 0; /* Убрали автоотступ */
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: var(--transition);
+            opacity: 0.9;
+
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header-inner {
+                flex-direction: row; /* Оставляем в строку */
+                align-items: center;
+                gap: 12px;
+            }
+
+            .logo-block {
+                flex: 0 0 auto; /* Не растягивается */
+            }
+
+            .main-nav {
+                flex: 1 1 auto; /* Занимает оставшееся место */
+                justify-content: flex-end; /* Прижимаем к правому краю */
+            }
+
+            .nav-link {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-inner {
+                gap: 8px;
+            }
+
+            .logo-block {
+                gap: 8px;
+            }
+
+            .logo-block img {
+                height: 35px; /* Уменьшаем логотип */
+            }
+
+            .logo-title {
+                font-size: 16px; /* Уменьшаем название */
+            }
+
+            .main-nav {
+                gap: 2px;
+            }
+
+            .nav-link {
+                padding: 5px 8px;
+                font-size: 12px;
+                gap: 4px;
+            }
+
+            .nav-icon {
+                font-size: 12px;
+            }
+        }
+
+        /* Для очень маленьких экранов */
+        @media (max-width: 360px) {
+            .header-inner {
+                flex-direction: column; /* Только здесь переносим в колонку */
+                align-items: flex-start;
+            }
+
+            .main-nav {
+                justify-content: flex-start;
+                width: 100%;
+            }
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-block img {
+            height: 45px;
+            width: auto;
+            display: block;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .logo-sub {
+            font-size: 12px;
+            color: #CBD5E1;
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Заголовок блока */
+        .block-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        .block-title::before {
+            content: "";
+            width: 5px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* ОБЛАСТЬ ЗАГРУЗКИ */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 40px 30px;
+            text-align: center;
+            background: var(--bg);
+            transition: var(--transition);
+            margin-bottom: 24px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .upload-area:hover:not(.upload-area-completed) {
+            border-color: var(--accent);
+            background: #FFF5F5;
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--accent);
+            background: #FFF0F0;
+            transform: scale(1.02);
+            box-shadow: var(--shadow-md);
+        }
+
+        .upload-area-completed {
+            border: 1px solid var(--border);
+            background: var(--border-light);
+            padding: 20px;
+            cursor: default;
+        }
+
+        .upload-area-completed:hover {
+            border-color: var(--border);
+            background: var(--border-light);
+            box-shadow: none;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.7;
+            color: var(--primary-dark);
+            transition: var(--transition);
+        }
+
+        .upload-area:hover:not(.upload-area-completed) .upload-icon {
+            opacity: 1;
+            color: var(--accent);
+        }
+
         .file-input-container {
             margin: 20px 0;
+            position: relative;
         }
-        .file-name {
-            margin-top: 10px;
-            font-style: italic;
-            color: #6c757d;
+
+        .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--primary-dark);
+            color: white;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
         }
-        .error-message {
-            color: #dc3545;
-            margin-top: 10px;
+
+        .file-input-label:hover:not(:disabled) {
+            background: #2A3A4A;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
-        .success-message {
-            color: #28a745;
-            margin-top: 10px;
+
+        .file-input-label:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
-        .page-count-info {
-            background-color: #e9ecef;
-            border-left: 4px solid #007bff;
-            padding: 10px;
-            margin: 15px 0;
+
+        #pdfFile {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        /* БЛОК ИНФОРМАЦИИ О ФАЙЛЕ */
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
             text-align: left;
-            font-size: 0.9rem;
         }
-        .page-count-info ul {
-            margin-bottom: 0;
-            padding-left: 20px;
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--card);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--accent);
+            border: 1px solid var(--border);
         }
-        .page-count-info li {
-            margin-bottom: 5px;
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name-large {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            word-break: break-word;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .file-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .file-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 16px;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: #FEF2F2;
+        }
+
+        /* ФОРМА */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger);
+        }
+
+        .input-group-text {
+            padding: 12px 16px;
+            background: var(--border-light);
+            border: 1px solid var(--border);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .info-card {
+            background: var(--border-light);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+
+        .info-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 12px;
+            color: var(--primary-dark);
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-list li {
+            margin-bottom: 10px;
+            padding-left: 24px;
+            position: relative;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .info-list li::before {
+            content: "•";
+            color: var(--accent);
+            font-weight: bold;
+            position: absolute;
+            left: 8px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: var(--primary-dark);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            border: none;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #2A3A4A;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: none;
+            position: relative;
+            background: var(--card);
+            border-left: 4px solid;
+            box-shadow: var(--shadow);
+        }
+
+        .alert-success {
+            border-left-color: var(--success);
+            background: #F0FDF4;
+            color: #166534;
+        }
+
+        .alert-danger {
+            border-left-color: var(--danger);
+            background: #FEF2F2;
+            color: #991B1B;
+        }
+
+        .btn-close {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 8px;
+            color: var(--text-secondary);
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left {
+            font-weight: 500;
+        }
+
+
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px 40px;
+            }
+
+            .header-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 0 16px;
+            }
+
+            .logo-block {
+                width: 100%;
+            }
+
+            .card {
+                padding: 24px;
+            }
+
+            .upload-area {
+                padding: 30px 20px;
+            }
+
+            .file-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .file-actions {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .footer-right {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .block-title {
+                font-size: 16px;
+            }
+
+            .upload-icon {
+                font-size: 40px;
+            }
+
+            .file-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
         }
     </style>
 </head>
 <body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo-block">
+            <img th:src="@{/images/logo3.png}"
+                 src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
+                 alt="Логотип Control-M">
+            <div class="logo-text">
+                <div class="logo-title">CONTROL-M</div>
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <a th:href="@{/clients}" class="nav-link">
+                Клиенты
+            </a>
+            <a th:href="@{/ocr/jobs}" class="nav-link">
+                Загрузки
+            </a>
+        </nav>
+    </div>
+</header>
+
 <div class="container">
-    <div class="upload-container">
-        <h2>Загрузка PDF файла</h2>
+    <!-- Основная карточка -->
+    <div class="card">
+        <div class="block-title">ЗАГРУЗКА PDF ФАЙЛА</div>
 
-        <!-- Отображение сообщений -->
-        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <!-- Сообщения -->
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
             <span th:text="${successMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" onclick="this.closest('.alert').style.display='none'">×</button>
         </div>
 
-        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
             <span th:text="${errorMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" onclick="this.closest('.alert').style.display='none'">×</button>
         </div>
-
-        <!-- Форма загрузки файла -->
-        <form th:action="@{analyze-pdf}" method="post" enctype="multipart/form-data" id="uploadForm">
-            <!-- CSRF токен для безопасности -->
+<!--TODO обработать ошибки-->
+        <!-- Форма загрузки -->
+        <form th:action="@{upload}" method="post" enctype="multipart/form-data" id="uploadForm">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-            <div class="file-input-container">
-                <label for="pdfFile" class="form-label fw-bold">Выберите PDF файл:</label>
-                <input type="file"
-                       class="form-control"
-                       id="pdfFile"
-                       name="pdfFile"
-                       accept=".pdf"
-                       required
-                       onchange="displayFileName()">
-                <div id="fileName" class="file-name"></div>
-                <div class="form-text">Поддерживаются только PDF файлы</div>
+            <!-- Область загрузки с drag & drop -->
+            <div id="uploadArea" class="upload-area">
+                <!-- Состояние: файл не выбран -->
+                <div id="uploadInitialState">
+                    <div class="upload-icon">📄</div>
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--primary-dark);">
+                        Перетащите файл сюда
+                    </h3>
+                    <div style="color: var(--text-secondary); margin-bottom: 20px;">
+                        или
+                    </div>
+                    <div class="file-input-container">
+                        <label for="pdfFile" class="file-input-label" id="fileInputLabel">
+                            <span style="font-size: 18px;">📎</span>
+                            Выбрать файл
+                        </label>
+                        <input type="file"
+                               id="pdfFile"
+                               name="pdfFile"
+                               accept=".pdf,application/pdf"
+                               required
+                               onchange="handleFileSelect(this)">
+                    </div>
+                    <div class="form-text" style="margin-top: 16px;">
+                        Поддерживаются только PDF файлы до 50 МБ
+                    </div>
+                </div>
+
+                <!-- Состояние: файл выбран (изначально скрыто) -->
+                <div id="uploadCompletedState" style="display: none;">
+                    <div class="file-info">
+                        <div class="file-icon">📄</div>
+                        <div class="file-details">
+                            <div class="file-name-large" id="selectedFileName"></div>
+                            <div class="file-meta">
+                                <span class="file-meta-item" id="selectedFileSize"></span>
+                                <span class="file-meta-item" id="selectedFileType"></span>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button type="button" class="btn-icon" onclick="removeFile()" title="Удалить файл">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Поле для количества страниц в протоколе -->
-            <div class="mb-4">
-                <label for="protocolSize" class="form-label fw-bold">
-                    Количество страниц в одном протоколе:
+            <!-- Поле для количества страниц -->
+            <div class="form-group">
+                <label for="protocolSize" class="form-label">
+                    Количество страниц в одном протоколе
                 </label>
                 <div class="input-group">
                     <input type="number"
@@ -97,63 +797,206 @@
                            max="100"
                            value="0"
                            required
-                           onchange="validatePageCount()">
+                           oninput="validatePageCount()">
                     <span class="input-group-text">страниц</span>
+                </div>
+                <div id="pageCountError" class="error-message">
+                    Количество страниц должно быть от 0 до 100
                 </div>
                 <div class="form-text">
                     Укажите, сколько страниц составляет один полный протокол
                 </div>
-                <div id="pageCountError" class="error-message" style="display: none;">
-                    Количество страниц должно быть от 0 до 100
-                </div>
             </div>
 
-            <!-- Информация о загрузке -->
-            <div class="page-count-info">
-                <strong>Как это работает:</strong>
-                <ul>
+            <!-- Информационный блок -->
+            <div class="info-card">
+                <div class="info-title">Как это работает</div>
+                <ul class="info-list">
+                    <li>Номера протоколов будут извлечены автоматически из текста</li>
                     <li>Файл будет автоматически разделен на отдельные протоколы</li>
                     <li>Каждый протокол будет содержать указанное количество страниц</li>
                     <li>Например: если указать 2 страницы, то из файла на 10 страниц получится 5 протоколов</li>
-                    <li>Номера протоколов будут извлечены автоматически из текста</li>
+                    <li>Если в файле протоколы имеют разное количество страниц, то необходимо указать 0 страниц</li>
+                    <li>Максимальный размер файла: 50 МБ</li>
                 </ul>
             </div>
 
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
-                    <i class="fas fa-save"></i> Загрузить и обработать
+            <!-- Кнопка отправки -->
+            <div style="margin-top: 32px;">
+                <button type="submit" class="btn" id="submitBtn" disabled>
+                    <span style="font-size: 16px;">📤</span>
+                    Загрузить и обработать
                 </button>
+                <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 12px;" id="submitHint">
+                    Выберите файл для загрузки
+                </p>
             </div>
         </form>
     </div>
+
+    <footer>
+        <div class="footer-left">
+            © Control-M • Внутренняя система протоколов
+        </div>
+    </footer>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<!-- FontAwesome для иконок -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
+<script src="/js/csrf.js"></script>
 <script>
-    // Отображение имени выбранного файла
-    function displayFileName() {
-        const fileInput = document.getElementById('pdfFile');
-        const fileNameDisplay = document.getElementById('fileName');
+    // Глобальная переменная для хранения текущего файла
+    let currentFile = null;
+    const uploadArea = document.getElementById('uploadArea');
+    const uploadInitialState = document.getElementById('uploadInitialState');
+    const uploadCompletedState = document.getElementById('uploadCompletedState');
+    const fileInput = document.getElementById('pdfFile');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitHint = document.getElementById('submitHint');
 
-        if (fileInput.files.length > 0) {
-            const file = fileInput.files[0];
-            const fileSize = (file.size / (1024 * 1024)).toFixed(2); // Размер в МБ
+    // Drag & Drop обработчики
+    function initDragAndDrop() {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
 
-            fileNameDisplay.textContent = `Выбран файл: ${file.name} (${fileSize} МБ)`;
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
 
-            // Проверка типа файла
+        // Подсветка при перетаскивании
+        uploadArea.addEventListener('dragenter', () => {
+            if (!uploadArea.classList.contains('upload-area-completed')) {
+                uploadArea.classList.add('drag-over');
+            }
+        });
+
+        uploadArea.addEventListener('dragover', () => {
+            if (!uploadArea.classList.contains('upload-area-completed')) {
+                uploadArea.classList.add('drag-over');
+            }
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            uploadArea.classList.remove('drag-over');
+
+            if (uploadArea.classList.contains('upload-area-completed')) {
+                return; // Если файл уже загружен, не обрабатываем дроп
+            }
+
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                // Проверяем, что выбран только один файл
+                if (files.length > 1) {
+                    alert('Пожалуйста, загрузите только один файл');
+                    return;
+                }
+
+                const file = files[0];
+
+                // Проверяем, что это PDF
+                if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
+                    alert('Пожалуйста, выберите PDF файл!');
+                    return;
+                }
+
+                // Проверяем размер файла
+                const maxSize = 50 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    alert('Файл слишком большой! Максимальный размер: 50 МБ');
+                    return;
+                }
+
+                // Устанавливаем файл в input
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+
+                // Обрабатываем файл
+                currentFile = file;
+                showFileInfo(file);
+            }
+        });
+    }
+
+    // Обработка выбора файла через кнопку
+    function handleFileSelect(input) {
+        if (input.files.length > 0) {
+            const file = input.files[0];
+
+            // Проверки
             if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
                 alert('Пожалуйста, выберите PDF файл!');
-                fileInput.value = '';
-                fileNameDisplay.textContent = '';
+                input.value = '';
+                return;
             }
-        } else {
-            fileNameDisplay.textContent = '';
+
+            const maxSize = 50 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert('Файл слишком большой! Максимальный размер: 50 МБ');
+                input.value = '';
+                return;
+            }
+
+            currentFile = file;
+            showFileInfo(file);
         }
+    }
+
+    // Отображение информации о файле
+    function showFileInfo(file) {
+        // Скрываем начальное состояние
+        uploadInitialState.style.display = 'none';
+
+        // Показываем состояние с файлом
+        uploadCompletedState.style.display = 'block';
+        uploadArea.classList.add('upload-area-completed');
+
+        // Заполняем информацию о файле
+        document.getElementById('selectedFileName').textContent = file.name;
+
+        // Форматируем размер
+        const fileSize = formatFileSize(file.size);
+        document.getElementById('selectedFileSize').innerHTML = `📦 ${fileSize}`;
+        document.getElementById('selectedFileType').innerHTML = `📄 PDF`;
+
+        // Активируем кнопку отправки
+        submitBtn.disabled = false;
+        submitBtn.style.background = 'var(--primary-dark)';
+        submitHint.textContent = 'Файл готов к загрузке';
+        submitHint.style.color = 'var(--success)';
+    }
+
+    // Удаление файла
+    function removeFile() {
+        // Очищаем input
+        fileInput.value = '';
+        currentFile = null;
+
+        // Показываем начальное состояние
+        uploadInitialState.style.display = 'block';
+        uploadCompletedState.style.display = 'none';
+        uploadArea.classList.remove('upload-area-completed');
+
+        // Деактивируем кнопку отправки
+        submitBtn.disabled = true;
+        submitBtn.style.background = '';
+        submitHint.textContent = 'Выберите файл для загрузки';
+        submitHint.style.color = 'var(--text-secondary)';
+    }
+
+    // Форматирование размера файла
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Байт';
+        const k = 1024;
+        const sizes = ['Байт', 'КБ', 'МБ'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
     // Валидация количества страниц
@@ -163,11 +1006,11 @@
         const value = parseInt(pageCountInput.value);
 
         if (value < 0 || value > 100 || isNaN(value)) {
-            errorDiv.style.display = 'block';
+            errorDiv.classList.add('show');
             pageCountInput.classList.add('is-invalid');
             return false;
         } else {
-            errorDiv.style.display = 'none';
+            errorDiv.classList.remove('show');
             pageCountInput.classList.remove('is-invalid');
             return true;
         }
@@ -175,46 +1018,48 @@
 
     // Валидация перед отправкой
     document.getElementById('uploadForm').addEventListener('submit', function(event) {
-        const fileInput = document.getElementById('pdfFile');
-        const pageCountInput = document.getElementById('protocolSize');
-
-        // Проверка файла
-        if (!fileInput.files.length) {
+        if (!currentFile && fileInput.files.length === 0) {
             alert('Пожалуйста, выберите файл для загрузки!');
             event.preventDefault();
             return;
         }
 
-        // Проверка количества страниц
         if (!validatePageCount()) {
-            alert('Пожалуйста, укажите корректное количество страниц (от 1 до 100)');
-            event.preventDefault();
-            return;
-        }
-
-        // Дополнительная проверка размера файла
-        const file = fileInput.files[0];
-        const maxSize = 50 * 1024 * 1024; // 50 MB
-
-        if (file.size > maxSize) {
-            alert('Файл слишком большой! Максимальный размер: 50 МБ');
+            alert('Пожалуйста, укажите корректное количество страниц (от 0 до 100)');
             event.preventDefault();
             return;
         }
 
         // Показываем индикатор загрузки
-        const submitButton = document.getElementById('submitBtn');
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обработка...';
-        submitButton.disabled = true;
-
-        // Добавляем обработку закрытия окна
-        window.onbeforeunload = function() {
-            return 'Файл все еще загружается. Вы уверены, что хотите покинуть страницу?';
-        };
+        submitBtn.innerHTML = '<span style="font-size: 16px;" class="fa-spin">⏳</span> Обработка...';
+        submitBtn.disabled = true;
     });
 
-    // Автоматическая валидация при изменении
-    document.getElementById('protocolSize').addEventListener('input', validatePageCount);
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        // Drag & Drop
+        initDragAndDrop();
+
+        // Устанавливаем минимальное значение для поля страниц
+        const pageInput = document.getElementById('protocolSize');
+        if (pageInput) {
+            pageInput.min = 0;
+            if (!pageInput.value) {
+                pageInput.value = 0;
+            }
+        }
+
+        // Проверяем, есть ли уже выбранный файл (например, после ошибки валидации)
+        if (fileInput.files.length > 0) {
+            handleFileSelect(fileInput);
+        }
+    });
+
+    // Обработка закрытия алертов
+    window.closeAlert = function(alertElement) {
+        alertElement.style.display = 'none';
+    };
 </script>
+
 </body>
 </html>

@@ -49,7 +49,9 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/webjars/**",
                                 "/favicon.ico",
-                                "/error"
+                                "/error",
+                                "/ws/**",
+                                "/topic/**"
                         ).permitAll()
 
                         // Требуют аутентификации
@@ -69,7 +71,7 @@ public class SecurityConfig {
                         ).hasRole("ADMIN")
 
                         .anyRequest().authenticated()
-                )
+                ) // TODO настроить доступы
 
                 .formLogin(form -> form
                         .loginPage("/auth/login")

@@ -1,5 +1,6 @@
 package controlm.qrcodegenerator.service;
 
+import controlm.qrcodegenerator.model.OcrProtocolPreview;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.springframework.core.io.Resource;
@@ -17,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -43,6 +45,12 @@ public class TempFileStorageService {
 
     public void delete(String id) throws IOException {
         Files.deleteIfExists(tempDir.resolve(id));
+    }
+
+    public void deleteTempFilesFromOcrProtocolPreview(List<OcrProtocolPreview> ocrProtocolPreviews) throws IOException {
+        for (OcrProtocolPreview protocolPreview : ocrProtocolPreviews) {
+            delete(protocolPreview.getFileName());
+        }
     }
 
     public void deleteTempFiles(String[] fileNames) throws IOException {

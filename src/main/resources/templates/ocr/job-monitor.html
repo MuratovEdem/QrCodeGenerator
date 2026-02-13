@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control-M — Задания OCR</title>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <!-- Шрифты Control-M -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+    <!-- SockJS и Stomp для WebSocket -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.2/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.js"></script>
+
+    <style>
+        :root {
+            --primary-dark: #1E2A38;
+            --accent: #FF0000;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --radius: 10px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+
+            --status-pending: #F59E0B;
+            --status-processing: #3B82F6;
+            --status-done: #10B981;
+            --status-error: #EF4444;
+            --status-saved: #8B5CF6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 20px 0;
+            border-bottom: 3px solid var(--accent);
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-inner {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-block img {
+            height: 45px;
+            width: auto;
+            display: block;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        /* НАВИГАЦИЯ */
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: var(--transition);
+            opacity: 0.9;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Заголовок блока */
+        .block-title {
+            font-weight: 600;
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .block-title::before {
+            content: "";
+            width: 5px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* ФИЛЬТРЫ И WEBSOCKET */
+        .filters-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .filters-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .filter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--border-light);
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+        }
+
+        .filter-badge:hover {
+            background: #E2E8F0;
+        }
+
+        .filter-badge.active {
+            background: var(--primary-dark);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+
+        .websocket-indicator {
+            display: flex;
+            align-items: center;
+            padding: 8px 14px;
+            background: var(--border-light);
+            border-radius: 20px;
+            font-size: 16px;
+            gap: 8px;
+        }
+
+        .websocket-disconnected {
+            color: var(--danger);
+        }
+
+        .ws-status-text {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-processing .progress-bar {
+            background: linear-gradient(90deg, var(--info), #60A5FA);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: var(--bg);
+            border-bottom: 2px solid var(--border);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background: #F8FAFC;
+        }
+
+        .job-row.error td:first-child {
+            border-left: 4px solid var(--danger);
+        }
+
+        .filename-cell {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            color: var(--text-main);
+            max-width: 250px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .progress-container {
+            position: relative;
+            height: 6px;
+            background: var(--border-light);
+            border-radius: 3px;
+            overflow: hidden;
+            width: 120px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--info);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0) 0%,
+                    rgba(255,255,255,0.3) 50%,
+                    rgba(255,255,255,0) 100%
+            );
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .error-message-cell {
+            font-size: 12px;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            background: transparent;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0EA271;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #E67E22;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline-danger {
+            border: 1px solid var(--border);
+            color: var(--danger);
+        }
+
+        .btn-outline-danger:hover {
+            border-color: var(--danger);
+            background: #FEF2F2;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ПУСТОЕ СОСТОЯНИЕ */
+        .empty-table-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-table-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+            color: var(--text-secondary);
+        }
+
+        .empty-table-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .footer-left {
+            font-weight: 500;
+        }
+
+        /* КНОПКА ОБНОВЛЕНИЯ */
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .refresh-btn:hover {
+            background: #2A3A4A;
+            transform: rotate(180deg);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 992px) {
+            .filters-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px 40px;
+            }
+
+            .header-inner {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .logo-block img {
+                height: 35px;
+            }
+
+            .logo-title {
+                font-size: 18px;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo-block">
+            <img th:src="@{/images/logo3.png}"
+                 src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
+                 alt="Логотип Control-M">
+            <div class="logo-text">
+                <div class="logo-title">CONTROL-M</div>
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <a th:href="@{/clients}" class="nav-link">
+                Клиенты
+            </a>
+            <a th:href="@{/ocr/jobs}" class="nav-link">
+                Загрузки
+            </a>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Основная карточка -->
+    <div class="card">
+        <div class="block-title">
+            ОБРАБОТКА PDF-ДОКУМЕНТОВ
+        </div>
+
+        <p style="color: var(--text-secondary); margin-bottom: 24px;">
+            Мониторинг распознавания текста и извлечения протоколов
+        </p>
+
+        <!-- Фильтры и статус WebSocket -->
+        <div class="filters-section">
+            <div class="filters-bar">
+                <span class="filter-label">Статус:</span>
+
+                <span class="filter-badge active" data-filter="all">
+                    Все <span id="count-all" style="margin-left: 4px; font-weight: 600;">0</span>
+                </span>
+                <span class="filter-badge" data-filter="PENDING">
+                    ⏳ Ожидание <span id="count-pending">0</span>
+                </span>
+                <span class="filter-badge" data-filter="PROCESSING">
+                    ⚙️ Обработка <span id="count-processing">0</span>
+                </span>
+                <span class="filter-badge" data-filter="DONE">
+                    ✅ Готово <span id="count-done">0</span>
+                </span>
+                <span class="filter-badge" data-filter="ERROR">
+                    ❌ Ошибка <span id="count-error">0</span>
+                </span>
+                <span class="filter-badge" data-filter="SAVED">
+                    💾 Сохранено <span id="count-saved">0</span>
+                </span>
+            </div>
+
+            <!-- Индикатор WebSocket с текстом статуса -->
+            <div id="websocket-indicator" class="websocket-indicator websocket-disconnected">
+                <i class="bi bi-wifi-off"></i>
+                <span id="ws-status-text" class="ws-status-text">Подключение...</span>
+            </div>
+        </div>
+
+        <!-- ТАБЛИЦА ЗАДАНИЙ -->
+        <div class="table-responsive">
+            <table id="jobs-table">
+                <thead>
+                <tr>
+                    <th style="width: 20%;">Клиент</th>
+                    <th style="width: 25%;">Файл</th>
+                    <th style="width: 18%;">Статус</th>
+                    <th style="width: 18%;">Дата создания</th>
+                    <th style="width: 19%;">Прогресс</th>
+                </tr>
+                </thead>
+                <tbody id="jobs-table-body">
+                <!-- Thymeleaf: существующие задания -->
+                <tr th:if="${#lists.isEmpty(ocrJobs)}" class="empty-table-row">
+                    <td colspan="6" style="padding: 0;">
+                        <div class="empty-table-message">
+                            <div class="empty-table-icon">
+                                <i class="bi bi-inbox"></i>
+                            </div>
+                            <div class="empty-table-title">Нет заданий на обработку</div>
+                            <p style="color: var(--text-secondary); margin-top: 8px;">
+                                Загруженные PDF-файлы появятся в этом списке
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:each="job : ${ocrJobs}"
+                    th:id="'job-row-' + ${job.id}"
+                    th:data-status="${job.status}"
+                    th:data-job-id="${job.id}"
+                    class="job-row"
+                    th:classappend="${job.status == 'DONE'} ? 'done' :
+                                       (${job.status == 'SAVED'} ? 'saved' :
+                                       (${job.status == 'ERROR'} ? 'error' : ''))">
+
+                    <!-- Клиент -->
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span th:if="${job.clientId}" style="font-weight: 500;">
+                                    <span th:text="${job.clientName}"></span>
+                            </span>
+                        </div>
+                    </td>
+
+                    <!-- Файл -->
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i class="bi bi-file-pdf" style="color: var(--danger); font-size: 18px;"></i>
+                            <div>
+                                <div class="filename-cell" th:title="${job.originalFileName ?: 'Задание #' + job.id}">
+                                    <span th:text="${job.originalFileName ?: 'Задание #' + job.id}">document.pdf</span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Статус -->
+                    <td>
+                        <span th:class="'status-badge status-' + ${#strings.toLowerCase(job.status)}">
+                            <span th:switch="${job.status.name}">
+                                <span th:case="'PENDING'">⏳ Ожидание</span>
+                                <span th:case="'PROCESSING'">⚙️ Обработка</span>
+                                <span th:case="'DONE'">✅ Готово</span>
+                                <span th:case="'SAVED'">💾 Сохранено</span>
+                                <span th:case="'ERROR'">❌ Ошибка</span>
+                                <span th:case="*">❓ Неизвестно</span>
+                            </span>
+                        </span>
+                    </td>
+
+                    <!-- Дата создания (фиксированная высота) -->
+                    <td style="vertical-align: middle;">
+                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                            <span th:text="${#temporals.format(job.createdAt, 'dd.MM.yyyy')}">01.01.2024</span>
+                            <small style="color: var(--text-secondary);" th:text="${#temporals.format(job.createdAt, 'HH:mm')}">12:00</small>
+                            <span th:if="${job.finishedAt}" style="color: var(--success); font-size: 11px; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+                                    <i class="bi bi-check-circle-fill" style="font-size: 10px;"></i>
+                                    <span th:text="${#temporals.format(job.finishedAt, 'HH:mm')}">12:00</span>
+                                </span>
+                        </div>
+                    </td>
+
+                    <!-- Прогресс / Ошибка -->
+                    <td>
+                        <th:block th:if="${job.status == 'PROCESSING'}">
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <div class="progress-container">
+                                    <div th:id="'progress-' + ${job.id}"
+                                         class="progress-bar"
+                                         th:style="'width: ' + (${job.progress} ?: 0) + '%'"></div>
+                                </div>
+                                <div th:id="'progress-text-' + ${job.id}"
+                                     class="progress-text"
+                                     th:text="${job.progress} ?: '0' + '%'">0%</div>
+                            </div>
+                        </th:block>
+                        <th:block th:if="${job.status == 'ERROR' and job.errorMessage}">
+                            <div class="error-message-cell">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                <span style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                      th:text="${job.errorMessage}">
+                                    Ошибка обработки
+                                </span>
+                            </div>
+                        </th:block>
+                        <th:block th:if="${job.status == 'DONE' or job.status == 'SAVED'}">
+                            <span style="color: var(--success); display: flex; align-items: center; gap: 4px;">
+                                <i class="bi bi-check-circle-fill"></i> Завершено
+                            </span>
+                        </th:block>
+                        <th:block th:if="${job.status == 'PENDING'}">
+                            <span style="color: var(--text-secondary); display: flex; align-items: center; gap: 4px;">
+                                <i class="bi bi-hourglass"></i> Ожидание
+                            </span>
+                        </th:block>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Информационная панель -->
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-info-circle" style="color: var(--info);"></i>
+                    <span id="status-info" style="color: var(--text-secondary); font-size: 13px;">
+                        Готовые задания можно открыть для просмотра и подтверждения извлеченных протоколов
+                    </span>
+                </div>
+                <div>
+                    <small style="color: var(--text-secondary); font-weight: 500;">
+                        Всего заданий: <strong id="total-count">0</strong>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-left">
+            © Control-M • Внутренняя система протоколов
+        </div>
+    </footer>
+</div>
+
+<!-- Кнопка обновления (запасной вариант) -->
+<button class="refresh-btn" onclick="location.reload()" title="Обновить страницу">
+    <i class="bi bi-arrow-clockwise"></i>
+</button>
+
+<script src="/js/csrf.js"></script>
+<script>
+    let stompClient = null;
+    let activeJobs = new Map();
+    let reconnectAttempts = 0;
+    const StompJs = window.StompJs;
+    const MAX_RECONNECT_ATTEMPTS = 10;
+    const RECONNECT_DELAY = 3000; // 3 секунды
+
+    function updateWebsocketStatus(connected, message = '') {
+        const indicator = document.getElementById('websocket-indicator');
+        if (connected) {
+            indicator.className = 'websocket-indicator websocket-connected';
+            indicator.innerHTML = '<i class="bi bi-wifi"></i><span id="ws-status-text" class="ws-status-text">Online</span>';
+            reconnectAttempts = 0;
+        } else {
+            indicator.className = 'websocket-indicator websocket-disconnected';
+            const text = message || (reconnectAttempts > 0 ? `Повтор: ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS}` : 'Offline');
+            indicator.innerHTML = `<i class="bi bi-wifi-off"></i><span id="ws-status-text" class="ws-status-text">${text}</span>`;
+        }
+    }
+
+    function connectWebSocket() {
+        reconnectAttempts++;
+
+        if (reconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
+            updateWebsocketStatus(false, 'Ошибка');
+            setTimeout(() => {
+                reconnectAttempts = 0;
+                connectWebSocket();
+            }, 30000);
+            return;
+        }
+
+        try {
+            // Правильный синтаксис для @stomp/stompjs@7.0.0
+            const socket = new SockJS('/ws');
+
+            stompClient = new StompJs.Client({
+                webSocketFactory: () => socket,
+                debug: () => {},
+                heartbeatIncoming: 20000,
+                heartbeatOutgoing: 20000,
+                reconnectDelay: 5000,
+                connectionTimeout: 10000
+            });
+
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+            const connectHeaders = {};
+            if (csrfToken && csrfHeader) {
+                connectHeaders[csrfHeader] = csrfToken;
+            }
+
+            stompClient.connectHeaders = connectHeaders;
+
+            stompClient.onConnect = function(frame) {
+                console.log('✅ WebSocket подключен');
+                updateWebsocketStatus(true);
+                reconnectAttempts = 0;
+
+                stompClient.subscribe('/user/topic/ocr', function(message) {
+                    try {
+                        const event = JSON.parse(message.body);
+                        console.log('📩 Сообщение WS:', event);
+                        handleJobUpdate(event);
+                    } catch (e) {
+                        console.error('Ошибка парсинга WS:', e);
+                    }
+                });
+            };
+
+            stompClient.onStompError = function(frame) {
+                console.error('❌ STOMP ошибка:', frame);
+                updateWebsocketStatus(false, 'Ошибка');
+                setTimeout(connectWebSocket, RECONNECT_DELAY);
+            };
+
+            stompClient.onWebSocketError = function(event) {
+                console.error('❌ WebSocket ошибка:', event);
+                updateWebsocketStatus(false, 'Ошибка');
+                setTimeout(connectWebSocket, RECONNECT_DELAY);
+            };
+
+            stompClient.onDisconnect = function(frame) {
+                console.log('WebSocket отключен');
+                updateWebsocketStatus(false, 'Отключен');
+            };
+
+            stompClient.activate();
+
+        } catch (error) {
+            console.error('❌ Критическая ошибка WS:', error);
+            updateWebsocketStatus(false, 'Ошибка');
+            setTimeout(connectWebSocket, RECONNECT_DELAY);
+        }
+    }
+
+    function handleJobUpdate(event) {
+        const jobId = event.jobId;
+        const row = document.getElementById(`job-row-${jobId}`);
+
+        if (row) {
+            // Обновляем только то, что пришло в событии
+            if (event.status) {
+                row.setAttribute('data-status', event.status);
+
+                row.className = 'job-row';
+                if (event.status === 'DONE') row.classList.add('done');
+                if (event.status === 'SAVED') row.classList.add('saved');
+                if (event.status === 'ERROR') row.classList.add('error');
+
+                const statusBadge = row.querySelector('.status-badge');
+                if (statusBadge) {
+                    statusBadge.className = `status-badge status-${event.status.toLowerCase()}`;
+                    statusBadge.innerHTML = getStatusText(event.status);
+                }
+
+                const actionsCell = row.querySelector('td:last-child .action-buttons');
+                if (actionsCell) {
+                    actionsCell.innerHTML = getActionButtons(jobId, event.status);
+                }
+
+                if (event.status === 'DONE' || event.status === 'SAVED') {
+                    row.style.cursor = 'pointer';
+                    row.onclick = function(e) {
+                        if (!e.target.closest('.action-buttons')) {
+                            viewReport(jobId);
+                        }
+                    };
+                } else {
+                    row.style.cursor = 'default';
+                    row.onclick = null;
+                }
+            }
+
+            if (event.progress !== null && event.progress !== undefined) {
+                const progressCell = row.querySelector('td:nth-child(5)'); // Колонка прогресса
+
+                if (progressCell) {
+                    let progressContainer = progressCell.querySelector('.progress-container');
+
+                    if (progressContainer) {
+                        // Обновляем существующий прогресс
+                        const progressBar = progressContainer.querySelector('.progress-bar');
+                        const progressText = progressCell.querySelector('.progress-text');
+
+                        if (progressBar) {
+                            progressBar.style.width = `${event.progress}%`;
+                        }
+                        if (progressText) {
+                            progressText.textContent = `${event.progress}%`;
+                        }
+                    } else {
+                        // Создаем новый контейнер прогресса
+                        progressCell.innerHTML = `
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: ${event.progress}%;"></div>
+                            </div>
+                            <div class="progress-text">${event.progress}%</div>
+                        </div>
+                    `;
+                    }
+                }
+            }
+
+            // Обновляем сообщение об ошибке
+            if (event.status === 'ERROR' && event.message) {
+                const progressCell = row.querySelector('td:nth-child(5)');
+                if (progressCell) {
+                    progressCell.innerHTML = `
+                    <div class="error-message-cell">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${event.message}">${event.message}</span>
+                    </div>
+                `;
+                }
+            }
+
+            // Обновляем данные в activeJobs
+            if (activeJobs.has(jobId)) {
+                const job = activeJobs.get(jobId);
+                if (event.status) job.status = event.status;
+                if (event.progress !== undefined) job.progress = event.progress;
+                activeJobs.set(jobId, job);
+            }
+
+            updateStatusCounters();
+            if (event.status) {
+                updateStatusInfo(event.status);
+            }
+        }
+    }
+
+    function getStatusText(status) {
+        const texts = {
+            'PENDING': '⏳ Ожидание',
+            'PROCESSING': '⚙️ Обработка',
+            'DONE': '✅ Готово',
+            'ERROR': '❌ Ошибка',
+            'SAVED': '💾 Сохранено'
+        };
+        return texts[status] || status;
+    }
+
+    function getActionButtons(jobId, status) {
+        if (status === 'DONE') {
+            return `<button onclick="viewReport(${jobId})" class="btn btn-success"><i class="bi bi-eye"></i> Отчет</button>`;
+        } else if (status === 'SAVED') {
+            return `<button onclick="viewReport(${jobId})" class="btn btn-success"><i class="bi bi-eye"></i> Просмотр</button>`;
+        } else if (status === 'ERROR') {
+            return `
+                <button onclick="retryJob(${jobId})" class="btn btn-warning"><i class="bi bi-arrow-clockwise"></i> Повторить</button>
+                <button onclick="deleteJob(${jobId})" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Удалить</button>
+            `;
+        } else if (status === 'PROCESSING') {
+            return `<button class="btn btn-outline" disabled><i class="bi bi-hourglass-split"></i> Обработка...</button>`;
+        } else {
+            return `<button class="btn btn-outline" disabled><i class="bi bi-hourglass"></i> В очереди</button>`;
+        }
+    }
+
+
+    /**
+     * Обновление счетчиков статусов
+     */
+    function updateStatusCounters() {
+        const counts = {
+            'all': activeJobs.size,
+            'PENDING': 0,
+            'PROCESSING': 0,
+            'DONE': 0,
+            'ERROR': 0,
+            'SAVED': 0
+        };
+
+        activeJobs.forEach(job => {
+            if (job && job.status) {
+                counts[job.status] = (counts[job.status] || 0) + 1;
+            }
+        });
+
+        document.getElementById('count-all').textContent = counts.all;
+        document.getElementById('count-pending').textContent = counts.PENDING || 0;
+        document.getElementById('count-processing').textContent = counts.PROCESSING || 0;
+        document.getElementById('count-done').textContent = counts.DONE || 0;
+        document.getElementById('count-error').textContent = counts.ERROR || 0;
+        document.getElementById('count-saved').textContent = counts.SAVED || 0;
+        document.getElementById('total-count').textContent = counts.all;
+    }
+
+    function filterJobs(filter) {
+        const rows = document.querySelectorAll('.job-row');
+        rows.forEach(row => {
+            const status = row.getAttribute('data-status');
+            row.style.display = (filter === 'all' || status === filter) ? 'table-row' : 'none';
+        });
+
+        document.querySelectorAll('.filter-badge').forEach(badge => {
+            const isActive = badge.getAttribute('data-filter') === filter;
+            badge.classList.toggle('active', isActive);
+        });
+    }
+
+    function updateStatusInfo(status) {
+        const infoElement = document.getElementById('status-info');
+        const messages = {
+            'PROCESSING': 'Задание обрабатывается. Прогресс обновляется в реальном времени.',
+            'DONE': 'Задание готово. Нажмите на строку или кнопку "Отчет" для просмотра результатов.',
+            'ERROR': 'Произошла ошибка при обработке. Можно повторить попытку или удалить задание.',
+            'SAVED': 'Задание сохранено. Нажмите для просмотра.',
+            'PENDING': 'Задание в очереди на обработку.'
+        };
+        infoElement.textContent = messages[status] || 'Готовые задания можно открыть для просмотра и подтверждения извлеченных протоколов';
+    }
+
+    // ================ ДЕЙСТВИЯ С ЗАДАНИЯМИ ================
+
+    function viewReport(jobId) {
+        window.location.href = `/ocr/report/${jobId}`;
+    }
+
+    function retryJob(jobId) {
+        if (confirm('Повторить обработку этого задания?')) {
+            fetch(`/ocr/jobs/${jobId}/retry`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content || ''
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Задание отправлено на повторную обработку');
+                    } else {
+                        alert('Ошибка при повторной отправке задания');
+                    }
+                })
+                .catch(() => alert('Ошибка сети'));
+        }
+    }
+
+    function deleteJob(jobId) {
+        if (confirm('Удалить это задание?')) {
+            fetch(`/ocr/jobs/${jobId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content || ''
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        const row = document.getElementById(`job-row-${jobId}`);
+                        if (row) row.remove();
+                        activeJobs.delete(jobId);
+                        updateStatusCounters();
+
+                        const tbody = document.getElementById('jobs-table-body');
+                        if (tbody.children.length === 0) {
+                            tbody.innerHTML = `
+                            <tr class="empty-table-row">
+                                <td colspan="6" style="padding: 0;">
+                                    <div class="empty-table-message">
+                                        <div class="empty-table-icon"><i class="bi bi-inbox"></i></div>
+                                        <div class="empty-table-title">Нет заданий на обработку</div>
+                                        <p style="color: var(--text-secondary); margin-top: 8px;">
+                                            Загруженные PDF-файлы появятся в этом списке
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                        }
+                    } else {
+                        alert('Ошибка при удалении задания');
+                    }
+                })
+                .catch(() => alert('Ошибка сети'));
+        }
+    }
+
+    // ================ ИНИЦИАЛИЗАЦИЯ ================
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Заполняем activeJobs из существующих строк
+        document.querySelectorAll('.job-row').forEach(row => {
+            const jobId = row.getAttribute('data-job-id');
+            const status = row.getAttribute('data-status');
+
+            if (jobId && status) {
+                activeJobs.set(parseInt(jobId), { status: status });
+
+                // Добавляем обработчик клика для готовых заданий
+                if (status === 'DONE' || status === 'SAVED') {
+                    row.style.cursor = 'pointer';
+                    row.addEventListener('click', function(e) {
+                        if (!e.target.closest('.action-buttons')) {
+                            viewReport(jobId);
+                        }
+                    });
+                }
+            }
+        });
+
+        updateStatusCounters();
+
+        // Инициализируем фильтры
+        document.querySelectorAll('.filter-badge').forEach(badge => {
+            badge.addEventListener('click', function() {
+                filterJobs(this.getAttribute('data-filter'));
+            });
+        });
+
+        // Подключаем WebSocket
+        connectWebSocket();
+
+        // Проверка подключения каждые 10 секунд
+        setInterval(() => {
+            if (stompClient && !stompClient.connected) {
+                connectWebSocket();
+            }
+        }, 10000);
+    });
+
+    window.addEventListener('beforeunload', function() {
+        if (stompClient && stompClient.connected) {
+            stompClient.disconnect();
+        }
+    });
+</script>
+
+</body>
+</html>

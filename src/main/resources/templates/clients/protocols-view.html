@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${client.name}"></title>
+    <title th:text="${paginatedDto.client.name}"></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -167,7 +167,7 @@
             <div class="d-flex align-items-center">
                 <span class="text-white me-3">
                     <i class="fas fa-user me-1"></i>
-                    <span th:text="${client.name}"></span>
+                    <span th:text="${paginatedDto.client.name}"></span>
                 </span>
             </div>
         </div>
@@ -181,12 +181,12 @@
             <i class="fas fa-arrow-left me-1"></i> Назад
         </a>
         <div>
-            <a th:href="@{/clients/{id}/create-protocols(id=${client.id})}" class="btn btn-primary">
+            <a th:href="@{/clients/{id}/create-protocols(id=${paginatedDto.client.id})}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Добавить протокол
             </a>
         </div>
         <div>
-            <a th:href="@{/clients/{id}/save-pdf(id=${client.id})}" class="btn btn-primary">
+            <a th:href="@{/clients/{id}/save-pdf(id=${paginatedDto.client.id})}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Добавить pdf
             </a>
         </div>
@@ -197,7 +197,7 @@
         <div class="card-header bg-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="mb-0"><i class="fas fa-user me-2"></i><span th:text="${client.name}"></span></h4>
+                    <h4 class="mb-0"><i class="fas fa-user me-2"></i><span th:text="${paginatedDto.client.name}"></span></h4>
                 </div>
             </div>
         </div>
@@ -205,7 +205,7 @@
 
     <!-- Поиск протоколов -->
     <div class="search-container">
-        <form id="searchForm" th:action="@{/clients/{id}(id=${client.id})}" method="get" class="mb-0" onsubmit="handleSearchSubmit(event)">
+        <form id="searchForm" th:action="@{/clients/{id}(id=${paginatedDto.client.id})}" method="get" class="mb-0" onsubmit="handleSearchSubmit(event)">
             <input type="hidden" name="page" th:value="0">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -217,7 +217,7 @@
                                class="form-control"
                                id="searchInput"
                                name="search"
-                               th:value="${searchQuery}"
+                               th:value="${paginatedDto.searchQuery}"
                                placeholder="Введите номер..."
                                aria-label="Поиск протоколов">
                         <button class="btn btn-outline-primary" type="submit" id="searchButton">
@@ -243,10 +243,10 @@
                                     id="pageSizeSelect"
                                     name="size"
                                     onchange="updatePageSize(this.value)">
-                                <option value="10" th:selected="${pageSize == 10}">10</option>
-                                <option value="20" th:selected="${pageSize == 20}">20</option>
-                                <option value="30" th:selected="${pageSize == 30}">30</option>
-                                <option value="50" th:selected="${pageSize == 50}">50</option>
+                                <option value="10" th:selected="${paginatedDto.pageSize == 10}">10</option>
+                                <option value="20" th:selected="${paginatedDto.pageSize == 20}">20</option>
+                                <option value="30" th:selected="${paginatedDto.pageSize == 30}">30</option>
+                                <option value="50" th:selected="${paginatedDto.pageSize == 50}">50</option>
                             </select>
                         </div>
                     </div>
@@ -262,29 +262,21 @@
                 <h5 class="mb-0"><i class="fas fa-file-contract me-2"></i>Выданные протоколы</h5>
                 <span class="badge bg-primary">
                     <i class="fas fa-list me-1"></i>
-                    <span th:text="${filteredProtocols != null ? filteredProtocols.size() : 0}"></span>
+                    <span th:text="${paginatedDto.protocolsByCipher != null ? paginatedDto.countProtocols : 0}"></span>
                 </span>
             </div>
         </div>
 
         <div class="card-body p-0">
-            <!-- Сообщение, если нет протоколов -->
-            <div th:if="${(filteredProtocols != null and filteredProtocols.empty) or (filteredProtocols == null)}"
-                 class="no-protocols-message">
-                <i class="fas fa-file-contract fa-4x mb-3"></i>
-                <h5>Нет протоколов</h5>
-                <p class="text-muted">Для этого клиента не найдено ни одного протокола</p>
-            </div>
 
             <!-- Динамическая таблица с колонками по шифрам -->
-            <div th:unless="${(filteredProtocols != null and filteredProtocols.empty) or (filteredProtocols == null)}"
-                 class="table-responsive">
+            <div class="table-responsive">
                 <table class="table table-bordered mb-0 table-fixed-layout"
-                       th:style="${uniqueCiphers != null} ? '--columns-count: ${uniqueCiphers.size()}' : ''">
+                       th:style="${paginatedDto.uniqueCiphers != null} ? '--columns-count: ${uniqueCiphers.size()}' : ''">
                     <thead class="table-dark">
                     <tr>
                         <!-- Динамические заголовки колонок на основе уникальных шифров -->
-                        <th th:each="cipher : ${uniqueCiphers}"
+                        <th th:each="cipher : ${paginatedDto.uniqueCiphers}"
                             th:text="${cipher}"
                             class="text-center cipher-column">
                         </th>
@@ -293,16 +285,16 @@
                     <tbody>
                     <tr>
                         <!-- Колонки с протоколами для каждого шифра -->
-                        <td th:each="cipher : ${uniqueCiphers}"
+                        <td th:each="cipher : ${paginatedDto.uniqueCiphers}"
                             th:id="'cipher-' + ${cipher}"
-                            th:classappend="${(protocolsByCipher.get(cipher) == null or protocolsByCipher.get(cipher).empty)} ? 'empty-column' : ''"
+                            th:classappend="${(paginatedDto.protocolsByCipher.get(cipher) == null or paginatedDto.protocolsByCipher.get(cipher).empty)} ? 'empty-column' : ''"
                             class="cipher-column">
 
                             <div class="protocol-column-content">
                                 <div class="protocol-items-container">
-                                    <div th:if="${protocolsByCipher.get(cipher) != null and not protocolsByCipher.get(cipher).empty}">
+                                    <div th:if="${paginatedDto.protocolsByCipher.get(cipher) != null and not paginatedDto.protocolsByCipher.get(cipher).empty}">
                                         <!-- Список протоколов -->
-                                        <div th:each="protocol : ${protocolsByCipher.get(cipher)}"
+                                        <div th:each="protocol : ${paginatedDto.protocolsByCipher.get(cipher)}"
                                              th:id="'protocol-' + ${protocol.id}"
                                              class="protocol-item">
                                             <div class="protocol-content">
@@ -323,7 +315,7 @@
                                                 <button type="button"
                                                         class="btn btn-sm btn-outline-primary"
                                                         th:data-protocol-id="${protocol.id}"
-                                                        th:data-client-id="${client.id}"
+                                                        th:data-client-id="${paginatedDto.client.id}"
                                                         th:data-cipher="${protocol.cipher}"
                                                         th:data-unique-number="${protocol.uniqueNumber}"
                                                         th:data-sequential-number="${protocol.sequentialNumber}"
@@ -335,7 +327,7 @@
                                                 <button type="button"
                                                         class="btn btn-sm btn-outline-danger ms-1"
                                                         th:data-protocol-id="${protocol.id}"
-                                                        th:data-client-id="${client.id}"
+                                                        th:data-client-id="${paginatedDto.client.id}"
                                                         th:data-protocol-number="${protocol.getFullProtocolNumber()}"
                                                         onclick="openDeleteModal(this)">
                                                     <i class="fas fa-trash"></i>
@@ -345,7 +337,7 @@
                                     </div>
 
                                     <!-- Пустая колонка -->
-                                    <div th:if="${protocolsByCipher.get(cipher) == null or protocolsByCipher.get(cipher).empty}"
+                                    <div th:if="${paginatedDto.protocolsByCipher.get(cipher) == null or paginatedDto.protocolsByCipher.get(cipher).empty}"
                                          class="text-center text-muted py-4">
                                         <i class="fas fa-inbox fa-2x mb-2"></i>
                                         <div>Нет протоколов на этой странице</div>
@@ -361,59 +353,59 @@
     </div>
 
     <!-- Пагинация -->
-    <div th:if="${totalPages > 1}" class="pagination-container">
+    <div th:if="${paginatedDto.totalPages > 1}" class="pagination-container">
         <nav aria-label="Навигация по страницам">
             <ul class="pagination mb-0">
                 <!-- Кнопка "Назад" -->
-                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                <li class="page-item" th:classappend="${paginatedDto.currentPage == 0} ? 'disabled' : ''">
                     <a class="page-link"
-                       th:href="@{/clients/{id}(id=${client.id}, search=${searchQuery}, page=${currentPage - 1}, size=${pageSize})}"
+                       th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.currentPage - 1}, size=${paginatedDto.pageSize})}"
                        aria-label="Предыдущая">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
 
                 <!-- Первая страница -->
-                <li class="page-item" th:classappend="${currentPage == 0} ? 'active' : ''">
+                <li class="page-item" th:classappend="${paginatedDto.currentPage == 0} ? 'active' : ''">
                     <a class="page-link"
-                       th:href="@{/clients/{id}(id=${client.id}, search=${searchQuery}, page=0, size=${pageSize})}"
+                       th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=0, size=${paginatedDto.pageSize})}"
                        th:text="1">
                     </a>
                 </li>
 
                 <!-- Многоточие если нужно -->
-                <li class="page-item disabled" th:if="${currentPage > 3}">
+                <li class="page-item disabled" th:if="${paginatedDto.currentPage > 3}">
                     <span class="page-link">...</span>
                 </li>
 
                 <!-- Страницы вокруг текущей -->
-                <li th:each="i : ${#numbers.sequence(T(java.lang.Math).max(1, currentPage - 2), T(java.lang.Math).min(totalPages - 2, currentPage + 2))}"
+                <li th:each="i : ${#numbers.sequence(T(java.lang.Math).max(1, paginatedDto.currentPage - 2), T(java.lang.Math).min(paginatedDto.totalPages - 2, paginatedDto.currentPage + 2))}"
                     class="page-item"
-                    th:classappend="${i == currentPage} ? 'active' : ''">
+                    th:classappend="${i == paginatedDto.currentPage} ? 'active' : ''">
                     <a class="page-link"
-                       th:href="@{/clients/{id}(id=${client.id}, search=${searchQuery}, page=${i}, size=${pageSize})}"
+                       th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${i}, size=${paginatedDto.pageSize})}"
                        th:text="${i + 1}">
                     </a>
                 </li>
 
                 <!-- Многоточие если нужно -->
-                <li class="page-item disabled" th:if="${currentPage < totalPages - 4}">
+                <li class="page-item disabled" th:if="${paginatedDto.currentPage < paginatedDto.totalPages - 4}">
                     <span class="page-link">...</span>
                 </li>
 
                 <!-- Последняя страница -->
-                <li class="page-item" th:if="${totalPages > 1}"
-                    th:classappend="${currentPage == totalPages - 1} ? 'active' : ''">
+                <li class="page-item" th:if="${paginatedDto.totalPages > 1}"
+                    th:classappend="${paginatedDto.currentPage == paginatedDto.totalPages - 1} ? 'active' : ''">
                     <a class="page-link"
-                       th:href="@{/clients/{id}(id=${client.id}, search=${searchQuery}, page=${totalPages - 1}, size=${pageSize})}"
-                       th:text="${totalPages}">
+                       th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.totalPages - 1}, size=${paginatedDto.pageSize})}"
+                       th:text="${paginatedDto.totalPages}">
                     </a>
                 </li>
 
                 <!-- Кнопка "Вперед" -->
-                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                <li class="page-item" th:classappend="${paginatedDto.currentPage == paginatedDto.totalPages - 1} ? 'disabled' : ''">
                     <a class="page-link"
-                       th:href="@{/clients/{id}(id=${client.id}, search=${searchQuery}, page=${currentPage + 1}, size=${pageSize})}"
+                       th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.currentPage + 1}, size=${paginatedDto.pageSize})}"
                        aria-label="Следующая">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
@@ -494,12 +486,6 @@
         // Открываем в новой вкладке для скачивания
         window.open(`/protocols/${protocolId}/file`, '_blank');
     }
-
-    // Или если нужно открыть в текущей вкладке:
-    // function downloadPdf(button) {
-    //     const protocolId = button.getAttribute('data-protocol-id');
-    //     window.location.href = `/protocols/${protocolId}/file`;
-    // }
 
     // Функция для очистки поиска
     function clearSearch() {

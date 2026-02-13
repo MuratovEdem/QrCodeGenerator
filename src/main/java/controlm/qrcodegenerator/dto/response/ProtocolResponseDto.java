@@ -4,5 +4,13 @@ import lombok.Data;
 
 @Data
 public class ProtocolResponseDto {
-    private String name;
+
+    private Long id;
+    private String cipher;
+    private String uniqueNumber;
+    private String sequentialNumber;
+
+    public String getFullProtocolNumber() {
+        return String.format("%s-%s-%s", cipher, uniqueNumber, sequentialNumber);
+    }
 }

@@ -1,11 +1,13 @@
 package controlm.qrcodegenerator.repository;
 
 import controlm.qrcodegenerator.model.Protocol;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,4 +35,20 @@ public interface ProtocolRepository extends JpaRepository<Protocol, Long> {
     Long countByCipherAndClientId(String cipher, Long clientId);
 
     Long countByCipherNotInAndClientId(List<String> excludedCiphers, Long clientId);
+
+    @Query("SELECT p FROM Protocol p " +
+            "WHERE p.client.id = :clientId " +
+            "AND ( " +
+            "   LOWER(p.cipher) LIKE LOWER(CONCAT('%', :searchText, '%')) OR " +
+            "   LOWER(p.uniqueNumber) LIKE LOWER(CONCAT('%', :searchText, '%')) OR " +
+            "   LOWER(p.sequentialNumber) LIKE LOWER(CONCAT('%', :searchText, '%')) OR " +
+            "   LOWER(CONCAT(p.cipher, '-', p.uniqueNumber, '-', p.sequentialNumber)) " +
+            "       LIKE LOWER(CONCAT('%', :searchText, '%'))" +
+            ")")
+    List<Protocol> findProtocolsByClientIdAndSearchText(
+            @Param("clientId") Long clientId,
+            @Param("searchText") String searchText,
+            PageRequest pageable);
+
+    List<Protocol> findByClientId(Long clientId, PageRequest pageRequest);
 }

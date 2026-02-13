@@ -2,6 +2,7 @@ package controlm.qrcodegenerator.service;
 
 import controlm.qrcodegenerator.dto.request.RegistrationUserDto;
 import controlm.qrcodegenerator.enums.RoleEnum;
+import controlm.qrcodegenerator.exception.NotFoundException;
 import controlm.qrcodegenerator.model.Role;
 import controlm.qrcodegenerator.model.User;
 import controlm.qrcodegenerator.repository.UserRepository;
@@ -10,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,8 +32,13 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(
+                () -> new NotFoundException("User not found with username: " + username));
+    }
+
+    public boolean existByUsername(String username) {
+        return userRepository.existsByUsername(username);
     }
 
 }

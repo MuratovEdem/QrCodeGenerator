@@ -1,6 +1,5 @@
 package controlm.qrcodegenerator.config;
 
-import controlm.qrcodegenerator.exception.NotFoundException;
 import controlm.qrcodegenerator.model.User;
 import controlm.qrcodegenerator.service.UserService;
 import lombok.AllArgsConstructor;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -23,8 +21,7 @@ public class CustomUserDetailService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> userOptional = userService.findByUsername(username);
-        User user = userOptional.orElseThrow(() -> new NotFoundException("User with username = " + username + " not found"));
+        User user = userService.findByUsername(username);
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),

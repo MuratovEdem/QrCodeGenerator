@@ -23,14 +23,13 @@ public class ProtocolRecognizer {
                     "(\\d{2}\\s*\\.\\s*\\d{2}\\s*\\.\\s*(?:\\d{4}|\\d{2}))",
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
     );
-
+// TODO поработать над паттернами
     public ProtocolMetadata extract(String text) {
-
         String normalizeText = normalizeOcrText(text);
         Matcher fallBack = FALLBACK_PATTERN.matcher(normalizeText);
         while (fallBack.find()) {
             if (looksLikeProtocol(fallBack.group(1))) {
-                log.info("fallback {} {}", fallBack.group(1), fallBack.group(2));
+//                log.info("fallback {} {}", fallBack.group(1), fallBack.group(2));
 
                 return new ProtocolMetadata(
                         normalizeNumber(fallBack.group(1)),

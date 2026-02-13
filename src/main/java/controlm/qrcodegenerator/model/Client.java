@@ -28,4 +28,6 @@ public class Client {
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<Protocol> protocols;
+
+    // TODO добавить поля договора, обьекты, инн, кпп
 }

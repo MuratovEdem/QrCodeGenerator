@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    test-runner
+test:
+  input:
+    dir: /data/test-pdfs
+  client-id: 1
+
+logging:
+  level:
+    root: INFO
+    controlm.qrcodegenerator: DEBUG

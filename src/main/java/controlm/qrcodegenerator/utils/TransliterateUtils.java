@@ -29,7 +29,7 @@ public class TransliterateUtils {
         mapping.put('У', "U"); mapping.put('Ф', "F"); mapping.put('Х', "H"); mapping.put('Ц', "C");
         mapping.put('Ч', "Ch"); mapping.put('Ш', "Sh"); mapping.put('Щ', "Sch"); mapping.put('Ъ', "");
         mapping.put('Ы', "Y"); mapping.put('Ь', ""); mapping.put('Э', "E"); mapping.put('Ю', "Yu");
-        mapping.put('Я', "Ya");
+        mapping.put('Я', "Ya"); mapping.put(' ', "_");
 
         StringBuilder result = new StringBuilder();
         for (char c : text.toCharArray()) {

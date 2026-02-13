@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control-M — Подтверждение протоколов</title>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <!-- Шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #1E2A38;
+            --accent: #FF0000;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --radius: 10px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 20px 0;
+            border-bottom: 3px solid var(--accent);
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-block img {
+            height: 45px;
+            width: auto;
+            display: block;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        /* НАВИГАЦИЯ */
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: var(--transition);
+            opacity: 0.9;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Заголовок блока */
+        .block-title {
+            font-weight: 600;
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .block-title::before {
+            content: "";
+            width: 5px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* ИНФОРМАЦИЯ О ФАЙЛЕ */
+        .file-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            background: var(--border-light);
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .file-header-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--card);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--accent);
+            border: 1px solid var(--border);
+        }
+
+        .file-header-info {
+            flex: 1;
+        }
+
+        .file-header-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .file-header-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* БЛОК СТАТИСТИКИ */
+        .stats-bar {
+            display: flex;
+            gap: 32px;
+            padding: 16px 20px;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 24px;
+            color: var(--primary-dark);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ТАБЛИЦА */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            table-layout: fixed;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 18px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: var(--bg);
+            border-bottom: 2px solid var(--border);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        th:first-child {
+            width: 35%;
+        }
+
+        th:nth-child(2) {
+            width: 25%;
+        }
+
+        th:last-child {
+            width: 40%;
+        }
+
+        td {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background: #F8FAFC;
+        }
+
+        tbody tr.deleted-row {
+            display: none;
+        }
+
+        /* Ячейка с номером протокола - фиксированная высота */
+        .protocol-cell {
+            min-height: 52px;
+            position: relative;
+        }
+
+        .protocol-number-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            color: var(--text-main);
+            font-size: 14px;
+            padding: 6px 10px;
+            background: var(--border-light);
+            border-radius: 4px;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Режим просмотра */
+        .view-mode {
+            display: block;
+        }
+
+        /* Режим редактирования */
+        .edit-mode {
+            display: none;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            background: white;
+            height: 40px;
+            box-sizing: border-box;
+        }
+
+        .edit-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .edit-input.is-invalid {
+            border-color: var(--danger);
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 11px;
+            margin-top: 4px;
+            display: none;
+            position: absolute;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            z-index: 10;
+            box-shadow: var(--shadow);
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* КНОПКИ ДЕЙСТВИЙ */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: nowrap;
+            align-items: center;
+            min-width: 200px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-secondary);
+            text-decoration: none;
+            white-space: nowrap;
+            height: 36px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            height: 32px;
+        }
+
+        .btn-primary {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #2A3A4A;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #0EA271;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            background: var(--card);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline-danger {
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--danger);
+        }
+
+        .btn-outline-danger:hover:not(:disabled) {
+            border-color: var(--danger);
+            background: #FEF2F2;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ПУСТОЕ СОСТОЯНИЕ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 50px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left {
+            font-weight: 500;
+        }
+
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 992px) {
+            th:first-child {
+                width: 30%;
+            }
+
+            th:nth-child(2) {
+                width: 20%;
+            }
+
+            th:last-child {
+                width: 50%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px 40px;
+            }
+
+            .header-inner {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .logo-block {
+                flex: 0 0 auto;
+            }
+
+            .logo-block img {
+                height: 35px;
+            }
+
+            .logo-title {
+                font-size: 18px;
+            }
+
+            .main-nav {
+                flex: 1 1 auto;
+                justify-content: flex-end;
+            }
+
+            .nav-link {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .action-buttons {
+                flex-wrap: wrap;
+                min-width: 0;
+            }
+
+            .btn-sm {
+                flex: 1 1 auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .block-title {
+                font-size: 18px;
+            }
+
+            .file-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            table {
+                table-layout: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo-block">
+            <img th:src="@{/images/logo3.png}"
+                 src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
+                 alt="Логотип Control-M">
+            <div class="logo-text">
+                <div class="logo-title">CONTROL-M</div>
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <a th:href="@{/clients}" class="nav-link">
+                Клиенты
+            </a>
+            <a th:href="@{/ocr/jobs}" class="nav-link">
+                Загрузки
+            </a>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Основная карточка -->
+    <div class="card">
+        <div class="block-title">ПОДТВЕРЖДЕНИЕ ПРОТОКОЛОВ</div>
+
+        <!-- Информация о файле -->
+        <div class="file-header">
+            <div class="file-header-icon">📄</div>
+            <div class="file-header-info">
+                <div class="file-header-name" th:text="${ocrJob.originalFileName} ?: 'Загруженный файл'">
+                    protocol_2025_03_15.pdf
+                </div>
+            </div>
+        </div>
+<!--        TODO сделать картинку пдфа-->
+<!--        TODO анимация наведения на кнопки красная не должна быть-->
+<!--        TODO кнопки сделать более четкими-->
+
+        <!-- Статистика: Всего и Удалено -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-value" id="totalCount">0</span>
+                <span class="stat-label">всего протоколов</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="deletedCount">0</span>
+                <span class="stat-label">удалено</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="editedCount">0</span>
+                <span class="stat-label">изменено</span>
+            </div>
+        </div>
+
+        <!-- Пустое состояние -->
+        <div th:if="${#lists.isEmpty(protocols)}" class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <div class="empty-state-title">Нет протоколов для подтверждения</div>
+            <div style="color: var(--text-secondary); margin-top: 8px;">
+                Все протоколы уже обработаны или файл не содержит распознанного текста
+            </div>
+        </div>
+
+        <!-- Таблица протоколов -->
+        <div th:unless="${#lists.isEmpty(protocols)}">
+            <div class="table-responsive">
+                <table id="protocolsTable">
+                    <thead>
+                    <tr>
+                        <th>№ протокола</th>
+                        <th>Дата</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="protocol, stat : ${protocols}"
+                        th:id="'protocol-row-' + ${stat.index}"
+                        th:attr="data-index=${stat.index}">
+
+                        <!-- Номер протокола -->
+                        <td class="protocol-cell">
+                            <!-- Режим просмотра -->
+                            <div th:id="'protocol-number-view-' + ${stat.index}" class="view-mode">
+                                <span class="protocol-number-display" th:text="${protocol.protocolNumber}">CTM-2024-0871</span>
+                            </div>
+                            <!-- Режим редактирования -->
+                            <div th:id="'protocol-number-edit-' + ${stat.index}" class="edit-mode">
+                                <input type="text"
+                                       class="edit-input"
+                                       th:value="${protocol.protocolNumber}"
+                                       th:attr="data-original=${protocol.protocolNumber}"
+                                       maxlength="50" />
+                                <div th:id="'protocol-number-error-' + ${stat.index}" class="error-message">
+                                    Номер не может быть пустым
+                                </div>
+                            </div>
+                            <input type="hidden" th:id="'protocol-number-original-' + ${stat.index}" th:value="${protocol.protocolNumber}" />
+                            <input type="hidden" name="protocolFileName" th:value="${protocol.fileName}" />
+                        </td>
+
+                        <!-- Дата выпуска -->
+                        <td class="protocol-cell">
+                            <!-- Режим просмотра -->
+                            <div th:id="'protocol-date-view-' + ${stat.index}" class="view-mode">
+                                <span class="protocol-number-display" th:text="${protocol.issueDate}">15.03.2025</span>
+                            </div>
+                            <!-- Режим редактирования -->
+                            <div th:id="'protocol-date-edit-' + ${stat.index}" class="edit-mode">
+                                <input type="text"
+                                       class="edit-input"
+                                       th:value="${protocol.issueDate}"
+                                       th:attr="data-original=${protocol.issueDate}"
+                                       placeholder="дд.мм.гггг"
+                                       maxlength="10" />
+                                <div th:id="'protocol-date-error-' + ${stat.index}" class="error-message">
+                                    Дата должна быть в формате дд.мм.гггг
+                                </div>
+                            </div>
+                            <input type="hidden" th:id="'protocol-date-original-' + ${stat.index}" th:value="${protocol.issueDate}" />
+                        </td>
+
+                        <!-- Действия -->
+                        <td>
+                            <!-- Кнопки просмотра (всегда видны) -->
+                            <div th:id="'protocol-actions-view-' + ${stat.index}" class="action-buttons">
+                                <!-- Кнопка редактирования -->
+                                <button type="button"
+                                        class="btn btn-outline btn-sm"
+                                        th:attr="data-index=${stat.index}"
+                                        onclick="enableEdit(this)">
+                                        Изменить
+                                </button>
+
+                                <!-- Кнопка просмотра файла -->
+                                <button type="button"
+                                        class="btn btn-outline btn-sm"
+                                        th:attr="data-index=${stat.index}, data-filename=${protocol.fileName}"
+                                        onclick="viewFile(this)"
+                                        th:disabled="${protocol.fileName == null or protocol.fileName == ''}">
+                                        Просмотр
+                                </button>
+
+                                <!-- Кнопка удаления -->
+                                <button type="button"
+                                        class="btn btn-outline-danger btn-sm"
+                                        th:attr="data-index=${stat.index}"
+                                        onclick="deleteProtocol(this)">
+                                        Удалить
+                                </button>
+                            </div>
+
+                            <!-- Кнопки редактирования (видны только при редактировании) -->
+                            <div th:id="'protocol-actions-edit-' + ${stat.index}" class="action-buttons" style="display: none;">
+                                <button type="button"
+                                        class="btn btn-success btn-sm"
+                                        th:attr="data-index=${stat.index}"
+                                        onclick="saveEdit(this)">
+                                        Сохранить
+                                </button>
+                                <button type="button"
+                                        class="btn btn-outline btn-sm"
+                                        th:attr="data-index=${stat.index}"
+                                        onclick="cancelEdit(this)">
+                                        Отмена
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Кнопки основного действия -->
+            <div style="display: flex; gap: 16px; margin-top: 32px;">
+                <form id="confirmForm"
+                      th:action="@{/ocr/confirm-pdf/{jobId}(jobId=${ocrJob.id})}"
+                      method="post"
+                      style="flex: 1;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;" onclick="prepareConfirmForm(event)">
+                        Сохранить протоколы
+                    </button>
+                </form>
+
+                <form id="cancelForm"
+                      th:action="@{/ocr/cancel-pdf/{jobId}(jobId=${ocrJob.id})}"
+                      method="post"
+                      style="flex: 1;">
+                    <button type="submit" class="btn btn-outline" style="width: 100%;" onclick="prepareCancelForm(event)">
+                        Отменить загрузку
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-left">
+            © Control-M • Внутренняя система протоколов
+        </div>
+    </footer>
+</div>
+
+<script src="/js/csrf.js"></script>
+<script>
+    // Глобальный массив данных протоколов
+    let protocolsData = [];
+
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.performance && window.performance.navigation) {
+            // Если тип навигации 2 - это кнопка "Назад"
+            if (window.performance.navigation.type === 2) {
+                window.location.replace('/ocr/jobs');
+                return;
+            }
+        }
+
+        // Проверяем referrer - если пришли с той же страницы, это "Назад"
+        if (document.referrer === window.location.href) {
+            window.location.replace('/ocr/jobs');
+            return;
+        }
+
+        sessionStorage.setItem('confirmPageLoaded', 'true');
+
+        const rows = document.querySelectorAll('[id^="protocol-row-"]');
+        let totalActive = 0;
+
+        rows.forEach((row, index) => {
+            const originalNumber = document.getElementById(`protocol-number-original-${index}`)?.value || '';
+            const originalDate = document.getElementById(`protocol-date-original-${index}`)?.value || '';
+            const fileName = row.querySelector('input[name="protocolFileName"]')?.value || '';
+
+            protocolsData[index] = {
+                number: originalNumber,
+                date: originalDate,
+                fileName: fileName,
+                deleted: false,
+                edited: false
+            };
+
+            if (!protocolsData[index].deleted) {
+                totalActive++;
+            }
+        });
+
+        updateStats();
+    });
+
+    // Включение режима редактирования
+    function enableEdit(button) {
+        const index = button.getAttribute('data-index');
+
+        // Скрываем режим просмотра
+        document.getElementById(`protocol-number-view-${index}`).style.display = 'none';
+        document.getElementById(`protocol-date-view-${index}`).style.display = 'none';
+        document.getElementById(`protocol-actions-view-${index}`).style.display = 'none';
+
+        // Показываем режим редактирования
+        document.getElementById(`protocol-number-edit-${index}`).style.display = 'block';
+        document.getElementById(`protocol-date-edit-${index}`).style.display = 'block';
+        document.getElementById(`protocol-actions-edit-${index}`).style.display = 'flex';
+
+        // Скрываем ошибки
+        document.getElementById(`protocol-number-error-${index}`).classList.remove('show');
+        document.getElementById(`protocol-date-error-${index}`).classList.remove('show');
+    }
+
+    // Сохранение изменений
+    function saveEdit(button) {
+        const index = button.getAttribute('data-index');
+
+        const numberInput = document.querySelector(`#protocol-number-edit-${index} .edit-input`);
+        const dateInput = document.querySelector(`#protocol-date-edit-${index} .edit-input`);
+
+        const newNumber = numberInput.value.trim();
+        const newDate = dateInput.value.trim();
+
+        // Валидация
+        let isValid = true;
+
+        if (!newNumber) {
+            document.getElementById(`protocol-number-error-${index}`).classList.add('show');
+            numberInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById(`protocol-number-error-${index}`).classList.remove('show');
+            numberInput.classList.remove('is-invalid');
+        }
+
+        if (!newDate || !isValidDate(newDate)) {
+            document.getElementById(`protocol-date-error-${index}`).classList.add('show');
+            dateInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            document.getElementById(`protocol-date-error-${index}`).classList.remove('show');
+            dateInput.classList.remove('is-invalid');
+        }
+
+        if (!isValid) return;
+
+        // Обновляем отображение
+        const numberDisplay = document.querySelector(`#protocol-number-view-${index} .protocol-number-display`);
+        const dateDisplay = document.querySelector(`#protocol-date-view-${index} .protocol-number-display`);
+
+        numberDisplay.textContent = newNumber;
+        dateDisplay.textContent = newDate;
+
+        // Обновляем данные
+        if (protocolsData[index]) {
+            protocolsData[index].number = newNumber;
+            protocolsData[index].date = newDate;
+            protocolsData[index].edited = true;
+        }
+
+        // Выходим из режима редактирования
+        cancelEdit(button);
+        updateStats();
+    }
+
+    // Отмена редактирования
+    function cancelEdit(button) {
+        const index = button.getAttribute('data-index');
+
+        // Восстанавливаем исходные значения
+        const numberInput = document.querySelector(`#protocol-number-edit-${index} .edit-input`);
+        const dateInput = document.querySelector(`#protocol-date-edit-${index} .edit-input`);
+
+        const originalNumber = protocolsData[index]?.number || document.getElementById(`protocol-number-original-${index}`).value;
+        const originalDate = protocolsData[index]?.date || document.getElementById(`protocol-date-original-${index}`).value;
+
+        numberInput.value = originalNumber;
+        dateInput.value = originalDate;
+
+        // Скрываем режим редактирования
+        document.getElementById(`protocol-number-edit-${index}`).style.display = 'none';
+        document.getElementById(`protocol-date-edit-${index}`).style.display = 'none';
+        document.getElementById(`protocol-actions-edit-${index}`).style.display = 'none';
+
+        // Показываем режим просмотра
+        document.getElementById(`protocol-number-view-${index}`).style.display = 'block';
+        document.getElementById(`protocol-date-view-${index}`).style.display = 'block';
+        document.getElementById(`protocol-actions-view-${index}`).style.display = 'flex';
+
+        // Скрываем ошибки
+        document.getElementById(`protocol-number-error-${index}`).classList.remove('show');
+        document.getElementById(`protocol-date-error-${index}`).classList.remove('show');
+        numberInput.classList.remove('is-invalid');
+        dateInput.classList.remove('is-invalid');
+    }
+
+    // Удаление протокола
+    function deleteProtocol(button) {
+        const index = button.getAttribute('data-index');
+
+        if (confirm('Вы уверены, что хотите удалить этот протокол?')) {
+            const row = document.getElementById(`protocol-row-${index}`);
+            row.classList.add('deleted-row');
+            row.style.display = 'none';
+
+            if (protocolsData[index]) {
+                protocolsData[index].deleted = true;
+            }
+
+            updateStats();
+        }
+    }
+
+    // Просмотр файла
+    function viewFile(button) {
+        const filename = button.getAttribute('data-filename');
+        if (filename) {
+            window.open(`/protocols/temp/${filename}`, '_blank');
+        }
+    }
+
+    // Подготовка данных для подтверждения
+    function prepareConfirmForm(event) {
+        event.preventDefault();
+
+        sessionStorage.removeItem('confirmPageLoaded');
+        history.replaceState(null, '', '/ocr/jobs');
+
+        const form = document.getElementById('confirmForm');
+
+        // Очищаем предыдущие скрытые поля
+        form.querySelectorAll('input[type="hidden"][name^="protocol"]').forEach(input => input.remove());
+        form.querySelectorAll('input[type="hidden"][name="fileName"]').forEach(input => input.remove());
+
+        // Собираем данные из не удаленных протоколов
+        protocolsData.forEach((protocol, index) => {
+            if (protocol && !protocol.deleted) {
+                // Номер протокола
+                const numberInput = document.createElement('input');
+                numberInput.type = 'hidden';
+                numberInput.name = 'protocolNumbers';
+                numberInput.value = protocol.number;
+                form.appendChild(numberInput);
+
+                // Дата
+                const dateInput = document.createElement('input');
+                dateInput.type = 'hidden';
+                dateInput.name = 'protocolDates';
+                dateInput.value = protocol.date;
+                form.appendChild(dateInput);
+
+                // Имя файла
+                if (protocol.fileName) {
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'hidden';
+                    fileInput.name = 'fileName';
+                    fileInput.value = protocol.fileName;
+                    form.appendChild(fileInput);
+                }
+            }
+        });
+
+        form.submit();
+    }
+
+    // Подготовка данных для отмены
+    function prepareCancelForm(event) {
+        event.preventDefault();
+
+        sessionStorage.removeItem('confirmPageLoaded');
+        history.replaceState(null, '', '/ocr/jobs');
+
+        const form = document.getElementById('cancelForm');
+
+        // Очищаем предыдущие скрытые поля
+        form.querySelectorAll('input[type="hidden"][name="fileName"]').forEach(input => input.remove());
+
+        form.submit();
+    }
+
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            window.location.replace('/ocr/jobs');
+        }
+    });
+
+    // Обновление статистики
+    function updateStats() {
+        const total = protocolsData.length;
+        const deleted = protocolsData.filter(p => p && p.deleted).length;
+        const edited = protocolsData.filter(p => p && p.edited && !p.deleted).length;
+
+        document.getElementById('totalCount').textContent = total;
+        document.getElementById('deletedCount').textContent = deleted;
+        document.getElementById('editedCount').textContent = edited;
+    }
+
+    // Валидация даты
+    function isValidDate(dateString) {
+        const regex = /^\d{2}\.\d{2}\.\d{4}$/;
+        if (!regex.test(dateString)) return false;
+
+        const [day, month, year] = dateString.split('.').map(Number);
+
+        if (year < 1900 || year > 2100 || month < 1 || month > 12) return false;
+
+        const monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+        // Високосный год
+        if (year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0)) {
+            monthLength[1] = 29;
+        }
+
+        return day > 0 && day <= monthLength[month - 1];
+    }
+</script>
+</body>
+</html>

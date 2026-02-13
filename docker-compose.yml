@@ -18,7 +18,7 @@ services:
     networks:
       - control-m-network
     volumes:
-      - ./output:/app/output
+      - ./test-pdfs:/app/test-pdfs
 
   control_m_db:
     image: postgres:16

@@ -1,357 +1,755 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title th:text="${client.name}"></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8" />
+    <title>Control-M — Страница клиента</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
-        .navbar-brand {
-            font-weight: 600;
+        :root {
+            --primary-dark: #1E2A38;
+            --accent: #FF0000;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --radius: 10px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
         }
-        .search-container {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        .search-input-group {
-            max-width: 500px;
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            font-size: 14px;
         }
-        .clear-search-btn {
-            margin-left: 10px;
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
         }
-        .no-protocols-message {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-        }
-        .protocol-number {
-            font-family: monospace;
-            font-weight: 500;
-        }
-        .table th {
-            background-color: #2c3e50;
+
+        /* HEADER */
+        header {
+            background: var(--primary-dark);
             color: white;
+            padding: 20px 0;
+            border-bottom: 3px solid var(--accent);
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-block img {
+            height: 45px;
+            width: auto;
+            display: block;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .logo-sub {
+            font-size: 12px;
+            color: #CBD5E1;
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .block-title {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        .block-title::before {
+            content: "";
+            width: 5px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .client-name-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        .client-name-title::before {
+            content: "";
+            width: 5px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px 40px;
+            font-size: 15px;
+        }
+
+        .label {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: auto;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .value {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        /* TABLE */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        th, td {
+            padding: 16px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        th {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: var(--bg);
+            border-bottom: 2px solid var(--border);
             position: sticky;
             top: 0;
-            z-index: 10;
         }
-        .table-bordered td {
-            border: 1px solid #dee2e6;
-            vertical-align: top !important;
+
+        tbody tr {
+            transition: var(--transition);
         }
-        .cipher-column {
-            min-width: 180px;
-            min-height: 100px;
+
+        tbody tr:hover {
+            background: #F8FAFC;
         }
-        .pagination-container {
+
+        .protocol-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            color: black;
+            font-size: 15px;
+        }
+
+        .status {
             display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22ff00;
+            flex-shrink: 0;
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 8px 18px;
+            border: 1px solid var(--primary-dark);
+            background: transparent;
+            color: var(--primary-dark);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: transparent;
+        }
+
+        /* SEARCH */
+        .search-form {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
             border-radius: 8px;
+            width: 300px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
         }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
         .pagination-info {
+            font-weight: 500;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .page-btn {
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-main);
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .page-btn:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .page-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
             text-align: center;
-            margin-bottom: 10px;
-            color: #6c757d;
-            font-size: 0.9rem;
+            padding: 60px 20px;
+            color: var(--text-secondary);
         }
-        .page-size-selector {
-            max-width: 100px;
-            display: inline-block;
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
         }
-        .protocols-count {
-            font-weight: bold;
-            color: #2c3e50;
+
+        .empty-state-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        footer {
+            margin-top: 50px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left {
+            font-weight: 500;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px 40px;
+            }
+
+            .header-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 0 16px;
+            }
+
+            .logo-block {
+                width: 100%;
+            }
+
+            .card {
+                padding: 24px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .search-form {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .pagination {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .pagination-controls {
+                flex-wrap: wrap;
+            }
+
+            th, td {
+                padding: 12px 14px;
+            }
+
+            footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .footer-right {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .block-title {
+                font-size: 16px;
+            }
+
+            .client-name-title {
+                font-size: 20px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            .protocol-number {
+                font-size: 13px;
+            }
+
+            .pagination-controls {
+                justify-content: flex-start;
+            }
+
+            .page-btn {
+                min-width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<!-- Навигационная панель -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container-fluid">
-        <!-- Логотип и название -->
-        <a class="navbar-brand">
-            <i class="fas fa-qrcode me-2"></i>Control-M
-        </a>
-
-        <div class="d-flex align-items-center">
-            <span class="text-white me-3">
-                <i class="fas fa-user me-1"></i>
-                <span th:text="${client.name}"></span>
-            </span>
-        </div>
-    </div>
-</nav>
-
-<div class="container mt-4">
-    <!-- Карточка с информацией о клиенте -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h4 class="mb-0"><i class="fas fa-user me-2"></i><span th:text="${client.name}"></span></h4>
-                </div>
-                <div>
-                    <span class="badge bg-light text-dark">
-                        Всего протоколов: <span th:text="${totalProtocols != null ? totalProtocols : client.protocols.size()}"></span>
-                    </span>
-                </div>
+<header>
+    <div class="header-inner">
+        <div class="logo-block">
+            <img th:src="@{/images/logo3.png}"
+                 src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
+                 alt="Логотип Control-M">
+            <div class="logo-text">
+                <div class="logo-title">CONTROL-M</div>
+                <div class="logo-sub">Строительная испытательная лаборатория</div>
             </div>
         </div>
     </div>
+</header>
 
-    <!-- Поиск протоколов -->
-    <div class="search-container">
-        <form id="searchForm" th:action="@{/client/{id}(id=${client.id})}" method="get" class="mb-0" onsubmit="handleSearchSubmit(event)">
-            <input type="hidden" name="page" th:value="${currentPage != null ? currentPage : 0}">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <label for="searchInput" class="form-label fw-bold mb-2">
-                        <i class="fas fa-search me-2"></i>Поиск протоколов
-                    </label>
-                    <div class="input-group search-input-group">
-                        <input type="text"
-                               class="form-control"
-                               id="searchInput"
-                               name="search"
-                               th:value="${searchQuery != null ? searchQuery : param.search}"
-                               placeholder="Введите номер..."
-                               aria-label="Поиск протоколов">
-                        <button class="btn btn-outline-primary" type="submit" id="searchButton">
-                            <i class="fas fa-search"></i> Найти
-                        </button>
-                        <button type="button"
-                                class="btn btn-outline-secondary clear-search-btn"
-                                onclick="clearSearch()">
-                            <i class="fas fa-times"></i> Очистить
-                        </button>
-                    </div>
-                    <div class="form-text mt-1">
-                        Поиск осуществляется по полному или частичному совпадению номера протокола
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="pageSizeSelect" class="form-label fw-bold mb-2">
-                                <i class="fas fa-file-alt me-2"></i>Протоколов на страницу
-                            </label>
-                            <select class="form-select page-size-selector"
-                                    id="pageSizeSelect"
-                                    name="size"
-                                    onchange="updatePageSize(this.value)">
-                                <option value="10" th:selected="${pageSize == 10}">10</option>
-                                <option value="20" th:selected="${pageSize == 20}">20</option>
-                                <option value="30" th:selected="${pageSize == 30}">30</option>
-                                <option value="50" th:selected="${pageSize == 50}">50</option>
-                                <option value="100" th:selected="${pageSize == 100}">100</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
+<div class="container">
 
-    <!-- Динамическая таблица протоколов -->
+    <!-- CLIENT INFO -->
     <div class="card">
-        <div class="card-header bg-light">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-file-contract me-2"></i>Выданные протоколы</h5>
-                <span class="badge bg-primary">
-                    <i class="fas fa-list me-1"></i>
-                    <span th:text="${filteredProtocols != null ? filteredProtocols.size() : 0}"></span>
-                </span>
-            </div>
+        <div class="block-title client-name-title" th:text="${paginatedDto.client.name}">
+            ООО "СтройГрад"
         </div>
+    </div>
 
-        <div class="card-body p-0">
-            <!-- Сообщение, если нет протоколов -->
-            <div th:if="${(filteredProtocols != null and filteredProtocols.empty) or (filteredProtocols == null and client.protocols.empty)}"
-                 class="no-protocols-message">
-                <i class="fas fa-file-contract fa-4x mb-3"></i>
-                <h5>Нет протоколов</h5>
-                <p class="text-muted">Не найдено ни одного протокола</p>
-            </div>
+    <!-- PROTOCOLS -->
+    <div class="card">
+        <div class="block-title">ВЫДАННЫЕ ПРОТОКОЛЫ ИСПЫТАНИЙ</div>
 
-            <!-- Динамическая таблица с колонками по шифрам -->
-            <div th:unless="${(filteredProtocols != null and filteredProtocols.empty) or (filteredProtocols == null and client.protocols.empty)}"
-                 class="table-responsive">
-                <table class="table table-bordered mb-0">
-                    <thead class="table-dark">
-                    <tr>
-                        <!-- Динамические заголовки колонок на основе уникальных шифров -->
-                        <th th:each="cipher : ${uniqueCiphers}"
-                            th:text="${cipher}"
-                            class="text-center cipher-column">
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <!-- Колонки с протоколами для каждого шифра -->
-                        <td th:each="cipher : ${uniqueCiphers}"
-                            th:classappend="${(protocolsByCipher.get(cipher) == null or protocolsByCipher.get(cipher).empty)} ? 'empty-column' : ''"
-                            class="cipher-column">
+        <!-- 🔍 ПОИСК -->
+        <form method="get" th:action="@{/public/client/{id}(id=${paginatedDto.client.id})}" class="search-form" id="searchForm">
+            <input type="text"
+                   name="search"
+                   th:value="${paginatedDto.searchQuery}"
+                   placeholder="Поиск по номеру протокола..."
+                   class="search-input"
+                   id="searchInput">
 
-                            <div th:if="${protocolsByCipher.get(cipher) != null and not protocolsByCipher.get(cipher).empty}">
-                                <!-- Список протоколов -->
-                                <div th:each="protocol : ${protocolsByCipher.get(cipher)}">
-                                    <div class="protocol-number text-center fw-bold mb-1"
-                                         th:text="${protocol.getFullProtocolNumber()}">
-                                    </div>
-                                </div>
+            <!-- Скрытые поля для параметров пагинации -->
+            <input type="hidden" name="page" th:value="${paginatedDto.currentPage}">
+            <input type="hidden" name="size" th:value="${paginatedDto.pageSize}" id="sizeInput">
+
+            <button type="submit" class="btn">
+                Найти
+            </button>
+
+            <a th:href="@{/public/client/{id}(id=${paginatedDto.client.id})}" class="btn btn-outline" id="resetBtn">
+                Сбросить
+            </a>
+        </form>
+<!--TODO добавить количество протоколов-->
+        <!-- 📋 ТАБЛИЦА -->
+        <div th:if="${paginatedDto.protocols != null && !paginatedDto.protocols.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th width="30%">№ протокола</th>
+                    <th width="50%">Вид испытаний</th>
+                    <th width="20%">Статус</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${paginatedDto.protocols}">
+                        <td>
+                            <div class="protocol-number" th:text="${p.getFullProtocolNumber()}">
+                                CTM-2024-0871
                             </div>
-
-                            <!-- Пустая колонка -->
-                            <div th:if="${protocolsByCipher.get(cipher) == null or protocolsByCipher.get(cipher).empty}"
-                                 class="text-center text-muted py-4">
-                                <i class="fas fa-inbox fa-2x mb-2"></i>
-                                <div>Нет протоколов</div>
+                        </td>
+                        <td>
+                            <th:block th:switch="${p.cipher}">
+                                <span th:case="'НК'">Неразрушающий контроль</span>
+                                <span th:case="'ВИК'">Визуально-измерительный контроль</span>
+                                <span th:case="'УЗК'">Ультразвуковой контроль</span>
+                                <span th:case="'КБ'">Испытание образцов кубов</span>
+                                <span th:case="'СШ'">?</span>
+                                <span th:case="'КУ'">?</span>
+                                <span th:case="'КП'">?</span>
+                                <span th:case="'ИМ'">?</span>
+                                <span th:case="'СТ'">?</span>
+                                <span th:case="'ИП'">?</span>
+                                <span th:case="'ИЦ'">?</span>
+                                <span th:case="'РА'">?</span>
+                                <span th:case="'АГ'">?</span>
+                                <span th:case="'ИБ'">?</span>
+                                <span th:case="'ВМ'">?</span>
+                                <span th:case="'ВК'">?</span>
+                                <span th:case="'КФ'">?</span>
+                                <span th:case="'ТП'">?</span>
+                                <span th:case="'ВА'">?</span>
+                                <span th:case="*" th:text="${p.cipher}">Неизвестный шифр</span>
+<!--                                TODO исправить шифры-->
+                            </th:block>
+                        </td>
+                        <td>
+                            <div class="status">
+                                <div class="dot"></div>
+                                <span>Выдан</span>
                             </div>
                         </td>
                     </tr>
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
+
+            <!-- 📄 ПАГИНАЦИЯ - ИСПРАВЛЕНИЕ ТОЛЬКО ДЛЯ totalPages = 2 -->
+            <div class="pagination" th:if="${paginatedDto.totalPages > 1}">
+                <div class="pagination-info">
+                    Страница <span th:text="${paginatedDto.currentPage + 1}">1</span> из
+                    <span th:text="${paginatedDto.totalPages}">10</span>
+                </div>
+
+                <div class="pagination-controls">
+                    <!-- Кнопка "Назад" -->
+                    <a th:href="@{/public/client/{id}(id=${paginatedDto.client.id}, page=${paginatedDto.currentPage - 1}, size=${paginatedDto.pageSize}, search=${paginatedDto.searchQuery})}"
+                       class="page-btn"
+                       th:classappend="${paginatedDto.currentPage == 0} ? 'disabled' : ''"
+                       th:unless="${paginatedDto.currentPage == 0}">
+                        ←
+                    </a>
+
+                    <!-- Первая страница -->
+                    <a th:href="@{/public/client/{id}(id=${paginatedDto.client.id}, page=0, size=${paginatedDto.pageSize}, search=${paginatedDto.searchQuery})}"
+                       class="page-btn"
+                       th:classappend="${paginatedDto.currentPage == 0} ? 'active' : ''">
+                        1
+                    </a>
+
+                    <!-- Многоточие, если нужно -->
+                    <span class="page-btn disabled" th:if="${paginatedDto.currentPage > 2}">...</span>
+
+                    <!-- Страницы вокруг текущей - ТОЛЬКО ЕСЛИ totalPages > 2 -->
+                    <th:block th:if="${paginatedDto.totalPages > 2}">
+                        <a th:each="i : ${#numbers.sequence(T(java.lang.Math).max(1, paginatedDto.currentPage - 1), T(java.lang.Math).min(paginatedDto.totalPages - 2, paginatedDto.currentPage + 1))}"
+                           th:href="@{/public/client/{id}(id=${paginatedDto.client.id}, page=${i}, size=${paginatedDto.pageSize}, search=${paginatedDto.searchQuery})}"
+                           class="page-btn"
+                           th:classappend="${i == paginatedDto.currentPage} ? 'active' : ''"
+                           th:text="${i + 1}">
+                        </a>
+                    </th:block>
+
+                    <!-- Многоточие, если нужно -->
+                    <span class="page-btn disabled" th:if="${paginatedDto.currentPage < paginatedDto.totalPages - 3}">...</span>
+
+                    <!-- Последняя страница - НЕ ПОКАЗЫВАТЬ, ЕСЛИ totalPages = 2, потому что она уже показана в первой странице?
+                         Или показывать, но без дублирования - добавим условие -->
+                    <a th:if="${paginatedDto.totalPages > 1 && paginatedDto.totalPages > 2}"
+                       th:href="@{/public/client/{id}(id=${paginatedDto.client.id}, page=${paginatedDto.totalPages - 1}, size=${paginatedDto.pageSize}, search=${paginatedDto.searchQuery})}"
+                       class="page-btn"
+                       th:classappend="${paginatedDto.currentPage == paginatedDto.totalPages - 1} ? 'active' : ''"
+                       th:text="${paginatedDto.totalPages}">
+                    </a>
+
+                    <!-- Для случая totalPages = 2 - показываем последнюю страницу отдельно, но только если текущая не последняя? -->
+                    <a th:if="${paginatedDto.totalPages == 2 && paginatedDto.currentPage == 0}"
+                       th:href="@{/public/client/{id}(id=${paginatedDto.client.id}, page=${paginatedDto.totalPages - 1}, size=${paginatedDto.pageSize}, search=${paginatedDto.searchQuery})}"
+                       class="page-btn"
+                       th:text="${paginatedDto.totalPages}">
+                    </a>
+
+                    <a th:if="${paginatedDto.totalPages == 2 && paginatedDto.currentPage == 1}"
+                       class="page-btn active"
+                       th:text="${paginatedDto.totalPages}">
+                    </a>
+
+                    <!-- Кнопка "Вперёд" -->
+                    <a th:href="@{/public/client/{id}(id=${paginatedDto.client.id}, page=${paginatedDto.currentPage + 1}, size=${paginatedDto.pageSize}, search=${paginatedDto.searchQuery})}"
+                       class="page-btn"
+                       th:classappend="${paginatedDto.currentPage == paginatedDto.totalPages - 1} ? 'disabled' : ''"
+                       th:unless="${paginatedDto.currentPage == paginatedDto.totalPages - 1}">
+                        →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Сообщение, если протоколов нет -->
+        <div th:if="${paginatedDto.protocols == null || paginatedDto.protocols.isEmpty()}" class="empty-state">
+            <div class="empty-state-icon">📄</div>
+            <div class="empty-state-title">Протоколы не найдены</div>
+            <div th:if="${paginatedDto.searchQuery != null && !paginatedDto.searchQuery.isEmpty()}">
+                По запросу "<span th:text="${paginatedDto.searchQuery}"></span>" ничего не найдено
             </div>
         </div>
     </div>
 
-    <!-- Пагинация -->
-    <div th:if="${totalPages > 1}" class="pagination-container">
-        <nav aria-label="Навигация по страницам">
-            <ul class="pagination mb-0">
-                <!-- Кнопка "Назад" -->
-                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
-                    <a class="page-link"
-                       th:href="@{/client/{id}(id=${client.id}, search=${searchQuery}, page=${currentPage - 1}, size=${pageSize})}"
-                       th:if="${currentPage > 0}"
-                       aria-label="Предыдущая">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                    <span class="page-link" th:unless="${currentPage > 0}" aria-hidden="true">&laquo;</span>
-                </li>
-
-                <!-- Первая страница -->
-                <li class="page-item" th:classappend="${currentPage == 0} ? 'active' : ''">
-                    <a class="page-link"
-                       th:href="@{/client/{id}(id=${client.id}, search=${searchQuery}, page=0, size=${pageSize})}"
-                       th:text="1">
-                    </a>
-                </li>
-
-                <!-- Многоточие если нужно -->
-                <li class="page-item disabled" th:if="${currentPage > 3}">
-                    <span class="page-link">...</span>
-                </li>
-
-                <!-- Страницы вокруг текущей -->
-                <li th:each="i : ${#numbers.sequence(T(java.lang.Math).max(1, currentPage - 2), T(java.lang.Math).min(totalPages - 2, currentPage + 2))}"
-                    class="page-item"
-                    th:classappend="${i == currentPage} ? 'active' : ''">
-                    <a class="page-link"
-                       th:href="@{/client/{id}(id=${client.id}, search=${searchQuery}, page=${i}, size=${pageSize})}"
-                       th:text="${i + 1}">
-                    </a>
-                </li>
-
-                <!-- Многоточие если нужно -->
-                <li class="page-item disabled" th:if="${currentPage < totalPages - 4}">
-                    <span class="page-link">...</span>
-                </li>
-
-                <!-- Последняя страница -->
-                <li class="page-item" th:if="${totalPages > 1}"
-                    th:classappend="${currentPage == totalPages - 1} ? 'active' : ''">
-                    <a class="page-link"
-                       th:href="@{/client/{id}(id=${client.id}, search=${searchQuery}, page=${totalPages - 1}, size=${pageSize})}"
-                       th:text="${totalPages}">
-                    </a>
-                </li>
-
-                <!-- Кнопка "Вперед" -->
-                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
-                    <a class="page-link"
-                       th:href="@{/client/{id}(id=${client.id}, search=${searchQuery}, page=${currentPage + 1}, size=${pageSize})}"
-                       th:if="${currentPage < totalPages - 1}"
-                       aria-label="Следующая">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                    <span class="page-link" th:unless="${currentPage < totalPages - 1}" aria-hidden="true">&raquo;</span>
-                </li>
-            </ul>
-        </nav>
+    <!-- CONTACTS -->
+    <div class="card">
+        <div class="block-title">КОНТАКТЫ ЛАБОРАТОРИИ</div>
+        <div class="grid-2">
+            <div>
+                <div class="contact-item">
+                    <div class="label">Телефон</div>
+                    <div class="value">+7 (495) 123-45-67</div>
+                </div>
+                <div class="contact-item">
+                    <div class="label">Email</div>
+                    <div class="value">office@control-m.ru</div>
+                </div>
+                <div class="contact-item">
+                    <div class="label">Адрес</div>
+                    <div class="value">г. Москва, ул. Лабораторная, 15</div>
+                </div>
+            </div>
+            <div>
+                <div class="contact-item">
+                    <div class="label">О компании: </div>
+                    <div class="value">Control-M • Внутренняя система протоколов</div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <footer>
+        <div class="footer-left">
+            © Control-M • Внутренняя система протоколов
+        </div>
+        <div class="footer-right">
+            <div>Данные актуальны на:</div>
+            <div th:text="${#dates.format(#dates.createNow(), 'dd.MM.yyyy')}"></div>
+        </div>
+    </footer>
+
 </div>
 
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- JavaScript для поиска и взаимодействия -->
 <script>
-    // Функция для очистки поиска
-    function clearSearch() {
+    // Функция для изменения количества элементов на странице
+    function changePageSize(size) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('size', size);
+        url.searchParams.set('page', '0'); // Возвращаемся на первую страницу
+        window.location.href = url.toString();
+    }
+
+    // Функция для сброса поиска
+    function resetSearch() {
         const url = new URL(window.location.href);
         url.searchParams.delete('search');
         url.searchParams.set('page', '0');
         window.location.href = url.toString();
     }
 
-    // Функция для обновления размера страницы
-    function updatePageSize(size) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('size', size);
-        url.searchParams.set('page', '0'); // Сбрасываем на первую страницу при изменении размера
-        window.location.href = url.toString();
-    }
-
-    // Обработка отправки формы поиска
-    function handleSearchSubmit(event) {
-        event.preventDefault();
-        const searchInput = document.getElementById('searchInput');
-        const url = new URL(window.location.href);
-        const searchValue = searchInput.value.trim();
-
-        if (searchValue) {
-            url.searchParams.set('search', searchValue);
-        } else {
-            url.searchParams.delete('search');
+    // Обработка нажатия Enter в поле поиска
+    document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // При новом поиске сбрасываем на первую страницу
+            document.querySelector('input[name="page"]').value = '0';
+            document.getElementById('searchForm').submit();
         }
+    });
 
-        url.searchParams.set('page', '0'); // Всегда сбрасываем на первую страницу при поиске
-        // Сохраняем текущий размер страницы
-        const pageSize = document.getElementById('pageSizeSelect').value;
-        url.searchParams.set('size', pageSize);
+    // Установка обработчика для кнопки сброса
+    document.getElementById('resetBtn')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        resetSearch();
+    });
 
-        window.location.href = url.toString();
-    }
+    // Функция для обновления скрытого поля размера страницы
+    document.querySelector('.page-size-selector')?.addEventListener('change', function(e) {
+        document.getElementById('sizeInput').value = e.target.value;
+    });
 
-    // Автофокус на поле поиска при загрузке страницы
+    // Автофокус на поле поиска при загрузке
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.focus();
-            // Выделяем текст, если он есть
             if (searchInput.value) {
                 searchInput.select();
             }
         }
-
-        // Обработка нажатия Enter для поиска
-        searchInput?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                handleSearchSubmit(new Event('submit'));
-            }
-        });
     });
 </script>
+
 </body>
 </html>

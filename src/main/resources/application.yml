@@ -4,9 +4,14 @@ spring:
       ddl-auto: create-drop
     properties:
       hibernate:
+        jdbc:
+          time_zone: Europe/Moscow
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+  jackson:
+    time-zone: Europe/Moscow
+
 
   thymeleaf:
     cache: false
@@ -24,3 +29,8 @@ app:
 
 server:
   port: 8080
+
+test:
+  input:
+    dir: ./test-pdfs
+  client-id: 1
