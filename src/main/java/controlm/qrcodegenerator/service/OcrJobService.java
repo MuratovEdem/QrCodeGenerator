@@ -8,10 +8,14 @@ import controlm.qrcodegenerator.model.OcrJob;
 import controlm.qrcodegenerator.model.User;
 import controlm.qrcodegenerator.repository.OcrJobRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -48,14 +52,24 @@ public class OcrJobService {
         return save(job);
     }
 
-    public List<OcrJobResponseDto> getDtosByUserIdAndStatusNotSaved(Long userId) {
-        List<OcrJob> allByUserIdAndStatusNot = ocrJobRepository.findAllByUserIdAndStatusNot(userId, OcrJobStatus.SAVED);
+    public Page<OcrJobResponseDto> getPaginatedDtoByUserIdAndStatusNotSaved(Long userId, Pageable pageRequest) {
+        Page<OcrJob> jobsPage = ocrJobRepository.findByUserIdAndStatusNot(userId, OcrJobStatus.SAVED, pageRequest);
 
-        return ocrJobMapper.ocrListToResponseDtos(allByUserIdAndStatusNot);
+        return jobsPage.map(ocrJobMapper::ocrToResponseDto);
     }
 
-    public List<OcrJob> findOcrJobsByUserId(Long userId) {
-        return ocrJobRepository.findAllByUserId(userId);
+    public Map<String, Long> getStatusCountsByUserId(Long userId) {
+        List<OcrJobStatus> excludedStatuses = List.of(OcrJobStatus.SAVED);
+
+        Map<String, Long> counts = new HashMap<>();
+        counts.put("all", ocrJobRepository.countByUserIdAndStatusNotIn(userId, excludedStatuses));
+        counts.put("PENDING", ocrJobRepository.countByUserIdAndStatus(userId, OcrJobStatus.PENDING));
+        counts.put("PROCESSING", ocrJobRepository.countByUserIdAndStatus(userId, OcrJobStatus.PROCESSING));
+        counts.put("DONE", ocrJobRepository.countByUserIdAndStatus(userId, OcrJobStatus.DONE));
+        counts.put("ERROR", ocrJobRepository.countByUserIdAndStatus(userId, OcrJobStatus.ERROR));
+        counts.put("SAVED", ocrJobRepository.countByUserIdAndStatus(userId, OcrJobStatus.SAVED));
+
+        return counts;
     }
 
     public void deleteById(Long id) {

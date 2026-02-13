@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -32,16 +30,6 @@ public class OcrJobMapper {
         dto.setOriginalFileName(path.getFileName().toString());
         dto.setClientName(clientService.getClientById(ocrJob.getClientId()).getName());
         dto.setProgress(0);
-
-        return dto;
-    }
-
-    public List<OcrJobResponseDto> ocrListToResponseDtos(List<OcrJob> ocrJobs) {
-        List<OcrJobResponseDto> dto = new ArrayList<>();
-
-        for (OcrJob job : ocrJobs) {
-            dto.add(ocrToResponseDto(job));
-        }
 
         return dto;
     }

@@ -7,7 +7,7 @@
 
     <!-- Шрифты -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+<!--TODO настроить масшатбирование-->
     <style>
         :root {
             --primary-dark: #1E2A38;
@@ -506,7 +506,6 @@
     <!-- PROTOCOLS -->
     <div class="card">
         <div class="block-title">ВЫДАННЫЕ ПРОТОКОЛЫ ИСПЫТАНИЙ</div>
-
         <!-- 🔍 ПОИСК -->
         <form method="get" th:action="@{/public/client/{id}(id=${paginatedDto.client.id})}" class="search-form" id="searchForm">
             <input type="text"
@@ -529,6 +528,11 @@
             </a>
         </form>
 <!--TODO добавить количество протоколов-->
+<!--        TODO убрать автофокус на строку поиска-->
+<!--        TODO уменьшить размер кнопок найти и сбросить, чтобы они помещанились в 1 строку на телефоне-->
+<!--        TODO убрать надпись страница 1 из 3-->
+<!--        TODO поправить футер оставить только дату-->
+<!--        TODO фраза выданные протоколы испытаний не помещается, придумать новую-->
         <!-- 📋 ТАБЛИЦА -->
         <div th:if="${paginatedDto.protocols != null && !paginatedDto.protocols.isEmpty()}">
             <table>
@@ -581,7 +585,7 @@
                 </tbody>
             </table>
 
-            <!-- 📄 ПАГИНАЦИЯ - ИСПРАВЛЕНИЕ ТОЛЬКО ДЛЯ totalPages = 2 -->
+            <!-- 📄 ПАГИНАЦИЯ-->
             <div class="pagination" th:if="${paginatedDto.totalPages > 1}">
                 <div class="pagination-info">
                     Страница <span th:text="${paginatedDto.currentPage + 1}">1</span> из

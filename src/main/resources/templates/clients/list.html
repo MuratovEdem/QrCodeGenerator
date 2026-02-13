@@ -1,239 +1,968 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Клиенты</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control-M — Клиенты</title>
 
-    <!-- CSRF мета-тег для JavaScript -->
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
+    <!-- Шрифты Control-M -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
     <style>
-        .navbar-brand {
+        :root {
+            --primary-dark: #1E2A38;
+            --accent: #FF0000;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --radius: 10px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 20px 0;
+            border-bottom: 3px solid var(--accent);
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-block img {
+            height: 45px;
+            width: auto;
+            display: block;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        /* НАВИГАЦИЯ */
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: var(--transition);
+            opacity: 0.9;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* КНОПКА ВЫХОДА - ПРИЖАТА К ПРАВОМУ КРАЮ */
+        .logout-wrapper {
+            margin-left: auto;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ЗАГОЛОВОК С КРАСНОЙ ПОЛОСКОЙ */
+        .block-title {
+            font-weight: 600;
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        .block-title::before {
+            content: "";
+            width: 5px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* ЗАГОЛОВОК И КНОПКА ДОБАВЛЕНИЯ */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background: #2A3A4A;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ПОИСК - АККУРАТНОЕ ОТОБРАЖЕНИЕ */
+        .search-section {
+            margin-bottom: 24px;
+        }
+
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .search-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 42px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            background: white;
+            height: 40px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-search {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            height: 40px;
+        }
+
+        .btn-search:hover {
+            background: #2A3A4A;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-clear {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            height: 40px;
+        }
+
+        .btn-clear:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: #FFF5F5;
+        }
+
+        .search-stats {
+            display: flex;
+            justify-content: flex-end;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .search-stats strong {
+            color: var(--primary-dark);
             font-weight: 600;
         }
-        .user-info {
-            color: white;
-            margin-right: 15px;
+
+        .search-query-highlight {
+            color: var(--accent);
+            font-weight: 500;
         }
-        .logout-btn {
-            color: white !important;
-            border: 1px solid rgba(255,255,255,0.5) !important;
+
+        /* ТАБЛИЦА */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--card);
         }
-        .logout-btn:hover {
-            background-color: rgba(255,255,255,0.1) !important;
-            border-color: white !important;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
         }
-        .search-container {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        th {
+            text-align: left;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: var(--bg);
+            border-bottom: 2px solid var(--border);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
         }
-        .search-input-group {
-            max-width: 500px;
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
         }
-        .clear-search-btn {
-            margin-left: 10px;
+
+        tr:last-child td {
+            border-bottom: none;
         }
-        .no-clients-message {
+
+        /* КЛИКАБЕЛЬНЫЕ СТРОКИ */
+        tbody tr {
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background: #F8FAFC;
+        }
+
+        .client-name {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* ПРОСТЫЕ ЦИФРЫ - БЕЗ ПОДСВЕТКИ */
+        .count-number {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        /* КНОПКИ ДЕЙСТВИЙ */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 10;
+        }
+
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            pointer-events: auto;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-icon.success:hover {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .btn-icon.warning:hover {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        /* ПУСТОЕ СОСТОЯНИЕ */
+        .empty-state {
             text-align: center;
-            padding: 40px;
-            color: #6c757d;
+            padding: 60px 20px;
+            color: var(--text-secondary);
         }
-        .client-name-highlight {
-            background-color: #fff3cd;
-            padding: 2px 4px;
-            border-radius: 3px;
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+            color: var(--text-secondary);
         }
-        .table-actions {
-            white-space: nowrap;
+
+        .empty-state-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .empty-state-text {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .empty-state-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .empty-state-btn:hover {
+            background: #2A3A4A;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ПАГИНАЦИЯ */
+        .pagination-section {
+            margin-top: 24px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .pagination-info {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .pagination-info span {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .page-btn {
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            box-shadow: var(--shadow);
+        }
+
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .page-btn.active {
+            background: var(--primary-dark);
+            color: white;
+            border-color: var(--primary-dark);
+            cursor: default;
+        }
+
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: var(--border-light);
+        }
+
+        .page-btn.dots {
+            border: none;
+            box-shadow: none;
+            background: transparent;
+            cursor: default;
+        }
+
+        .page-btn.dots:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 50px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left {
+            font-weight: 500;
+        }
+
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px 40px;
+            }
+
+            .header-inner {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .logo-block img {
+                height: 35px;
+            }
+
+            .logo-title {
+                font-size: 18px;
+            }
+
+            .main-nav {
+                order: 2;
+                width: 100%;
+            }
+
+            .logout-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .logout-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .search-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input-wrapper {
+                min-width: 100%;
+            }
+
+            .search-actions {
+                flex-direction: column;
+            }
+
+            .btn-search, .btn-clear {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .pagination {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .pagination-controls {
+                flex-wrap: wrap;
+            }
+
+            th, td {
+                padding: 12px 16px;
+            }
+
+            th:nth-child(1) { width: 35%; }
+            th:nth-child(2) { width: 15%; }
+            th:nth-child(3) { width: 15%; }
+            th:nth-child(4) { width: 15%; }
+            th:nth-child(5) { width: 20%; }
+
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .block-title {
+                font-size: 18px;
+            }
+
+            th {
+                font-size: 12px;
+            }
+
+            td {
+                font-size: 13px;
+            }
+
+            .btn-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+
+            .page-btn {
+                min-width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- Навигационная панель -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container-fluid">
-        <!-- Логотип и название -->
-        <a class="navbar-brand">
-            <i class="fas fa-qrcode me-2"></i>Control-M
-        </a>
-
-        <!-- Навигационные ссылки -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/clients}">
-                        <i class="fas fa-users me-1"></i> Клиенты
-                    </a>
-                </li>
-            </ul>
-
-            <div class="d-flex align-items-center">
-                <!-- Кнопка выхода -->
-                <form th:action="@{/logout}" method="post" class="d-inline">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                    <button type="submit" class="btn btn-outline-light logout-btn">
-                        <i class="fas fa-sign-out-alt me-1"></i> Выйти
-                    </button>
-                </form>
+<header>
+    <div class="header-inner">
+        <div class="logo-block">
+            <img th:src="@{/images/logo3.png}"
+                 src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
+                 alt="Логотип Control-M">
+            <div class="logo-text">
+                <div class="logo-title">CONTROL-M</div>
             </div>
         </div>
-    </div>
-</nav>
 
-<div class="container mt-4">
-    <!-- Заголовок и кнопка добавления -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-users me-2"></i>Список клиентов</h2>
-        <a th:href="@{/clients/create}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Добавить клиента
-        </a>
-    </div>
+        <nav class="main-nav">
+            <a th:href="@{/clients}" class="nav-link">
+                Клиенты
+            </a>
+            <a th:href="@{/ocr/jobs}" class="nav-link">
+                Загрузки
+            </a>
+        </nav>
 
-    <!-- Поиск клиентов -->
-    <div class="search-container">
-        <form id="searchForm" th:action="@{/clients}" method="get" class="mb-0">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <label for="searchInput" class="form-label fw-bold mb-2">
-                        <i class="fas fa-search me-2"></i>Поиск клиента по наименованию
-                    </label>
-                    <div class="input-group search-input-group">
+        <div class="logout-wrapper">
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="logout-btn" onclick="return confirm('Вы уверены, что хотите выйти из системы?')">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Выйти
+                </button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div class="page-header">
+            <div class="block-title">
+                СПИСОК КЛИЕНТОВ
+            </div>
+            <a th:href="@{/clients/create}" class="btn-primary">
+                <i class="bi bi-plus-circle"></i>
+                Добавить клиента
+            </a>
+        </div>
+
+        <!-- Секция поиска -->
+        <div class="search-section">
+            <form id="searchForm" th:action="@{/clients}" method="get" class="search-form">
+                <div class="search-input-group">
+                    <div class="search-input-wrapper">
+                        <i class="bi bi-search search-icon"></i>
                         <input type="text"
-                               class="form-control"
+                               class="search-input"
                                id="searchInput"
                                name="search"
                                th:value="${param.search}"
-                               placeholder="Введите наименование клиента..."
-                               aria-label="Поиск клиента">
-                        <button class="btn btn-outline-primary" type="submit" id="searchButton">
-                            <i class="fas fa-search"></i> Найти
-                        </button>
-                        <button type="button"
-                                class="btn btn-outline-secondary clear-search-btn"
-                                onclick="clearSearch()">
-                            <i class="fas fa-times"></i> Очистить
-                        </button>
+                               placeholder="Введите наименование клиента...">
                     </div>
-                    <div class="form-text mt-1">
-                        Поиск осуществляется по полному или частичному совпадению наименования
+
+                    <div class="search-actions">
+                        <button type="submit" class="btn-search">
+                            <i class="bi bi-search"></i>
+                            Найти
+                        </button>
+                        <a href="/clients" class="btn-clear" onclick="clearSearch()">
+                            <i class="bi bi-x-circle"></i>
+                            Очистить
+                        </a>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="d-flex align-items-center justify-content-end h-100">
-                        <div class="text-muted">
-                            <span th:if="${param.search}">
-                                Найдено: <strong th:text="${clients.size()}"></strong> клиентов
-                                <span th:if="${param.search}">
-                                    по запросу: "<strong th:text="${param.search}"></strong>"
-                                </span>
-                            </span>
-                            <span th:unless="${param.search}">
-                                Всего клиентов: <strong th:text="${clients.size()}"></strong>
-                            </span>
+
+                <div class="search-stats">
+                    <span th:if="${param.search}">
+                        Найдено: <strong th:text="${page.totalElements}"></strong> клиентов
+                        по запросу: "<strong class="search-query-highlight" th:text="${param.search}"></strong>"
+                    </span>
+                    <span th:unless="${param.search}">
+                        Всего клиентов: <strong th:text="${page.totalElements}"></strong>
+                    </span>
+                </div>
+            </form>
+        </div>
+
+        <!-- Таблица клиентов -->
+        <div th:if="${page.totalElements == 0}" class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="empty-state-title">
+                <span th:if="${param.search}">Ничего не найдено</span>
+                <span th:unless="${param.search}">Нет клиентов</span>
+            </div>
+            <div class="empty-state-text" th:if="${param.search}">
+                По запросу "<span th:text="${param.search}"></span>" ничего не найдено
+            </div>
+            <div class="empty-state-text" th:unless="${param.search}">
+                Добавьте первого клиента, чтобы начать работу
+            </div>
+            <a th:href="@{/clients/create}" class="empty-state-btn">
+                <i class="bi bi-plus-circle"></i>
+                Добавить клиента
+            </a>
+        </div>
+
+        <div th:unless="${page.totalElements == 0}" class="table-responsive">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 35%;">Наименование</th>
+                    <th style="width: 15%;">Протоколы НК</th>
+                    <th style="width: 15%;">Протоколы КБ</th>
+                    <th style="width: 15%;">Другие</th>
+                    <th style="width: 20%;">Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="client : ${page.content}"
+                    th:data-client-id="${client.id}"
+                    class="client-row">
+
+                    <td onclick="navigateToClient(event, ${client.id})">
+                        <span class="client-name" th:text="${client.name}">ООО Пример</span>
+                    </td>
+                    <td onclick="navigateToClient(event, ${client.id})">
+                        <span class="count-number" th:text="${protocolService.getNumberNKCipherById(client.id)}">0</span>
+                    </td>
+                    <td onclick="navigateToClient(event, ${client.id})">
+                        <span class="count-number" th:text="${protocolService.getNumberKBCipherById(client.id)}">0</span>
+                    </td>
+                    <td onclick="navigateToClient(event, ${client.id})">
+                        <span class="count-number" th:text="${protocolService.getNumberOtherCipherById(client.id)}">0</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a th:href="@{/clients/{id}/qr/display(id=${client.id})}"
+                               class="btn-icon success"
+                               title="Показать QR код"
+                               onclick="event.stopPropagation()">
+                                <i class="bi bi-qr-code"></i>
+                            </a>
+                            <a th:href="@{/clients/{id}/save-pdf(id=${client.id})}"
+                               class="btn-icon warning"
+                               title="Загрузить PDF"
+                               onclick="event.stopPropagation()">
+                                <i class="bi bi-upload"></i>
+                            </a>
                         </div>
-                    </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Пагинация -->
+        <div class="pagination-section" th:if="${page.totalPages > 1}">
+            <div class="pagination">
+                <div class="pagination-info">
+                    Страница <span th:text="${page.number + 1}">1</span> из
+                    <span th:text="${page.totalPages}">10</span>
+                </div>
+
+                <div class="pagination-controls">
+                    <!-- Кнопка "Назад" -->
+                    <a th:if="${page.hasPrevious()}"
+                       th:href="@{/clients(page=${page.number - 1}, size=${page.size}, search=${param.search})}"
+                       class="page-btn">
+                        ←
+                    </a>
+                    <span th:unless="${page.hasPrevious()}" class="page-btn disabled">←</span>
+
+                    <!-- Первая страница -->
+                    <a th:href="@{/clients(page=0, size=${page.size}, search=${param.search})}"
+                       class="page-btn"
+                       th:classappend="${page.number == 0} ? 'active' : ''">
+                        1
+                    </a>
+
+                    <!-- Многоточие после первой страницы -->
+                    <span class="page-btn dots disabled" th:if="${page.number > 2}">...</span>
+
+                    <!-- Страницы вокруг текущей -->
+                    <th:block th:each="i : ${#numbers.sequence(page.number > 1 ? page.number - 1 : 1, page.number < page.totalPages - 2 ? page.number + 1 : page.totalPages - 2)}">
+                        <a th:if="${i > 0 and i < page.totalPages - 1}"
+                           th:href="@{/clients(page=${i}, size=${page.size}, search=${param.search})}"
+                           class="page-btn"
+                           th:classappend="${i == page.number} ? 'active' : ''"
+                           th:text="${i + 1}">
+                        </a>
+                    </th:block>
+
+                    <!-- Многоточие перед последней страницей -->
+                    <span class="page-btn dots disabled" th:if="${page.number < page.totalPages - 3}">...</span>
+
+                    <!-- Последняя страница -->
+                    <a th:if="${page.totalPages > 1}"
+                       th:href="@{/clients(page=${page.totalPages - 1}, size=${page.size}, search=${param.search})}"
+                       class="page-btn"
+                       th:classappend="${page.number == page.totalPages - 1} ? 'active' : ''"
+                       th:text="${page.totalPages}">
+                    </a>
+
+                    <!-- Кнопка "Вперед" -->
+                    <a th:if="${page.hasNext()}"
+                       th:href="@{/clients(page=${page.number + 1}, size=${page.size}, search=${param.search})}"
+                       class="page-btn">
+                        →
+                    </a>
+                    <span th:unless="${page.hasNext()}" class="page-btn disabled">→</span>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 
-    <div th:if="${clients.empty}" class="no-clients-message">
-        <i class="fas fa-users fa-4x mb-3"></i>
-        Ничего не найдено
-    </div>
-
-    <div th:unless="${clients.empty}" class="table-responsive">
-        <table class="table table-hover table-striped">
-            <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Наименование</th>
-                <th>Кол-во протоколов НК</th>
-                <th>Кол-во протоколов КБ</th>
-                <th>Кол-во других протоколов</th>
-                <th>Действия</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="client : ${clients}">
-                <td th:text="${client.id}"></td>
-                <td th:text="${client.name}"></td>
-                <td th:text="${protocolService.getNumberNKCipherById(client.getId())}"></td>
-                <td th:text="${protocolService.getNumberKBCipherById(client.getId())}"></td>
-                <td th:text="${protocolService.getNumberOtherCipherById(client.getId())}"></td>
-                <td class="table-actions">
-                    <a th:href="@{/clients/{id}(id=${client.id})}"
-                       class="btn btn-sm btn-info me-1"
-                       title="Просмотр">
-                        <i class="fas fa-eye"></i>
-                    </a>
-                    <a th:href="@{/clients/{id}/create-protocols(id=${client.id})}"
-                       class="btn btn-sm btn-primary me-1"
-                       title="Добавить протокол">
-                        <i class="fas fa-file-contract"></i>
-                    </a>
-                    <a th:href="@{/clients/{id}/qr/display(id=${client.id})}"
-                       class="btn btn-sm btn-success"
-                       title="Показать QR код">
-                        <i class="fas fa-qrcode"></i>
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+    <footer>
+        <div class="footer-left">
+            © Control-M • Внутренняя система протоколов
+        </div>
+    </footer>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/csrf.js"></script>
-
-<script th:inline="javascript">
-
-    // Функция для очистки поиска
+<script>
     function clearSearch() {
         document.getElementById('searchInput').value = '';
         window.location.href = '/clients';
     }
 
-    // Автофокус на поле поиска при загрузке страницы
+    function navigateToClient(event, clientId) {
+        // Если клик был по кнопке действия - не переходим
+        if (event.target.closest('.action-buttons') || event.target.closest('.btn-icon')) {
+            return;
+        }
+        window.location.href = `/clients/${clientId}`;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.focus();
-            // Выделяем текст, если он есть
             if (searchInput.value) {
                 searchInput.select();
             }
         }
 
-        // Обработка нажатия Enter для поиска
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('searchForm').submit();
             }
         });
-
-        // Подтверждение выхода
-        const logoutForm = document.querySelector('form[action*="logout"]');
-        if (logoutForm) {
-            const logoutBtn = logoutForm.querySelector('button[type="submit"]');
-            logoutBtn.addEventListener('click', function(e) {
-                if (!confirm('Вы уверены, что хотите выйти из системы?')) {
-                    e.preventDefault();
-                }
-            });
-        }
     });
-
 </script>
+
 </body>
 </html>

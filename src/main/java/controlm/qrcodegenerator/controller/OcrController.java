@@ -14,6 +14,10 @@ import controlm.qrcodegenerator.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +30,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequestMapping("/ocr")
@@ -41,16 +46,30 @@ public class OcrController {
 
 
     @GetMapping("/jobs")
-    public String getJobMonitoringPage(Principal principal, Model model) {
+    public String getJobMonitoringPage(Principal principal,
+                                       @RequestParam(required = false, defaultValue = "0") int page,
+                                       @RequestParam(required = false, defaultValue = "10") int size,
+                                       Model model) {
         User user = userService.findByUsername(principal.getName());
-        List<OcrJobResponseDto> jobs = ocrJobService.getDtosByUserIdAndStatusNotSaved(user.getId());
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<OcrJobResponseDto> jobsPage = ocrJobService.getPaginatedDtoByUserIdAndStatusNotSaved(user.getId(), pageable);
+        Map<String, Long> statusCounts = ocrJobService.getStatusCountsByUserId(user.getId());
+
 
         model.addAttribute("userId", user.getId());
         model.addAttribute("userName", user.getUsername());
-        model.addAttribute("ocrJobs", jobs);
+        model.addAttribute("jobsPage", jobsPage);
+        model.addAttribute("ocrJobs", jobsPage.getContent());
+        model.addAttribute("statusCounts", statusCounts);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
 
-
-        // TODO СДЕЛАТЬ НОРМАЛЬНОЕ ОТОБРАЖЕНИЕ
         return "ocr/job-monitor";
     }
 

@@ -31,7 +31,6 @@ public class QrCodeGeneratorApplication {
 
         userService.create(registrationUserDto);
 
-
         ClientService clientService = context.getBean(ClientService.class);
 
         ClientRequestDto clientRequestDto = new ClientRequestDto();
@@ -45,6 +44,12 @@ public class QrCodeGeneratorApplication {
         ClientRequestDto clientRequestDto2 = new ClientRequestDto();
         clientRequestDto2.setName("ИП Демченко");
         Client client2 = clientService.createClient(clientRequestDto2);
+
+        for (int i = 0; i < 20; i++) {
+            ClientRequestDto dto = new ClientRequestDto();
+            dto.setName("Client" + i);
+            clientService.createClient(dto);
+        }
 
         ProtocolService protocolService = context.getBean(ProtocolService.class);
 
@@ -89,8 +94,6 @@ public class QrCodeGeneratorApplication {
         protocolService.createProtocols(protocolRequestDto5);
         protocolService.createProtocols(protocolRequestDto2);
         protocolService.createProtocols(protocolRequestDto3);
-
-
     }
 
 }

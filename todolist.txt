@@ -28,7 +28,7 @@ return "redirect:/clients?error=Ошибка загрузки формы"
 сделать расшифровку шифров и перенести их в отдельную сущность
 
 
-готовый дизайн страниц: save-pdf-form, confirm-pdf-form
+готовый дизайн страниц: save-pdf-form, confirm-pdf-form, job-monitor
 
 
 сделать валидацию протоколов +

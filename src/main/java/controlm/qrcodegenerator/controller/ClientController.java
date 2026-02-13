@@ -15,6 +15,10 @@ import controlm.qrcodegenerator.service.QRCodeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,17 +54,28 @@ public class ClientController {
     private final OcrJobService ocrJobService;
 
     @GetMapping
-    public String listClients(@RequestParam(value = "search", required = false) String searchQuery, Model model) {
-        List<Client> clients;
+    public String listClients(@RequestParam(value = "search", required = false) String searchQuery,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              Model model) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+        Page<ClientDto> clients;
 
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            clients = clientService.searchClientsByName(searchQuery.trim());
+            clients = clientService.searchPaginatedClientsByName(searchQuery.trim(), pageable);
         } else {
-            clients = clientService.getAllClients();
+            clients = clientService.getPaginatedClients(pageable);
         }
 
         model.addAttribute("protocolService", protocolService);
-        model.addAttribute("clients", clients);
+        model.addAttribute("page", clients);
+        model.addAttribute("clients", clients.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            model.addAttribute("searchQuery", searchQuery.trim());
+        }
         return "clients/list";
     }
 

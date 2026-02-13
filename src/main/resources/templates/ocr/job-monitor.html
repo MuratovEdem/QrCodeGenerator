@@ -59,7 +59,7 @@
         }
 
         .container {
-            max-width: 1300px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 30px 20px 60px;
         }
@@ -75,7 +75,7 @@
         }
 
         .header-inner {
-            max-width: 1300px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 0 20px;
             display: flex;
@@ -157,7 +157,6 @@
             box-shadow: var(--shadow-md);
         }
 
-        /* Заголовок блока */
         .block-title {
             font-weight: 600;
             font-size: 20px;
@@ -205,52 +204,283 @@
             letter-spacing: 0.3px;
         }
 
+        /* СТИЛИЗАЦИЯ ФИЛЬТРОВ - КАК В ТАБЛИЦЕ */
         .filter-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
+            padding: 5px 14px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
+            border: 1px solid transparent;
+            box-shadow: var(--shadow);
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+            height: 32px;
+        }
+
+        .filter-badge i {
+            font-size: 12px;
+        }
+
+        .filter-badge span {
+            line-height: 1;
+        }
+
+        /* СТИЛИ ДЛЯ ALL - ТЕМНО-СИНИЙ */
+        .filter-badge[data-filter="all"] {
             background: var(--border-light);
             color: var(--text-secondary);
-            border: 1px solid transparent;
+            border-color: var(--border);
+            padding: 5px 16px;
         }
 
-        .filter-badge:hover {
+        .filter-badge[data-filter="all"]:hover {
             background: #E2E8F0;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
-        .filter-badge.active {
+        .filter-badge[data-filter="all"].active {
             background: var(--primary-dark);
             color: white;
             border-color: var(--primary-dark);
+            box-shadow: 0 4px 8px rgba(30, 42, 56, 0.25);
         }
 
+        /* PENDING - ЖЕЛТЫЙ */
+        .filter-badge.status-pending-filter {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+            border-color: #F59E0B;
+        }
+
+        .filter-badge.status-pending-filter:hover {
+            background: linear-gradient(135deg, #FDE68A, #FCD34D);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.25);
+        }
+
+        .filter-badge.status-pending-filter.active {
+            background: #F59E0B;
+            color: white;
+            border-color: #F59E0B;
+            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.25);
+        }
+
+        .filter-badge.status-pending-filter.active i {
+            color: white;
+        }
+
+        /* PROCESSING - СИНИЙ */
+        .filter-badge.status-processing-filter {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+            color: #1E40AF;
+            border-color: #3B82F6;
+        }
+
+        .filter-badge.status-processing-filter:hover {
+            background: linear-gradient(135deg, #BFDBFE, #93C5FD);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
+        }
+
+        .filter-badge.status-processing-filter.active {
+            background: #3B82F6;
+            color: white;
+            border-color: #3B82F6;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
+        }
+
+        .filter-badge.status-processing-filter.active i {
+            color: white;
+        }
+
+        /* DONE - ЗЕЛЕНЫЙ */
+        .filter-badge.status-done-filter {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            color: #065F46;
+            border-color: #10B981;
+        }
+
+        .filter-badge.status-done-filter:hover {
+            background: linear-gradient(135deg, #A7F3D0, #6EE7B7);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .filter-badge.status-done-filter.active {
+            background: #10B981;
+            color: white;
+            border-color: #10B981;
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .filter-badge.status-done-filter.active i {
+            color: white;
+        }
+
+        /* ERROR - КРАСНЫЙ */
+        .filter-badge.status-error-filter {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            color: #991B1B;
+            border-color: #EF4444;
+        }
+
+        .filter-badge.status-error-filter:hover {
+            background: linear-gradient(135deg, #FECACA, #FCA5A5);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
+        }
+
+        .filter-badge.status-error-filter.active {
+            background: #EF4444;
+            color: white;
+            border-color: #EF4444;
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
+        }
+
+        .filter-badge.status-error-filter.active i {
+            color: white;
+        }
+
+        /* SAVED - ФИОЛЕТОВЫЙ */
+        .filter-badge.status-saved-filter {
+            background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+            color: #5B21B6;
+            border-color: #8B5CF6;
+        }
+
+        .filter-badge.status-saved-filter:hover {
+            background: linear-gradient(135deg, #DDD6FE, #C4B5FD);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(139, 92, 246, 0.25);
+        }
+
+        .filter-badge.status-saved-filter.active {
+            background: #8B5CF6;
+            color: white;
+            border-color: #8B5CF6;
+            box-shadow: 0 4px 8px rgba(139, 92, 246, 0.25);
+        }
+
+        .filter-badge.status-saved-filter.active i {
+            color: white;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 6px;
+        }
+
+        /* WEBSOCKET ИНДИКАТОР - ТОЛЬКО ИКОНКА */
         .websocket-indicator {
             display: flex;
             align-items: center;
-            padding: 8px 14px;
-            background: var(--border-light);
-            border-radius: 20px;
-            font-size: 16px;
-            gap: 8px;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .websocket-connected {
+            color: var(--success);
+            border-color: var(--success);
+            background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
         }
 
         .websocket-disconnected {
             color: var(--danger);
+            border-color: var(--danger);
+            background: linear-gradient(135deg, #FEF2F2, #FEE2E2);
         }
 
         .ws-status-text {
-            font-size: 12px;
-            font-weight: 500;
+            display: none;
         }
 
-        .status-processing .progress-bar {
-            background: linear-gradient(90deg, var(--info), #60A5FA);
+        /* СТАТУС БЕЙДЖИ - СТИЛИЗАЦИЯ КНОПОК */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 1;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .done-row td, .saved-row td {
+            background-color: rgba(16, 185, 129, 0.02);
+        }
+
+        .done-row:hover td, .saved-row:hover td {
+            background-color: rgba(16, 185, 129, 0.05) !important;
+        }
+
+        .error-row td {
+            background-color: rgba(239, 68, 68, 0.02);
+        }
+
+        .error-row:hover td {
+            background-color: rgba(239, 68, 68, 0.05) !important;
+        }
+
+        .status-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+            border-color: #F59E0B;
+        }
+
+        .status-processing {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+            color: #1E40AF;
+            border-color: #3B82F6;
+        }
+
+        .status-done {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            color: #065F46;
+            border-color: #10B981;
+        }
+
+        .status-error {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            color: #991B1B;
+            border-color: #EF4444;
+        }
+
+        .status-saved {
+            background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+            color: #5B21B6;
+            border-color: #8B5CF6;
+        }
+
+        .status-badge i {
+            margin-right: 6px;
+            font-size: 12px;
         }
 
         .table-responsive {
@@ -343,6 +573,18 @@
             animation: shimmer 1.5s infinite;
         }
 
+        .status-processing .progress-bar {
+            background: linear-gradient(90deg, var(--info), #60A5FA, var(--info));
+            background-size: 200% 100%;
+            animation: gradientMove 1.5s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         @keyframes shimmer {
             0% { transform: translateX(-100%); }
             100% { transform: translateX(100%); }
@@ -427,7 +669,6 @@
             cursor: not-allowed;
         }
 
-        /* ПУСТОЕ СОСТОЯНИЕ */
         .empty-table-message {
             text-align: center;
             padding: 60px 20px;
@@ -448,7 +689,6 @@
             color: var(--text-main);
         }
 
-        /* FOOTER */
         footer {
             margin-top: 15px;
             padding-top: 15px;
@@ -464,7 +704,6 @@
             font-weight: 500;
         }
 
-        /* КНОПКА ОБНОВЛЕНИЯ */
         .refresh-btn {
             position: fixed;
             bottom: 30px;
@@ -491,7 +730,6 @@
             box-shadow: var(--shadow-md);
         }
 
-        /* АДАПТИВНОСТЬ */
         @media (max-width: 992px) {
             .filters-section {
                 flex-direction: column;
@@ -499,29 +737,359 @@
             }
         }
 
-        @media (max-width: 768px) {
+        @media screen and (max-width: 768px) {
             .container {
-                padding: 20px 16px 40px;
+                padding: 30px 20px 60px;
             }
 
-            .header-inner {
-                flex-direction: row;
-                align-items: center;
+            .card {
+                padding: 16px;
+            }
+
+            .block-title {
+                font-size: 18px;
+                padding-bottom: 10px;
+                margin-bottom: 12px;
+            }
+
+            .block-title::before {
+                height: 20px;
+            }
+
+            .filters-section {
+                flex-direction: column;
+                align-items: stretch;
                 gap: 12px;
+                margin-bottom: 16px;
             }
 
-            .logo-block img {
-                height: 35px;
+            .filters-bar {
+                gap: 8px;
+                justify-content: flex-start;
+                flex-wrap: wrap;
             }
 
-            .logo-title {
+            .filter-label {
+                width: 100%;
+                margin-bottom: 4px;
+                font-size: 11px;
+            }
+
+            .filter-badge {
+                padding: 4px 10px;
+                font-size: 11px;
+                height: 28px;
+                gap: 4px;
+            }
+
+            .filter-badge i {
+                font-size: 10px;
+            }
+
+            .filter-badge[data-filter="all"] {
+                padding: 4px 12px;
+            }
+
+            .websocket-indicator {
+                align-self: flex-start;
+            }
+
+            .table-responsive {
+                border: none;
+                border-radius: 0;
+                margin: 0 -12px;
+                width: calc(100% + 24px);
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th {
+                padding: 12px 12px;
+                font-size: 11px;
+                white-space: nowrap;
+            }
+
+            td {
+                padding: 12px 12px;
+            }
+
+            th:nth-child(1), td:nth-child(1) { min-width: 100px; }
+            th:nth-child(2), td:nth-child(2) { min-width: 140px; }
+            th:nth-child(3), td:nth-child(3) { min-width: 110px; }
+            th:nth-child(4), td:nth-child(4) { min-width: 90px; }
+            th:nth-child(5), td:nth-child(5) { min-width: 100px; }
+
+            .filename-cell {
+                max-width: 130px;
+                font-size: 11px;
+            }
+
+            .status-badge {
+                padding: 4px 10px;
+                font-size: 11px;
+                gap: 4px;
+            }
+
+            .status-badge i {
+                font-size: 11px;
+                margin-right: 4px;
+            }
+
+            .progress-container {
+                width: 80px;
+                height: 4px;
+            }
+
+            .progress-text {
+                font-size: 10px;
+            }
+
+            .error-message-cell {
+                font-size: 11px;
+            }
+
+            .error-message-cell span {
+                max-width: 120px !important;
+            }
+
+            .refresh-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 44px;
+                height: 44px;
                 font-size: 18px;
             }
 
             footer {
+                margin-top: 30px;
+                padding-top: 16px;
                 flex-direction: column;
-                gap: 12px;
                 align-items: flex-start;
+                gap: 8px;
+                font-size: 11px;
+            }
+
+            .footer-left {
+                width: 100%;
+            }
+
+            #status-info {
+                font-size: 11px !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 12px 10px 30px;
+            }
+
+            .card {
+                padding: 12px;
+            }
+
+            .block-title {
+                font-size: 16px;
+            }
+
+            .filters-bar {
+                gap: 6px;
+            }
+
+            .filter-badge {
+                padding: 3px 8px;
+                font-size: 10px;
+                height: 26px;
+            }
+
+            .table-responsive {
+                margin: 0 -10px;
+                width: calc(100% + 20px);
+            }
+
+            th {
+                padding: 10px 8px;
+                font-size: 10px;
+            }
+
+            td {
+                padding: 10px 8px;
+            }
+
+            th:nth-child(1), td:nth-child(1) { min-width: 90px; }
+            th:nth-child(2), td:nth-child(2) { min-width: 120px; }
+            th:nth-child(3), td:nth-child(3) { min-width: 100px; }
+            th:nth-child(4), td:nth-child(4) { min-width: 80px; }
+            th:nth-child(5), td:nth-child(5) { min-width: 90px; }
+
+            .filename-cell {
+                max-width: 110px;
+                font-size: 10px;
+            }
+
+            .status-badge {
+                padding: 3px 8px;
+                font-size: 10px;
+            }
+
+            .progress-container {
+                width: 70px;
+                height: 4px;
+            }
+
+            .refresh-btn {
+                bottom: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .websocket-indicator {
+                font-size: 12px;
+            }
+        }
+
+        @media screen and (max-width: 360px) {
+            .filter-badge {
+                padding: 3px 6px;
+                font-size: 9px;
+                height: 24px;
+            }
+
+            .filter-badge i {
+                font-size: 9px;
+            }
+
+            th {
+                font-size: 9px;
+                padding: 8px 6px;
+            }
+
+            td {
+                padding: 8px 6px;
+            }
+
+            .filename-cell {
+                max-width: 90px;
+            }
+
+            .status-badge {
+                padding: 2px 6px;
+                font-size: 9px;
+            }
+
+            .progress-container {
+                width: 60px;
+            }
+
+            .error-message-cell span {
+                max-width: 80px !important;
+            }
+
+            .refresh-btn {
+                bottom: 10px;
+                right: 10px;
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .filter-badge:hover,
+            .status-badge:hover,
+            .btn:hover,
+            .refresh-btn:hover {
+                transform: none !important;
+            }
+
+            .filter-badge.active {
+                transform: none !important;
+            }
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
+            font-size: 13px;
+        }
+
+        .pagination-info {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .pagination-info span {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .page-btn {
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            box-shadow: var(--shadow);
+        }
+
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .page-btn.active {
+            background: var(--primary-dark);
+            color: white;
+            border-color: var(--primary-dark);
+            cursor: default;
+        }
+
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: var(--border-light);
+        }
+
+        @media (max-width: 768px) {
+            .pagination {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .pagination-controls {
+                flex-wrap: wrap;
+            }
+
+            .page-btn {
+                min-width: 32px;
+                height: 32px;
+                font-size: 12px;
             }
         }
     </style>
@@ -551,49 +1119,21 @@
 </header>
 
 <div class="container">
-    <!-- Основная карточка -->
     <div class="card">
         <div class="block-title">
             ОБРАБОТКА PDF-ДОКУМЕНТОВ
         </div>
 
-        <p style="color: var(--text-secondary); margin-bottom: 24px;">
-            Мониторинг распознавания текста и извлечения протоколов
-        </p>
 
-        <!-- Фильтры и статус WebSocket -->
         <div class="filters-section">
-            <div class="filters-bar">
-                <span class="filter-label">Статус:</span>
-
-                <span class="filter-badge active" data-filter="all">
-                    Все <span id="count-all" style="margin-left: 4px; font-weight: 600;">0</span>
-                </span>
-                <span class="filter-badge" data-filter="PENDING">
-                    ⏳ Ожидание <span id="count-pending">0</span>
-                </span>
-                <span class="filter-badge" data-filter="PROCESSING">
-                    ⚙️ Обработка <span id="count-processing">0</span>
-                </span>
-                <span class="filter-badge" data-filter="DONE">
-                    ✅ Готово <span id="count-done">0</span>
-                </span>
-                <span class="filter-badge" data-filter="ERROR">
-                    ❌ Ошибка <span id="count-error">0</span>
-                </span>
-                <span class="filter-badge" data-filter="SAVED">
-                    💾 Сохранено <span id="count-saved">0</span>
-                </span>
-            </div>
-
-            <!-- Индикатор WebSocket с текстом статуса -->
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                Мониторинг распознавания текста и извлечения протоколов
+            </p>
             <div id="websocket-indicator" class="websocket-indicator websocket-disconnected">
                 <i class="bi bi-wifi-off"></i>
-                <span id="ws-status-text" class="ws-status-text">Подключение...</span>
             </div>
         </div>
 
-        <!-- ТАБЛИЦА ЗАДАНИЙ -->
         <div class="table-responsive">
             <table id="jobs-table">
                 <thead>
@@ -606,9 +1146,8 @@
                 </tr>
                 </thead>
                 <tbody id="jobs-table-body">
-                <!-- Thymeleaf: существующие задания -->
                 <tr th:if="${#lists.isEmpty(ocrJobs)}" class="empty-table-row">
-                    <td colspan="6" style="padding: 0;">
+                    <td colspan="5" style="padding: 0;">
                         <div class="empty-table-message">
                             <div class="empty-table-icon">
                                 <i class="bi bi-inbox"></i>
@@ -626,20 +1165,19 @@
                     th:data-status="${job.status}"
                     th:data-job-id="${job.id}"
                     class="job-row"
-                    th:classappend="${job.status == 'DONE'} ? 'done' :
-                                       (${job.status == 'SAVED'} ? 'saved' :
-                                       (${job.status == 'ERROR'} ? 'error' : ''))">
+                    th:classappend="${job.status == 'DONE'} ? 'done-row' :
+                                       (${job.status == 'SAVED'} ? 'saved-row' :
+                                       (${job.status == 'ERROR'} ? 'error-row' : ''))">
 
-                    <!-- Клиент -->
                     <td>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span th:if="${job.clientId}" style="font-weight: 500;">
-                                    <span th:text="${job.clientName}"></span>
+                                <span th:text="${job.clientName}"></span>
                             </span>
+                            <span th:unless="${job.clientId}" style="color: var(--text-secondary);">—</span>
                         </div>
                     </td>
 
-                    <!-- Файл -->
                     <td>
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <i class="bi bi-file-pdf" style="color: var(--danger); font-size: 18px;"></i>
@@ -651,33 +1189,38 @@
                         </div>
                     </td>
 
-                    <!-- Статус -->
                     <td>
                         <span th:class="'status-badge status-' + ${#strings.toLowerCase(job.status)}">
+                            <i th:switch="${job.status.name}" style="margin-right: 6px;">
+                                <i th:case="'PENDING'" class="bi bi-hourglass"></i>
+                                <i th:case="'PROCESSING'" class="bi bi-gear-wide-connected"></i>
+                                <i th:case="'DONE'" class="bi bi-check-circle"></i>
+                                <i th:case="'SAVED'" class="bi bi-save"></i>
+                                <i th:case="'ERROR'" class="bi bi-exclamation-triangle"></i>
+                                <i th:case="*" class="bi bi-question-circle"></i>
+                            </i>
                             <span th:switch="${job.status.name}">
-                                <span th:case="'PENDING'">⏳ Ожидание</span>
-                                <span th:case="'PROCESSING'">⚙️ Обработка</span>
-                                <span th:case="'DONE'">✅ Готово</span>
-                                <span th:case="'SAVED'">💾 Сохранено</span>
-                                <span th:case="'ERROR'">❌ Ошибка</span>
-                                <span th:case="*">❓ Неизвестно</span>
+                                <span th:case="'PENDING'">Ожидание</span>
+                                <span th:case="'PROCESSING'">Обработка</span>
+                                <span th:case="'DONE'">Готово</span>
+                                <span th:case="'SAVED'">Сохранено</span>
+                                <span th:case="'ERROR'">Ошибка</span>
+                                <span th:case="*">Неизвестно</span>
                             </span>
                         </span>
                     </td>
 
-                    <!-- Дата создания (фиксированная высота) -->
                     <td style="vertical-align: middle;">
                         <div style="display: flex; flex-direction: column; gap: 2px;">
                             <span th:text="${#temporals.format(job.createdAt, 'dd.MM.yyyy')}">01.01.2024</span>
                             <small style="color: var(--text-secondary);" th:text="${#temporals.format(job.createdAt, 'HH:mm')}">12:00</small>
                             <span th:if="${job.finishedAt}" style="color: var(--success); font-size: 11px; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
-                                    <i class="bi bi-check-circle-fill" style="font-size: 10px;"></i>
-                                    <span th:text="${#temporals.format(job.finishedAt, 'HH:mm')}">12:00</span>
-                                </span>
+                                <i class="bi bi-check-circle-fill" style="font-size: 10px;"></i>
+                                <span th:text="${#temporals.format(job.finishedAt, 'HH:mm')}">12:00</span>
+                            </span>
                         </div>
                     </td>
 
-                    <!-- Прогресс / Ошибка -->
                     <td>
                         <th:block th:if="${job.status == 'PROCESSING'}">
                             <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -700,14 +1243,14 @@
                                 </span>
                             </div>
                         </th:block>
-                        <th:block th:if="${job.status == 'DONE' or job.status == 'SAVED'}">
-                            <span style="color: var(--success); display: flex; align-items: center; gap: 4px;">
-                                <i class="bi bi-check-circle-fill"></i> Завершено
-                            </span>
-                        </th:block>
-                        <th:block th:if="${job.status == 'PENDING'}">
+                        <th:block th:if="${job.status == 'DONE' or job.status == 'SAVED' or job.status == 'PENDING'}">
                             <span style="color: var(--text-secondary); display: flex; align-items: center; gap: 4px;">
-                                <i class="bi bi-hourglass"></i> Ожидание
+                                <i th:if="${job.status == 'DONE'}" class="bi bi-check-circle"></i>
+                                <i th:if="${job.status == 'SAVED'}" class="bi bi-save"></i>
+                                <i th:if="${job.status == 'PENDING'}" class="bi bi-hourglass"></i>
+                                <span th:if="${job.status == 'DONE'}">Завершено</span>
+                                <span th:if="${job.status == 'SAVED'}">Сохранено</span>
+                                <span th:if="${job.status == 'PENDING'}">В очереди</span>
                             </span>
                         </th:block>
                     </td>
@@ -716,25 +1259,74 @@
             </table>
         </div>
 
-        <!-- Информационная панель -->
         <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light);">
             <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <i class="bi bi-info-circle" style="color: var(--info);"></i>
-                    <span id="status-info" style="color: var(--text-secondary); font-size: 13px;">
-                        Готовые задания можно открыть для просмотра и подтверждения извлеченных протоколов
-                    </span>
-                </div>
                 <div>
                     <small style="color: var(--text-secondary); font-weight: 500;">
-                        Всего заданий: <strong id="total-count">0</strong>
+                        Всего заданий: <strong id="total-count" th:text="${jobsPage.totalElements}">0</strong>
                     </small>
                 </div>
             </div>
         </div>
+
+        <!-- ПАГИНАЦИЯ -->
+        <div class="pagination" th:if="${jobsPage.totalPages > 1}">
+            <div class="pagination-info">
+                Страница <span th:text="${jobsPage.number + 1}">1</span> из
+                <span th:text="${jobsPage.totalPages}">10</span>
+            </div>
+
+            <div class="pagination-controls">
+                <!-- Кнопка "Назад" -->
+                <a th:if="${jobsPage.hasPrevious()}"
+                   th:href="@{/ocr/jobs(page=${jobsPage.number - 1}, size=${jobsPage.size})}"
+                   class="page-btn">
+                    ←
+                </a>
+                <span th:unless="${jobsPage.hasPrevious()}" class="page-btn disabled">←</span>
+
+                <!-- Первая страница -->
+                <a th:href="@{/ocr/jobs(page=0, size=${jobsPage.size})}"
+                   class="page-btn"
+                   th:classappend="${jobsPage.number == 0} ? 'active' : ''">
+                    1
+                </a>
+
+                <!-- Многоточие после первой страницы, если нужно -->
+                <span class="page-btn disabled" th:if="${jobsPage.number > 2}">...</span>
+
+                <!-- Страницы вокруг текущей -->
+                <th:block th:each="i : ${#numbers.sequence(jobsPage.number > 1 ? jobsPage.number - 1 : 1, jobsPage.number < jobsPage.totalPages - 2 ? jobsPage.number + 1 : jobsPage.totalPages - 2)}">
+                    <a th:if="${i > 0 and i < jobsPage.totalPages - 1}"
+                       th:href="@{/ocr/jobs(page=${i}, size=${jobsPage.size})}"
+                       class="page-btn"
+                       th:classappend="${i == jobsPage.number} ? 'active' : ''"
+                       th:text="${i + 1}">
+                    </a>
+                </th:block>
+
+                <!-- Многоточие перед последней страницей, если нужно -->
+                <span class="page-btn disabled" th:if="${jobsPage.number < jobsPage.totalPages - 3}">...</span>
+
+                <!-- Последняя страница -->
+                <a th:if="${jobsPage.totalPages > 1}"
+                   th:href="@{/ocr/jobs(page=${jobsPage.totalPages - 1}, size=${jobsPage.size})}"
+                   class="page-btn"
+                   th:classappend="${jobsPage.number == jobsPage.totalPages - 1} ? 'active' : ''"
+                   th:text="${jobsPage.totalPages}">
+                </a>
+
+                <!-- Кнопка "Вперед" -->
+                <a th:if="${jobsPage.hasNext()}"
+                   th:href="@{/ocr/jobs(page=${jobsPage.number + 1}, size=${jobsPage.size})}"
+                   class="page-btn">
+                    →
+                </a>
+                <span th:unless="${jobsPage.hasNext()}" class="page-btn disabled">→</span>
+            </div>
+        </div>
     </div>
 
-    <!-- FOOTER -->
     <footer>
         <div class="footer-left">
             © Control-M • Внутренняя система протоколов
@@ -742,7 +1334,6 @@
     </footer>
 </div>
 
-<!-- Кнопка обновления (запасной вариант) -->
 <button class="refresh-btn" onclick="location.reload()" title="Обновить страницу">
     <i class="bi bi-arrow-clockwise"></i>
 </button>
@@ -754,18 +1345,17 @@
     let reconnectAttempts = 0;
     const StompJs = window.StompJs;
     const MAX_RECONNECT_ATTEMPTS = 10;
-    const RECONNECT_DELAY = 3000; // 3 секунды
+    const RECONNECT_DELAY = 3000;
 
-    function updateWebsocketStatus(connected, message = '') {
+    function updateWebsocketStatus(connected) {
         const indicator = document.getElementById('websocket-indicator');
         if (connected) {
             indicator.className = 'websocket-indicator websocket-connected';
-            indicator.innerHTML = '<i class="bi bi-wifi"></i><span id="ws-status-text" class="ws-status-text">Online</span>';
+            indicator.innerHTML = '<i class="bi bi-wifi"></i>';
             reconnectAttempts = 0;
         } else {
             indicator.className = 'websocket-indicator websocket-disconnected';
-            const text = message || (reconnectAttempts > 0 ? `Повтор: ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS}` : 'Offline');
-            indicator.innerHTML = `<i class="bi bi-wifi-off"></i><span id="ws-status-text" class="ws-status-text">${text}</span>`;
+            indicator.innerHTML = '<i class="bi bi-wifi-off"></i>';
         }
     }
 
@@ -773,7 +1363,7 @@
         reconnectAttempts++;
 
         if (reconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
-            updateWebsocketStatus(false, 'Ошибка');
+            updateWebsocketStatus(false);
             setTimeout(() => {
                 reconnectAttempts = 0;
                 connectWebSocket();
@@ -782,7 +1372,6 @@
         }
 
         try {
-            // Правильный синтаксис для @stomp/stompjs@7.0.0
             const socket = new SockJS('/ws');
 
             stompClient = new StompJs.Client({
@@ -804,15 +1393,13 @@
 
             stompClient.connectHeaders = connectHeaders;
 
-            stompClient.onConnect = function(frame) {
-                console.log('✅ WebSocket подключен');
+            stompClient.onConnect = function() {
                 updateWebsocketStatus(true);
                 reconnectAttempts = 0;
 
                 stompClient.subscribe('/user/topic/ocr', function(message) {
                     try {
                         const event = JSON.parse(message.body);
-                        console.log('📩 Сообщение WS:', event);
                         handleJobUpdate(event);
                     } catch (e) {
                         console.error('Ошибка парсинга WS:', e);
@@ -820,28 +1407,24 @@
                 });
             };
 
-            stompClient.onStompError = function(frame) {
-                console.error('❌ STOMP ошибка:', frame);
-                updateWebsocketStatus(false, 'Ошибка');
+            stompClient.onStompError = function() {
+                updateWebsocketStatus(false);
                 setTimeout(connectWebSocket, RECONNECT_DELAY);
             };
 
-            stompClient.onWebSocketError = function(event) {
-                console.error('❌ WebSocket ошибка:', event);
-                updateWebsocketStatus(false, 'Ошибка');
+            stompClient.onWebSocketError = function() {
+                updateWebsocketStatus(false);
                 setTimeout(connectWebSocket, RECONNECT_DELAY);
             };
 
-            stompClient.onDisconnect = function(frame) {
-                console.log('WebSocket отключен');
-                updateWebsocketStatus(false, 'Отключен');
+            stompClient.onDisconnect = function() {
+                updateWebsocketStatus(false);
             };
 
             stompClient.activate();
 
         } catch (error) {
-            console.error('❌ Критическая ошибка WS:', error);
-            updateWebsocketStatus(false, 'Ошибка');
+            updateWebsocketStatus(false);
             setTimeout(connectWebSocket, RECONNECT_DELAY);
         }
     }
@@ -851,14 +1434,14 @@
         const row = document.getElementById(`job-row-${jobId}`);
 
         if (row) {
-            // Обновляем только то, что пришло в событии
+            // Обновляем статус
             if (event.status) {
                 row.setAttribute('data-status', event.status);
 
                 row.className = 'job-row';
-                if (event.status === 'DONE') row.classList.add('done');
-                if (event.status === 'SAVED') row.classList.add('saved');
-                if (event.status === 'ERROR') row.classList.add('error');
+                if (event.status === 'DONE') row.classList.add('done-row');
+                if (event.status === 'SAVED') row.classList.add('saved-row');
+                if (event.status === 'ERROR') row.classList.add('error-row');
 
                 const statusBadge = row.querySelector('.status-badge');
                 if (statusBadge) {
@@ -866,17 +1449,27 @@
                     statusBadge.innerHTML = getStatusText(event.status);
                 }
 
-                const actionsCell = row.querySelector('td:last-child .action-buttons');
-                if (actionsCell) {
-                    actionsCell.innerHTML = getActionButtons(jobId, event.status);
-                }
-
+                // Добавляем время завершения для DONE/SAVED
                 if (event.status === 'DONE' || event.status === 'SAVED') {
+                    const dateCell = row.querySelector('td:nth-child(4) div');
+                    if (dateCell && !dateCell.querySelector('.completion-time')) {
+                        const finishedSpan = document.createElement('span');
+                        finishedSpan.className = 'completion-time';
+                        finishedSpan.style.cssText = 'color: var(--success); font-size: 11px; display: flex; align-items: center; gap: 4px; margin-top: 2px;';
+
+                        const finishTime = event.finishedAt ? new Date(event.finishedAt) : new Date();
+                        const timeStr = finishTime.toLocaleTimeString('ru-RU', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        finishedSpan.innerHTML = `<i class="bi bi-check-circle-fill" style="font-size: 10px;"></i><span>${timeStr}</span>`;
+                        dateCell.appendChild(finishedSpan);
+                    }
+
                     row.style.cursor = 'pointer';
-                    row.onclick = function(e) {
-                        if (!e.target.closest('.action-buttons')) {
-                            viewReport(jobId);
-                        }
+                    row.onclick = function() {
+                        viewReport(jobId);
                     };
                 } else {
                     row.style.cursor = 'default';
@@ -884,120 +1477,63 @@
                 }
             }
 
+            // Обновляем прогресс
             if (event.progress !== null && event.progress !== undefined) {
-                const progressCell = row.querySelector('td:nth-child(5)'); // Колонка прогресса
-
+                const progressCell = row.querySelector('td:nth-child(5)');
                 if (progressCell) {
-                    let progressContainer = progressCell.querySelector('.progress-container');
+                    let progressBar = document.getElementById(`progress-${jobId}`);
+                    let progressText = document.getElementById(`progress-text-${jobId}`);
 
-                    if (progressContainer) {
-                        // Обновляем существующий прогресс
-                        const progressBar = progressContainer.querySelector('.progress-bar');
-                        const progressText = progressCell.querySelector('.progress-text');
-
-                        if (progressBar) {
-                            progressBar.style.width = `${event.progress}%`;
-                        }
-                        if (progressText) {
-                            progressText.textContent = `${event.progress}%`;
-                        }
+                    if (progressBar && progressText) {
+                        progressBar.style.width = `${event.progress}%`;
+                        progressText.textContent = `${event.progress}%`;
                     } else {
-                        // Создаем новый контейнер прогресса
                         progressCell.innerHTML = `
                         <div style="display: flex; flex-direction: column; gap: 4px;">
                             <div class="progress-container">
-                                <div class="progress-bar" style="width: ${event.progress}%;"></div>
+                                <div id="progress-${jobId}" class="progress-bar" style="width: ${event.progress}%;"></div>
                             </div>
-                            <div class="progress-text">${event.progress}%</div>
+                            <div id="progress-text-${jobId}" class="progress-text">${event.progress}%</div>
                         </div>
                     `;
                     }
                 }
             }
 
-            // Обновляем сообщение об ошибке
+            // Обновляем ошибку
             if (event.status === 'ERROR' && event.message) {
                 const progressCell = row.querySelector('td:nth-child(5)');
                 if (progressCell) {
                     progressCell.innerHTML = `
                     <div class="error-message-cell">
                         <i class="bi bi-exclamation-triangle-fill"></i>
-                        <span style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${event.message}">${event.message}</span>
+                        <span style="max-width: 150px; overflow: hidden; text-overflow: ellipsis;" title="${event.message}">${event.message}</span>
                     </div>
                 `;
                 }
             }
 
-            // Обновляем данные в activeJobs
+            // Обновляем activeJobs
             if (activeJobs.has(jobId)) {
                 const job = activeJobs.get(jobId);
                 if (event.status) job.status = event.status;
                 if (event.progress !== undefined) job.progress = event.progress;
                 activeJobs.set(jobId, job);
             }
-
-            updateStatusCounters();
-            if (event.status) {
-                updateStatusInfo(event.status);
-            }
         }
     }
 
     function getStatusText(status) {
-        const texts = {
-            'PENDING': '⏳ Ожидание',
-            'PROCESSING': '⚙️ Обработка',
-            'DONE': '✅ Готово',
-            'ERROR': '❌ Ошибка',
-            'SAVED': '💾 Сохранено'
-        };
-        return texts[status] || status;
-    }
-
-    function getActionButtons(jobId, status) {
-        if (status === 'DONE') {
-            return `<button onclick="viewReport(${jobId})" class="btn btn-success"><i class="bi bi-eye"></i> Отчет</button>`;
-        } else if (status === 'SAVED') {
-            return `<button onclick="viewReport(${jobId})" class="btn btn-success"><i class="bi bi-eye"></i> Просмотр</button>`;
-        } else if (status === 'ERROR') {
-            return `
-                <button onclick="retryJob(${jobId})" class="btn btn-warning"><i class="bi bi-arrow-clockwise"></i> Повторить</button>
-                <button onclick="deleteJob(${jobId})" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Удалить</button>
-            `;
-        } else if (status === 'PROCESSING') {
-            return `<button class="btn btn-outline" disabled><i class="bi bi-hourglass-split"></i> Обработка...</button>`;
-        } else {
-            return `<button class="btn btn-outline" disabled><i class="bi bi-hourglass"></i> В очереди</button>`;
-        }
-    }
-
-
-    /**
-     * Обновление счетчиков статусов
-     */
-    function updateStatusCounters() {
-        const counts = {
-            'all': activeJobs.size,
-            'PENDING': 0,
-            'PROCESSING': 0,
-            'DONE': 0,
-            'ERROR': 0,
-            'SAVED': 0
+        const statusConfig = {
+            'PENDING': { text: 'Ожидание', icon: 'bi-hourglass' },
+            'PROCESSING': { text: 'Обработка', icon: 'bi-gear-wide-connected' },
+            'DONE': { text: 'Готово', icon: 'bi-check-circle' },
+            'ERROR': { text: 'Ошибка', icon: 'bi-exclamation-triangle' },
+            'SAVED': { text: 'Сохранено', icon: 'bi-save' }
         };
 
-        activeJobs.forEach(job => {
-            if (job && job.status) {
-                counts[job.status] = (counts[job.status] || 0) + 1;
-            }
-        });
-
-        document.getElementById('count-all').textContent = counts.all;
-        document.getElementById('count-pending').textContent = counts.PENDING || 0;
-        document.getElementById('count-processing').textContent = counts.PROCESSING || 0;
-        document.getElementById('count-done').textContent = counts.DONE || 0;
-        document.getElementById('count-error').textContent = counts.ERROR || 0;
-        document.getElementById('count-saved').textContent = counts.SAVED || 0;
-        document.getElementById('total-count').textContent = counts.all;
+        const config = statusConfig[status] || { text: status, icon: 'bi-question-circle' };
+        return `<i class="bi ${config.icon}" style="margin-right: 6px;"></i><span>${config.text}</span>`;
     }
 
     function filterJobs(filter) {
@@ -1013,88 +1549,11 @@
         });
     }
 
-    function updateStatusInfo(status) {
-        const infoElement = document.getElementById('status-info');
-        const messages = {
-            'PROCESSING': 'Задание обрабатывается. Прогресс обновляется в реальном времени.',
-            'DONE': 'Задание готово. Нажмите на строку или кнопку "Отчет" для просмотра результатов.',
-            'ERROR': 'Произошла ошибка при обработке. Можно повторить попытку или удалить задание.',
-            'SAVED': 'Задание сохранено. Нажмите для просмотра.',
-            'PENDING': 'Задание в очереди на обработку.'
-        };
-        infoElement.textContent = messages[status] || 'Готовые задания можно открыть для просмотра и подтверждения извлеченных протоколов';
-    }
-
-    // ================ ДЕЙСТВИЯ С ЗАДАНИЯМИ ================
-
     function viewReport(jobId) {
         window.location.href = `/ocr/report/${jobId}`;
     }
 
-    function retryJob(jobId) {
-        if (confirm('Повторить обработку этого задания?')) {
-            fetch(`/ocr/jobs/${jobId}/retry`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content || ''
-                }
-            })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Задание отправлено на повторную обработку');
-                    } else {
-                        alert('Ошибка при повторной отправке задания');
-                    }
-                })
-                .catch(() => alert('Ошибка сети'));
-        }
-    }
-
-    function deleteJob(jobId) {
-        if (confirm('Удалить это задание?')) {
-            fetch(`/ocr/jobs/${jobId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content || ''
-                }
-            })
-                .then(response => {
-                    if (response.ok) {
-                        const row = document.getElementById(`job-row-${jobId}`);
-                        if (row) row.remove();
-                        activeJobs.delete(jobId);
-                        updateStatusCounters();
-
-                        const tbody = document.getElementById('jobs-table-body');
-                        if (tbody.children.length === 0) {
-                            tbody.innerHTML = `
-                            <tr class="empty-table-row">
-                                <td colspan="6" style="padding: 0;">
-                                    <div class="empty-table-message">
-                                        <div class="empty-table-icon"><i class="bi bi-inbox"></i></div>
-                                        <div class="empty-table-title">Нет заданий на обработку</div>
-                                        <p style="color: var(--text-secondary); margin-top: 8px;">
-                                            Загруженные PDF-файлы появятся в этом списке
-                                        </p>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        }
-                    } else {
-                        alert('Ошибка при удалении задания');
-                    }
-                })
-                .catch(() => alert('Ошибка сети'));
-        }
-    }
-
-    // ================ ИНИЦИАЛИЗАЦИЯ ================
-
     document.addEventListener('DOMContentLoaded', function() {
-        // Заполняем activeJobs из существующих строк
         document.querySelectorAll('.job-row').forEach(row => {
             const jobId = row.getAttribute('data-job-id');
             const status = row.getAttribute('data-status');
@@ -1102,31 +1561,23 @@
             if (jobId && status) {
                 activeJobs.set(parseInt(jobId), { status: status });
 
-                // Добавляем обработчик клика для готовых заданий
                 if (status === 'DONE' || status === 'SAVED') {
                     row.style.cursor = 'pointer';
-                    row.addEventListener('click', function(e) {
-                        if (!e.target.closest('.action-buttons')) {
-                            viewReport(jobId);
-                        }
+                    row.addEventListener('click', function() {
+                        viewReport(jobId);
                     });
                 }
             }
         });
 
-        updateStatusCounters();
-
-        // Инициализируем фильтры
         document.querySelectorAll('.filter-badge').forEach(badge => {
             badge.addEventListener('click', function() {
                 filterJobs(this.getAttribute('data-filter'));
             });
         });
 
-        // Подключаем WebSocket
         connectWebSocket();
 
-        // Проверка подключения каждые 10 секунд
         setInterval(() => {
             if (stompClient && !stompClient.connected) {
                 connectWebSocket();
