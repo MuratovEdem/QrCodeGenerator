@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Data
 public class PublicPaginatedProtocolsDto {
-    private ClientDto client;
+    private PublicClientDto client;
     private List<PublicProtocolResponseDto> protocols;
     private Map<String, List<PublicProtocolResponseDto>> protocolsByCipher;
     private List<String> uniqueCiphers;

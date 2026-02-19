@@ -26,8 +26,24 @@ public class Client {
     @Column(nullable = false)
     private String name;
 
+    private String inn;
+
+    private String kpp;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Contact> contacts;
+
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<Protocol> protocols;
 
-    // TODO добавить поля договора, обьекты, инн, кпп
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<ConstructionSite> constructionSites;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Contract> contracts;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<UniqueNumber> uniqueNumbers;
+
+    // TODO добавить поля договора, обьекты, инн, кпп, контактные лица
 }

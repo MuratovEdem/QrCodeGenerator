@@ -1,6 +1,6 @@
 package controlm.qrcodegenerator.controller;
 
-import controlm.qrcodegenerator.dto.response.ClientDto;
+import controlm.qrcodegenerator.dto.response.PublicClientDto;
 import controlm.qrcodegenerator.dto.response.PublicPaginatedProtocolsDto;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.service.ClientService;
@@ -32,10 +32,10 @@ public class PublicController {
 
         Client clientById = clientService.getClientById(id); // TODO перенести в сервис
 
-        ClientDto clientDto = new ClientDto();
-        clientDto.setName(clientById.getName());
-        clientDto.setId(clientById.getId());
-        paginatedDto.setClient(clientDto);
+        PublicClientDto publicClientDto = new PublicClientDto();
+        publicClientDto.setName(clientById.getName());
+        publicClientDto.setId(clientById.getId());
+        paginatedDto.setClient(publicClientDto);
 
         model.addAttribute("paginatedDto", paginatedDto);
 

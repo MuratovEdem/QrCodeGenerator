@@ -1,0 +1,12 @@
+package controlm.qrcodegenerator.dto.request;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class ConstructionSiteRequestDto {
+
+    @NotBlank(message = "Наименование объекта обязательно")
+    private String name;
+    private String address;
+}

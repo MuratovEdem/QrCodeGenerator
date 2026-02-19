@@ -30,6 +30,6 @@ public class ProtocolRequestDto {
     private MultipartFile file;
 
     public String getFullNumber() {
-        return String.format("%s-%s-%s", cipher, uniqueNumber, sequentialNumber);;
+        return String.format("%s-%s-%s", cipher, uniqueNumber, sequentialNumber);
     }
 }

@@ -1,7 +1,8 @@
 package controlm.qrcodegenerator.controller;
 
+import controlm.qrcodegenerator.dto.request.ClientRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
-import controlm.qrcodegenerator.dto.response.ClientDto;
+import controlm.qrcodegenerator.dto.response.PublicClientDto;
 import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
 import controlm.qrcodegenerator.mapper.ClientMapper;
 import controlm.qrcodegenerator.model.Client;
@@ -59,7 +60,7 @@ public class ClientController {
                               @RequestParam(defaultValue = "10") int size,
                               Model model) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
-        Page<ClientDto> clients;
+        Page<PublicClientDto> clients;
 
         if (searchQuery != null && !searchQuery.trim().isEmpty()) {
             clients = clientService.searchPaginatedClientsByName(searchQuery.trim(), pageable);
@@ -80,8 +81,16 @@ public class ClientController {
     }
 
     @GetMapping("/create")
-    public String createClientForm() {
+    public String createClientForm(Model model) {
+        model.addAttribute("clientRequestDto", new ClientRequestDto());
         return "clients/create-form";
+    }
+
+    @PostMapping("/create")
+    public String createClient(@ModelAttribute ClientRequestDto clientRequestDto) {
+        clientService.createClient(clientRequestDto);
+
+        return "redirect:/clients";
     }
 
     @GetMapping("/{id}")
@@ -100,10 +109,10 @@ public class ClientController {
 
         Client clientById = clientService.getClientById(id); // TODO перенести в сервис
 
-        ClientDto clientDto = new ClientDto();
-        clientDto.setName(clientById.getName());
-        clientDto.setId(clientById.getId());
-        paginatedDto.setClient(clientDto);
+        PublicClientDto publicClientDto = new PublicClientDto();
+        publicClientDto.setName(clientById.getName());
+        publicClientDto.setId(clientById.getId());
+        paginatedDto.setClient(publicClientDto);
 
         model.addAttribute("paginatedDto", paginatedDto);
 
@@ -113,7 +122,7 @@ public class ClientController {
     @GetMapping("/{id}/create-protocols")
     public String showCreateFrom(@PathVariable Long id, Model model) {
         try {
-            ClientDto client = clientMapper.toClientDto(clientService.getClientById(id));
+            PublicClientDto client = clientMapper.toClientDto(clientService.getClientById(id));
 
             ProtocolRequestDto formDto = new ProtocolRequestDto();
 
