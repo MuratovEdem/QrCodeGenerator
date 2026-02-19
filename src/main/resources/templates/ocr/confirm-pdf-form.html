@@ -14,6 +14,7 @@
 
     <!-- Шрифты -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
     <style>
         :root {
@@ -428,8 +429,13 @@
         }
 
         .btn-outline:hover:not(:disabled) {
-            border-color: var(--accent);
-            color: var(--accent);
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .btn-outline.btn-view:hover:not(:disabled) {
+            border-color: var(--success);
+            color: var(--success);
         }
 
         .btn-outline-danger {
@@ -604,18 +610,16 @@
 
         <!-- Информация о файле -->
         <div class="file-header">
-            <div class="file-header-icon">📄</div>
+            <div class="file-header-icon">
+                <i class="bi bi-file-earmark-pdf"></i>
+            </div>
             <div class="file-header-info">
                 <div class="file-header-name" th:text="${ocrJob.originalFileName} ?: 'Загруженный файл'">
                     protocol_2025_03_15.pdf
                 </div>
             </div>
         </div>
-<!--        TODO сделать картинку пдфа-->
-<!--        TODO анимация наведения на кнопки красная не должна быть-->
-<!--        TODO кнопки сделать более четкими-->
 
-        <!-- Статистика: Всего и Удалено -->
         <div class="stats-bar">
             <div class="stat-item">
                 <span class="stat-value" id="totalCount">0</span>
@@ -712,7 +716,7 @@
 
                                 <!-- Кнопка просмотра файла -->
                                 <button type="button"
-                                        class="btn btn-outline btn-sm"
+                                        class="btn btn-outline btn-sm btn-view
                                         th:attr="data-index=${stat.index}, data-filename=${protocol.fileName}"
                                         onclick="viewFile(this)"
                                         th:disabled="${protocol.fileName == null or protocol.fileName == ''}">
@@ -737,7 +741,7 @@
                                         Сохранить
                                 </button>
                                 <button type="button"
-                                        class="btn btn-outline btn-sm"
+                                        class="btn btn-outline-danger btn-sm"
                                         th:attr="data-index=${stat.index}"
                                         onclick="cancelEdit(this)">
                                         Отмена
@@ -764,7 +768,7 @@
                       th:action="@{/ocr/cancel-pdf/{jobId}(jobId=${ocrJob.id})}"
                       method="post"
                       style="flex: 1;">
-                    <button type="submit" class="btn btn-outline" style="width: 100%;" onclick="prepareCancelForm(event)">
+                    <button type="submit" class="btn btn-outline-danger" style="width: 100%;" onclick="prepareCancelForm(event)">
                         Отменить загрузку
                     </button>
                 </form>

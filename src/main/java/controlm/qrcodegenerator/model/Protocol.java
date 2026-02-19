@@ -35,7 +35,7 @@ public class Protocol {
     @Column(name = "sequential_number", nullable = false)
     private String sequentialNumber;
 
-    @Column(name = "issue_date") //TODO поставить обязательную дату
+    @Column(name = "issue_date", nullable = false)
     private LocalDate issueDate;
 
     @Column(name = "file_path")
@@ -46,7 +46,7 @@ public class Protocol {
     private Client client;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
 
     @Transient

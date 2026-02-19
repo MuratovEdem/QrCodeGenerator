@@ -2,8 +2,8 @@ package controlm.qrcodegenerator.controller;
 
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.response.ClientDto;
-import controlm.qrcodegenerator.dto.response.PaginatedProtocolsDto;
-import controlm.qrcodegenerator.dto.response.ProtocolHistoryDto;
+import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
+import controlm.qrcodegenerator.mapper.ClientMapper;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.model.OcrJob;
 import controlm.qrcodegenerator.service.ClientService;
@@ -38,7 +38,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.Principal;
-import java.util.List;
 
 @Slf4j
 @Controller
@@ -52,6 +51,7 @@ public class ClientController {
     private final FileStorageService fileStorageService;
     private final OcrAsyncService ocrAsyncService;
     private final OcrJobService ocrJobService;
+    private final ClientMapper clientMapper;
 
     @GetMapping
     public String listClients(@RequestParam(value = "search", required = false) String searchQuery,
@@ -91,8 +91,12 @@ public class ClientController {
                              @RequestParam(required = false, value = "size", defaultValue = "20") int pageSize,
                              Model model) {
 
-        PaginatedProtocolsDto paginatedDto = protocolService.getDtoWithPaginatedProtocols(
-                id, searchQuery, page, pageSize);
+        Pageable pageable = PageRequest.of(
+                page,
+                pageSize
+        );
+
+        ClientProtocolsViewDto paginatedDto = protocolService.findAllByClientIdWithFilter(id, searchQuery, pageable);
 
         Client clientById = clientService.getClientById(id); // TODO перенести в сервис
 
@@ -109,24 +113,14 @@ public class ClientController {
     @GetMapping("/{id}/create-protocols")
     public String showCreateFrom(@PathVariable Long id, Model model) {
         try {
-            Client client = clientService.getClientById(id);
-
-            ProtocolHistoryDto history = protocolService.getProtocolHistoryByClientId(id);
+            ClientDto client = clientMapper.toClientDto(clientService.getClientById(id));
 
             ProtocolRequestDto formDto = new ProtocolRequestDto();
-            formDto.setClientId(id);
-            formDto.setCipher(history.getLastCipher());
-            formDto.setUniqueNumber(history.getLastUniqueNumber());
 
             model.addAttribute("client", client);
             model.addAttribute("protocolForm", formDto);
-            model.addAttribute("cipherHistory", history.getCipherHistory());
-            model.addAttribute("uniqueNumberHistory", history.getUniqueNumberHistory());
             model.addAttribute("clientId", id);
             model.addAttribute("pageTitle", "Добавить протокол для " + client.getName());
-
-            log.info("Отображение формы для клиента ID: {}, история шифров: {}, история номеров: {}",
-                    id, history.getCipherHistory().size(), history.getUniqueNumberHistory().size());
 
             return "protocols/create-protocol";
 
@@ -139,6 +133,7 @@ public class ClientController {
     @PostMapping("/{id}/create-protocols")
     public String createProtocolByClientId(@PathVariable Long id,
                                            @Valid @ModelAttribute("protocolForm") ProtocolRequestDto formDto,
+                                           @RequestParam("pdfFile") MultipartFile file,
                                            BindingResult bindingResult,
                                            Model model,
                                            RedirectAttributes redirectAttributes) {
@@ -146,20 +141,19 @@ public class ClientController {
         try {
             Client client = clientService.getClientById(id);
             formDto.setClientId(id);
+            formDto.setFile(file);
 
             if (bindingResult.hasErrors()) {
-                ProtocolHistoryDto history = protocolService.getProtocolHistoryByClientId(id);
 
                 model.addAttribute("client", client);
-                model.addAttribute("cipherHistory", history.getCipherHistory());
-                model.addAttribute("uniqueNumberHistory", history.getUniqueNumberHistory());
                 model.addAttribute("pageTitle", "Добавить протокол для " + client.getName());
 
                 log.warn("Ошибки валидации при сохранении протокола для клиента: {}", id);
                 return "protocols/create-protocol";
             }
 
-            protocolService.createProtocols(formDto);
+            protocolService.createProtocol(formDto);
+
             log.info("Протокол сохранен для клиента ID: {}, шифр: {}, номер: {}",
                     id, formDto.getCipher(), formDto.getUniqueNumber());
             redirectAttributes.addFlashAttribute("successMessage",
@@ -176,7 +170,7 @@ public class ClientController {
     public String getSavePdfForm(@PathVariable Long clientId,
                                  Model model) {
         model.addAttribute("clientId", clientId);
-        return "clients/save-pdf-form";
+        return "clients/upload-pdf-form";
     }
 
     @PostMapping("/{clientId}/upload")

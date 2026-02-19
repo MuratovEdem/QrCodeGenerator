@@ -1,5 +1,6 @@
 package controlm.qrcodegenerator.service;
 
+import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.response.ProtocolPreviewDto;
 import controlm.qrcodegenerator.utils.TransliterateUtils;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,21 @@ public class FileStorageService {
         Files.move(tempFile.toPath(),
                 target,
                 StandardCopyOption.REPLACE_EXISTING);
+
+        return target;
+    }
+
+    public Path saveProtocolFile(ProtocolRequestDto dto) throws IOException {
+        String safeNumber = transliterateUtils.transliterateToLatin(dto.getFullNumber());
+        String safeDate = dto.getIssueDate().toString();
+
+        String fileName = safeNumber + "_" + safeDate + ".pdf";
+
+        Path target = createDirectory(dto.getClientId()).resolve(fileName);
+
+        try (InputStream inputStream = dto.getFile().getInputStream()) {
+            Files.copy(inputStream, target, StandardCopyOption.REPLACE_EXISTING);
+        }
 
         return target;
     }

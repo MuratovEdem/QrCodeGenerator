@@ -4,14 +4,15 @@ import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Data
-public class PaginatedProtocolsDto {
+public class ClientProtocolsViewDto {
     private ClientDto client;
-    private List<ProtocolResponseDto> protocols;
     private Map<String, List<ProtocolResponseDto>> protocolsByCipher;
-    private List<String> uniqueCiphers;
-    private int countProtocols;
+    private Set<String> uniqueCiphers;
+    private Map<String, Long> countProtocolsByCipher;
+    private long countTotalProtocols;
     private int currentPage;
     private int pageSize;
     private int totalPages;

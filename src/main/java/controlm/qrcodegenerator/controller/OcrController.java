@@ -93,7 +93,9 @@ public class OcrController {
     public String confirmPdf(@PathVariable Long jobId,
                              @RequestParam("protocolNumbers") String[] numbers,
                              @RequestParam("protocolDates") String[] dates,
-                             @RequestParam(value = "fileName", required = false) String[] fileName) {
+                             @RequestParam(value = "fileName", required = false) String[] fileName,
+                             Model model,
+                             HttpServletResponse response) {
         OcrJob ocrJob = ocrJobService.findById(jobId);
         List<ProtocolPreviewDto> protocols = new ArrayList<>();
 
@@ -109,7 +111,6 @@ public class OcrController {
 
         try {
             pdfProcessingService.confirm(protocols, ocrJob.getClientId());
-            ocrProtocolPreviewService.deleteAllByOcrJobId(jobId);
 
             ocrJob.setStatus(OcrJobStatus.SAVED);
             ocrJobService.save(ocrJob);

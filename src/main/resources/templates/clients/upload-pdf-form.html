@@ -10,6 +10,7 @@
 
     <!-- Шрифты как в оригинале -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
     <style>
         :root {
@@ -739,7 +740,9 @@
             <div id="uploadArea" class="upload-area">
                 <!-- Состояние: файл не выбран -->
                 <div id="uploadInitialState">
-                    <div class="upload-icon">📄</div>
+                    <div class="upload-icon" >
+                        <i class="bi bi-file-earmark-pdf"></i>
+                    </div>
                     <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--primary-dark);">
                         Перетащите файл сюда
                     </h3>
@@ -766,12 +769,13 @@
                 <!-- Состояние: файл выбран (изначально скрыто) -->
                 <div id="uploadCompletedState" style="display: none;">
                     <div class="file-info">
-                        <div class="file-icon">📄</div>
+                        <div class="upload-icon">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                        </div>
                         <div class="file-details">
                             <div class="file-name-large" id="selectedFileName"></div>
                             <div class="file-meta">
                                 <span class="file-meta-item" id="selectedFileSize"></span>
-                                <span class="file-meta-item" id="selectedFileType"></span>
                             </div>
                         </div>
                         <div class="file-actions">
@@ -824,7 +828,6 @@
             <!-- Кнопка отправки -->
             <div style="margin-top: 32px;">
                 <button type="submit" class="btn" id="submitBtn" disabled>
-                    <span style="font-size: 16px;">📤</span>
                     Загрузить и обработать
                 </button>
                 <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 12px;" id="submitHint">
@@ -963,7 +966,6 @@
         // Форматируем размер
         const fileSize = formatFileSize(file.size);
         document.getElementById('selectedFileSize').innerHTML = `📦 ${fileSize}`;
-        document.getElementById('selectedFileType').innerHTML = `📄 PDF`;
 
         // Активируем кнопку отправки
         submitBtn.disabled = false;

@@ -29,8 +29,11 @@ public class OcrProtocolPreviewService {
 
     @Transactional
     public void deleteAllByOcrJobId(Long ocrJobId) throws IOException {
-        tempFileStorageService.deleteTempFilesFromOcrProtocolPreview(findAllByOcrJobId(ocrJobId));
         ocrProtocolPreviewRepository.deleteAllByOcrJobId(ocrJobId);
+    }
+
+    public void deleteByFileName(String fileName) {
+        ocrProtocolPreviewRepository.deleteByFileName(fileName);
     }
 
     private OcrProtocolPreview create(ProtocolPreviewDto previewDto, Long ocrJobId) {

@@ -1,6 +1,7 @@
 package controlm.qrcodegenerator.service;
 
 import controlm.qrcodegenerator.dto.response.ProtocolPreviewDto;
+import controlm.qrcodegenerator.mapper.ProtocolMapper;
 import controlm.qrcodegenerator.model.ProtocolMetadata;
 import controlm.qrcodegenerator.utils.ProtocolRecognizer;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class PdfProcessingService {
     private final ProtocolService protocolService;
     private final TempFileStorageService tempStorage;
     private final FileStorageService finalStorage;
+    private final OcrProtocolPreviewService ocrProtocolPreviewService;
 
     public List<ProtocolPreviewDto> analyze(File pdfFile, IntConsumer progressCallback, Integer protocolSize) throws Exception {
 
@@ -105,21 +107,24 @@ public class PdfProcessingService {
 
     @Transactional
     public void confirm(List<ProtocolPreviewDto> approved, Long clientId) throws Exception {
-
         for (ProtocolPreviewDto dto : approved) {
 
-            File temp = tempStorage.get(dto.getFileName());
-            Path finalPath = finalStorage.moveToFinalStorage(temp, dto, clientId);
+            if (!protocolService.existByCipherAndUniqueNumberAndSequenceNumber(dto, clientId)) {
+                File temp = tempStorage.get(dto.getFileName());
+                Path finalPath = finalStorage.moveToFinalStorage(temp, dto, clientId);
 
-            protocolService.createProtocolFromPdf(
-                    clientId,
-                    dto.getNumber(),
-                    dto.getIssueDate(),
-                    finalPath.toString()
-            );
+                protocolService.createProtocolFromPdf(
+                        clientId,
+                        dto.getNumber(),
+                        dto.getIssueDate(),
+                        finalPath.toString()
+                );
 
-            tempStorage.delete(dto.getFileName());
-        } // TODO сделать возврат дубликатов и вопрос о перезаписи
+                tempStorage.delete(dto.getFileName());
+                ocrProtocolPreviewService.deleteByFileName(dto.getFileName());
+            }
+        }
+
     }
 
     private ProtocolMetadata findProtocolStart(PDFRenderer renderer, int index) throws Exception {

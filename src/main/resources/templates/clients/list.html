@@ -224,7 +224,7 @@
             box-shadow: var(--shadow-md);
         }
 
-        /* ПОИСК - АККУРАТНОЕ ОТОБРАЖЕНИЕ */
+        /* ПОИСК */
         .search-section {
             margin-bottom: 24px;
         }
@@ -829,19 +829,19 @@
                 </thead>
                 <tbody>
                 <tr th:each="client : ${page.content}"
-                    th:data-client-id="${client.id}"
+                    th:attr="data-client-id=${client.id}"
                     class="client-row">
 
-                    <td onclick="navigateToClient(event, ${client.id})">
+                    <td onclick="navigateToClient(event)">
                         <span class="client-name" th:text="${client.name}">ООО Пример</span>
                     </td>
-                    <td onclick="navigateToClient(event, ${client.id})">
+                    <td onclick="navigateToClient(event)">
                         <span class="count-number" th:text="${protocolService.getNumberNKCipherById(client.id)}">0</span>
                     </td>
-                    <td onclick="navigateToClient(event, ${client.id})">
+                    <td onclick="navigateToClient(event)">
                         <span class="count-number" th:text="${protocolService.getNumberKBCipherById(client.id)}">0</span>
                     </td>
-                    <td onclick="navigateToClient(event, ${client.id})">
+                    <td onclick="navigateToClient(event)">
                         <span class="count-number" th:text="${protocolService.getNumberOtherCipherById(client.id)}">0</span>
                     </td>
                     <td>
@@ -942,9 +942,25 @@
     function navigateToClient(event, clientId) {
         // Если клик был по кнопке действия - не переходим
         if (event.target.closest('.action-buttons') || event.target.closest('.btn-icon')) {
+            event.preventDefault();
+            event.stopPropagation();
             return;
         }
-        window.location.href = `/clients/${clientId}`;
+
+        // Если clientId передан как параметр
+        if (clientId) {
+            window.location.href = `/clients/${clientId}`;
+            return;
+        }
+
+        // Если clientId не передан, берем из data-атрибута строки
+        const row = event.currentTarget.closest('tr');
+        if (row) {
+            const id = row.getAttribute('data-client-id');
+            if (id) {
+                window.location.href = `/clients/${id}`;
+            }
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function() {

@@ -3,6 +3,7 @@ package controlm.qrcodegenerator.mapper;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.response.ProtocolNumberDto;
 import controlm.qrcodegenerator.dto.response.ProtocolResponseDto;
+import controlm.qrcodegenerator.dto.response.PublicProtocolResponseDto;
 import controlm.qrcodegenerator.exception.NotFoundException;
 import controlm.qrcodegenerator.model.Protocol;
 import controlm.qrcodegenerator.service.ClientService;
@@ -26,19 +27,43 @@ public class ProtocolMapper {
     private final Pattern PROTOCOL_PATTERN =
             Pattern.compile("^([А-ЯA-Z]{1,5})-([А-ЯA-Za-zа-яА-Я0-9]+)-(\\d+)$");
 
+    public List<PublicProtocolResponseDto> protocolsToPublicProtocolsDto(List<Protocol> protocols) {
+        List<PublicProtocolResponseDto> publicProtocolResponseDtos = new ArrayList<>();
+        for (Protocol protocol : protocols) {
+            publicProtocolResponseDtos.add(protocolToPublicProtocolResponseDto(protocol));
+        }
+        return publicProtocolResponseDtos;
+    }
+
+    public PublicProtocolResponseDto protocolToPublicProtocolResponseDto(Protocol protocol) {
+        PublicProtocolResponseDto publicProtocolResponseDto = new PublicProtocolResponseDto();
+
+        publicProtocolResponseDto.setId(protocol.getId());
+        publicProtocolResponseDto.setCipher(protocol.getCipher());
+        publicProtocolResponseDto.setUniqueNumber(protocol.getUniqueNumber());
+        publicProtocolResponseDto.setSequentialNumber(protocol.getSequentialNumber());
+
+        return publicProtocolResponseDto;
+    }
+
     public List<ProtocolResponseDto> protocolsToProtocolsDto(List<Protocol> protocols) {
         List<ProtocolResponseDto> protocolResponseDtos = new ArrayList<>();
         for (Protocol protocol : protocols) {
-            ProtocolResponseDto protocolResponseDto = new ProtocolResponseDto();
-
-            protocolResponseDto.setId(protocol.getId());
-            protocolResponseDto.setCipher(protocol.getCipher());
-            protocolResponseDto.setUniqueNumber(protocol.getUniqueNumber());
-            protocolResponseDto.setSequentialNumber(protocol.getSequentialNumber());
-
-            protocolResponseDtos.add(protocolResponseDto);
+            protocolResponseDtos.add(protocolToProtocolResponseDto(protocol));
         }
         return protocolResponseDtos;
+    }
+
+    public ProtocolResponseDto protocolToProtocolResponseDto(Protocol protocol) {
+        ProtocolResponseDto protocolResponseDto = new ProtocolResponseDto();
+
+        protocolResponseDto.setId(protocol.getId());
+        protocolResponseDto.setCipher(protocol.getCipher());
+        protocolResponseDto.setUniqueNumber(protocol.getUniqueNumber());
+        protocolResponseDto.setSequentialNumber(protocol.getSequentialNumber());
+        protocolResponseDto.setIssueDate(protocol.getIssueDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+
+        return protocolResponseDto;
     }
 
     public Protocol protocolRequestDtoToProtocol(ProtocolRequestDto protocolRequestDto, String sequentialNumber) {
@@ -47,6 +72,7 @@ public class ProtocolMapper {
         protocol.setUniqueNumber(protocolRequestDto.getUniqueNumber());
         protocol.setSequentialNumber(sequentialNumber);
         protocol.setClient(clientService.getClientById(protocolRequestDto.getClientId()));
+        protocol.setIssueDate(protocolRequestDto.getIssueDate());
 
         return protocol;
     }

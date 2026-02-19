@@ -1,9 +1,7 @@
 package controlm.qrcodegenerator.service;
 
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
-import controlm.qrcodegenerator.dto.response.PaginatedProtocolsDto;
-import controlm.qrcodegenerator.dto.response.ProtocolHistoryDto;
-import controlm.qrcodegenerator.dto.response.ProtocolResponseDto;
+import controlm.qrcodegenerator.dto.response.*;
 import controlm.qrcodegenerator.exception.NotFoundException;
 import controlm.qrcodegenerator.mapper.ProtocolMapper;
 import controlm.qrcodegenerator.model.Protocol;
@@ -11,17 +9,15 @@ import controlm.qrcodegenerator.repository.ProtocolRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -31,10 +27,10 @@ public class ProtocolService {
     private final ProtocolMapper protocolMapper;
     private final FileStorageService fileStorageService;
 
-    public List<ProtocolResponseDto> findAllByClientId(Long clientId) {
+    public List<PublicProtocolResponseDto> findAllByClientId(Long clientId) {
         List<Protocol> protocols = protocolRepository.findByClientId(clientId);
 
-        return protocolMapper.protocolsToProtocolsDto(protocols);
+        return protocolMapper.protocolsToPublicProtocolsDto(protocols);
     }
 
     public Protocol findById(Long id) {
@@ -42,62 +38,25 @@ public class ProtocolService {
                 .orElseThrow(() -> new NotFoundException("Client not found with id: " + id));
     }
 
-    @Transactional(readOnly = true)
-    public ProtocolHistoryDto getProtocolHistoryByClientId(Long id) {
-        Optional<Protocol> protocols = protocolRepository.findFirstByClientIdOrderByCreatedAtDesc(id);
-
-        ProtocolHistoryDto history = new ProtocolHistoryDto();
-
-        if (protocols.isPresent()) {
-            Protocol lastProtocol = protocols.get();
-            history.setLastCipher(lastProtocol.getCipher());
-            history.setLastUniqueNumber(lastProtocol.getUniqueNumber());
-        }
-
-        List<String> cipherHistory = protocolRepository.findDistinctCiphersByClientId(id);
-
-        List<String> uniqueNumberHistory = protocolRepository.findDistinctUniqueNumberByClientId(id);
-        history.setCipherHistory(cipherHistory);
-        history.setUniqueNumberHistory(uniqueNumberHistory);
-
-        return history;
-    }
-
-    public void createProtocols(ProtocolRequestDto protocolRequestDto) {
+    @Transactional
+    public void createProtocol(ProtocolRequestDto protocolRequestDto) throws IOException {
 
         if (protocolRepository.existsByUniqueNumberAndClientIdNot(protocolRequestDto.getUniqueNumber(),
                 protocolRequestDto.getClientId())) {
             throw new IllegalArgumentException("Такой номер клиента уже занят");
         }
 
-        if (protocolRequestDto.getSequentialNumber().contains("-")) {
-            String[] parts = protocolRequestDto.getSequentialNumber().split("-", 0);
-            int start = Integer.parseInt(parts[0]);
-            int end = Integer.parseInt(parts[1]);
+        Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(
+                protocolRequestDto,
+                protocolRequestDto.getSequentialNumber());
 
-            if (start > end) {
-                throw new IllegalArgumentException("Диапазон не может быть отрицательным");
-            }
-
-            for (int i = start; i <= end; i++) {
-                Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(protocolRequestDto, String.valueOf(i));
-
-                if (existProtocol(protocol, protocolRequestDto.getClientId())) {
-                    throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
-                }
-                protocolRepository.save(protocol);
-            }
-        } else {
-            Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(protocolRequestDto,
-                    protocolRequestDto.getSequentialNumber());
-
-            if (existProtocol(protocol, protocolRequestDto.getClientId())) {
-                throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
-            }
-
-            protocolRepository.save(protocol);
+        if (existProtocol(protocol, protocolRequestDto.getClientId())) {
+            throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
         }
-    } // TODO убрать сохранение диапазоном ??
+
+        fileStorageService.saveProtocolFile(protocolRequestDto);
+        protocolRepository.save(protocol);
+    }
 
     public Long getNumberNKCipherById(Long id) {
         return protocolRepository.countByCipherAndClientId("НК", id);
@@ -130,14 +89,11 @@ public class ProtocolService {
 
         Protocol protocol = protocolMapper.fieldsToProtocol(clientId, number, issueDate, pathFile);
 
-        log.info("{}, {}, {}, {}, {}", protocol.getCipher(), protocol.getUniqueNumber(), protocol.getSequentialNumber(), protocol.getIssueDate(), protocol.getFilePath());
+        Optional<Protocol> existingProtocol = findExistingProtocol(protocol, clientId);
 
-        if (existProtocol(protocol, clientId)) {
-            throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
-        }
+        existingProtocol.ifPresent(value -> protocol.setId(value.getId()));
 
         protocolRepository.save(protocol);
-        // TODO: сделать проверку на совпадения
     }
 
     public Protocol updateProtocol(Long id, ProtocolRequestDto dto) {
@@ -158,8 +114,8 @@ public class ProtocolService {
         // TODO файл
     }
 
-    public List<ProtocolResponseDto> getFilteredProtocolsByClientId(Long clientId, String filter) {
-        List<ProtocolResponseDto> protocols = findAllByClientId(clientId);
+    public List<PublicProtocolResponseDto> getFilteredProtocolsByClientId(Long clientId, String filter) {
+        List<PublicProtocolResponseDto> protocols = findAllByClientId(clientId);
 
         if (filter != null && !filter.trim().isEmpty()) {
 
@@ -174,57 +130,66 @@ public class ProtocolService {
         return protocols;
     }
 
-    public PaginatedProtocolsDto getDtoWithPaginatedProtocols(
-            Long clientId,
-            String filter,
-            int page,
-            int pageSize) {
+    public ClientProtocolsViewDto findAllByClientIdWithFilter(Long clientId, String filter, Pageable pageable) {
+        List<String> distinctCiphersByClientId = protocolRepository.findDistinctCiphersByClientId(clientId);
 
-        List<ProtocolResponseDto> filteredProtocols = getFilteredProtocolsByClientId(clientId, filter);
+        Map<String, List<ProtocolResponseDto>> protocolsByCipher = new HashMap<>();
+        Map<String, Long> countProtocolsByCipher = new HashMap<>();
+        Page<Protocol> biggestPage = Page.empty();
 
-        Map<String, List<ProtocolResponseDto>> protocolsByCipher = filteredProtocols.stream()
-                .collect(Collectors.groupingBy(
-                        ProtocolResponseDto::getCipher,
-                        TreeMap::new,
-                        Collectors.toList()
-                ));
+        int pageCounter = -1;
+        for (String cipher : distinctCiphersByClientId) {
+            Page<Protocol> pageProtocols = protocolRepository.findProtocolsByClientIdWithSearchAndCipher(
+                    clientId,
+                    filter,
+                    cipher,
+                    pageable);
 
-        Map<String, List<ProtocolResponseDto>> paginatedProtocolsByCipher = getPaginatedProtocolsByCipher(page, pageSize, protocolsByCipher);
+            if (!pageProtocols.getContent().isEmpty()) {
+                if (pageProtocols.getTotalPages() > pageCounter) {
+                    biggestPage = pageProtocols;
+                    pageCounter = pageProtocols.getTotalPages();
+                }
 
-        // Рассчитываем общее количество страниц
-        int maxProtocolsPerCipher = protocolsByCipher.values().stream()
-                .mapToInt(List::size)
-                .max()
-                .orElse(0);
+                List<ProtocolResponseDto> protocols = pageProtocols
+                        .map(protocolMapper::protocolToProtocolResponseDto)
+                        .get().toList();
 
-        int totalPages = (int) Math.ceil((double) maxProtocolsPerCipher / pageSize);
+                protocolsByCipher.put(cipher, protocols);
+                countProtocolsByCipher.put(cipher, pageProtocols.getTotalElements());
+            }
 
-        List<String> uniqueCiphers = new ArrayList<>(protocolsByCipher.keySet());
+        }
 
-        PaginatedProtocolsDto dto = new PaginatedProtocolsDto();
-        dto.setProtocolsByCipher(paginatedProtocolsByCipher);
-        dto.setUniqueCiphers(uniqueCiphers);
-        dto.setCurrentPage(page);
-        dto.setPageSize(pageSize);
-        dto.setTotalPages(totalPages);
-        dto.setSearchQuery(filter);
-        dto.setCountProtocols(filteredProtocols.size());
+        ClientProtocolsViewDto clientProtocolsViewDto = new ClientProtocolsViewDto();
 
-        return dto; // TODO сделать пагинацию и фильтрацию через бд
+        clientProtocolsViewDto.setProtocolsByCipher(protocolsByCipher);
+        clientProtocolsViewDto.setUniqueCiphers(protocolsByCipher.keySet());
+        clientProtocolsViewDto.setCountProtocolsByCipher(countProtocolsByCipher);
+        clientProtocolsViewDto.setCountTotalProtocols(protocolRepository.countByClientId(clientId));
+        clientProtocolsViewDto.setCurrentPage(biggestPage.getNumber());
+        clientProtocolsViewDto.setPageSize(biggestPage.getSize());
+        clientProtocolsViewDto.setTotalPages(biggestPage.getTotalPages());
+        clientProtocolsViewDto.setSearchQuery(filter);
+
+        log.info("{}", clientProtocolsViewDto);
+        // TODO придумать что делать с широкой таблицей
+
+        return clientProtocolsViewDto; //TODO упорядочить метод
     }
 
-    public PaginatedProtocolsDto getFilteredAndPaginatedDtoForPublic( Long clientId,
-                                                                      String filter,
-                                                                      int page,
-                                                                      int pageSize) {
-        List<ProtocolResponseDto> filteredProtocols = getFilteredProtocolsByClientId(clientId, filter);
+    public PublicPaginatedProtocolsDto getFilteredAndPaginatedDtoForPublic(Long clientId,
+                                                                           String filter,
+                                                                           int page,
+                                                                           int pageSize) {
+        List<PublicProtocolResponseDto> filteredProtocols = getFilteredProtocolsByClientId(clientId, filter);
 
-        List<ProtocolResponseDto> paginatedProtocols = getPaginatedProtocols(page, pageSize, filteredProtocols);
+        List<PublicProtocolResponseDto> paginatedProtocols = getPaginatedProtocols(page, pageSize, filteredProtocols);
         log.info(paginatedProtocols.toString());
 
         int totalPages = (int) Math.ceil((double) filteredProtocols.size() / pageSize);
 
-        PaginatedProtocolsDto dto = new PaginatedProtocolsDto();
+        PublicPaginatedProtocolsDto dto = new PublicPaginatedProtocolsDto();
         dto.setProtocols(paginatedProtocols);
         dto.setCountProtocols(filteredProtocols.size());
         dto.setCurrentPage(page);
@@ -234,27 +199,19 @@ public class ProtocolService {
         return dto;
     }
 
-    private Map<String, List<ProtocolResponseDto>> getPaginatedProtocolsByCipher(int page, int pageSize, Map<String, List<ProtocolResponseDto>> protocolsByCipher) {
-        Map<String, List<ProtocolResponseDto>> paginatedProtocolsByCipher = new TreeMap<>();
+    public boolean existByCipherAndUniqueNumberAndSequenceNumber(ProtocolPreviewDto dto, Long clientId) {
+        ProtocolNumberDto numberDto = protocolMapper.parseNumberToNumberDto(dto.getNumber()).orElseThrow(
+                () -> new NotFoundException("Parse protocol number exception"));
 
-        for (Map.Entry<String, List<ProtocolResponseDto>> entry : protocolsByCipher.entrySet()) {
-            String cipher = entry.getKey();
-            List<ProtocolResponseDto> cipherProtocols = entry.getValue();
-
-            // Разбиваем на страницы по pageSize протоколов на колонку
-            int fromIndex = page * pageSize;
-            int toIndex = Math.min(fromIndex + pageSize, cipherProtocols.size());
-
-            if (fromIndex < cipherProtocols.size()) {
-                List<ProtocolResponseDto> pageProtocols = cipherProtocols.subList(fromIndex, toIndex);
-                paginatedProtocolsByCipher.put(cipher, pageProtocols);
-            }
-        }
-        return paginatedProtocolsByCipher;
+        return protocolRepository.existsByCipherAndUniqueNumberAndSequentialNumberAndClientId(
+                numberDto.getCipher(),
+                numberDto.getUniqueNumber(),
+                numberDto.getSequentialNumber(),
+                clientId);
     }
 
-    private List<ProtocolResponseDto> getPaginatedProtocols(int page, int pageSize, List<ProtocolResponseDto> protocols) {
-        List<ProtocolResponseDto> paginatedProtocols = new ArrayList<>();
+    private List<PublicProtocolResponseDto> getPaginatedProtocols(int page, int pageSize, List<PublicProtocolResponseDto> protocols) {
+        List<PublicProtocolResponseDto> paginatedProtocols = new ArrayList<>();
 
         int fromIndex = page * pageSize;
         int toIndex = Math.min(fromIndex + pageSize, protocols.size());
@@ -268,6 +225,14 @@ public class ProtocolService {
 
     private boolean existProtocol(Protocol protocol, Long clientId) {
         return protocolRepository.existsByCipherAndUniqueNumberAndSequentialNumberAndClientId(
+                protocol.getCipher(),
+                protocol.getUniqueNumber(),
+                protocol.getSequentialNumber(),
+                clientId);
+    }
+
+    private Optional<Protocol> findExistingProtocol(Protocol protocol, Long clientId) {
+        return protocolRepository.findByCipherAndUniqueNumberAndSequentialNumberAndClientId(
                 protocol.getCipher(),
                 protocol.getUniqueNumber(),
                 protocol.getSequentialNumber(),

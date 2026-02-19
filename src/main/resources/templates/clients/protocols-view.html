@@ -2,493 +2,1258 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${paginatedDto.client.name}"></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${paginatedDto.client.name} + ' — Протоколы'">Протоколы клиента</title>
 
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
+    <!-- Шрифты Control-M -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
     <style>
-        .navbar-brand {
-            font-weight: 600;
+        :root {
+            --primary-dark: #1E2A38;
+            --accent: #FF0000;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --radius: 10px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
         }
-        .search-container {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        .search-input-group {
-            max-width: 500px;
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            font-size: 14px;
         }
-        .clear-search-btn {
-            margin-left: 10px;
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
         }
-        .no-protocols-message {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-        }
-        .protocol-number {
-            font-family: monospace;
-            font-weight: 500;
-        }
-        .table th {
-            background-color: #2c3e50;
+
+        /* HEADER */
+        header {
+            background: var(--primary-dark);
             color: white;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .table-bordered td {
-            border: 1px solid #dee2e6;
-            vertical-align: top !important;
-        }
-        .cipher-column {
-            min-width: 180px;
-            min-height: 100px;
+            padding: 20px 0;
+            border-bottom: 3px solid var(--accent);
             position: relative;
-            vertical-align: top !important;
-            height: 1px; /* Фиксируем высоту ячейки */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        .protocol-column-content {
+
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-block img {
+            height: 45px;
+            width: auto;
+            display: block;
+        }
+
+        .logo-text {
             display: flex;
             flex-direction: column;
-            min-height: 400px; /* Фиксированная минимальная высота колонки */
         }
-        .protocol-items-container {
+
+        .logo-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        /* НАВИГАЦИЯ */
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: var(--transition);
+            opacity: 0.9;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* CARD */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ЗАГОЛОВОК С КРАСНОЙ ПОЛОСКОЙ */
+        .block-title {
+            font-weight: 600;
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .block-title::before {
+            content: "";
+            width: 5px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* КНОПКИ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            background: transparent;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-dark);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2A3A4A;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-icon.info:hover {
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .btn-icon.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .btn-icon.success:hover {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        /* ЗАГОЛОВОК СТРАНИЦЫ */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .client-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* КАРТОЧКА КЛИЕНТА */
+        .client-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .client-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--border-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary-dark);
+        }
+
+        .client-name-large {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .client-stats {
+            display: flex;
+            gap: 24px;
+            margin-left: auto;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: var(--bg);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        /* ПОИСК - АККУРАТНЫЙ КАК НА ПРОШЛОЙ СТРАНИЦЕ */
+        .search-section {
+            margin-bottom: 24px;
+        }
+
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .search-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input-wrapper {
             flex: 1;
-            min-height: 0; /* Для правильного flexbox поведения */
+            min-width: 300px;
+            position: relative;
         }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 42px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            background: white;
+            height: 40px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-search {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            height: 40px;
+        }
+
+        .btn-search:hover {
+            background: #2A3A4A;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-clear {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            height: 40px;
+        }
+
+        .btn-clear:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: #FFF5F5;
+        }
+
+        /* ТАБЛИЦА ПРОТОКОЛОВ */
+        .protocols-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .protocols-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .protocols-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .protocols-title::before {
+            content: "";
+            width: 5px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            overflow-y: visible;
+            width: 100%;
+
+        }
+
+        .protocols-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px
+        }
+
+        .protocols-table th {
+            padding: 16px 20px;
+            font-weight: 600;
+            background: var(--bg);
+            border-bottom: 2px solid var(--border);
+            border-right: 2px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            text-align: left;
+            position: relative;
+        }
+
+        .protocols-table td {
+            padding: 10px;
+            border-right: 2px solid var(--border);
+            vertical-align: top;
+            background: white;
+        }
+
+        .protocols-table td:last-child {
+            border-right: none;
+        }
+
+        /* СТАТИСТИКА В ЗАГОЛОВКЕ КОЛОНКИ */
+        .cipher-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cipher-name {
+            font-weight: 600;
+        }
+
+        .cipher-count {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .protocol-count {
+            border-radius: 20px;
+            font-weight: 600;
+            margin-left: 8px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+
+        /* КОНТЕНТ КОЛОНКИ */
+        .column-content {
+            display: flex;
+            flex-direction: column;
+            min-height: 300px;
+        }
+
+        .protocol-list {
+            flex: 1;
+        }
+
         .protocol-item {
             position: relative;
-            padding: 8px 12px;
+            padding: 12px;
             margin-bottom: 8px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            border-left: 4px solid #007bff;
-            transition: all 0.2s ease;
+            background: var(--border-light);
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-dark);
+            transition: var(--transition);
         }
+
         .protocol-item:hover {
-            background-color: #e9ecef;
+            background: white;
+            box-shadow: var(--shadow-md);
             transform: translateY(-1px);
         }
+
+        .protocol-number {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-main);
+            padding-right: 70px;
+        }
+
         .protocol-actions {
             position: absolute;
             top: 8px;
             right: 8px;
+            display: flex;
+            gap: 4px;
             opacity: 0;
-            transition: opacity 0.2s ease;
+            transition: var(--transition);
         }
+
         .protocol-item:hover .protocol-actions {
             opacity: 1;
         }
-        .protocol-content {
-            padding-right: 60px;
+
+        .action-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
         }
-        .protocol-info {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-top: 4px;
+
+        .action-icon:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
+
+        .action-icon.info:hover {
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .action-icon.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
         .empty-column {
-            background-color: #f8f9fa;
             display: flex;
             flex-direction: column;
-            min-height: 400px;
-        }
-        .pagination-container {
-            display: flex;
+            align-items: center;
             justify-content: center;
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-        }
-        .pagination-info {
+            min-height: 200px;
+            color: var(--text-secondary);
             text-align: center;
-            margin-bottom: 10px;
-            color: #6c757d;
-            font-size: 0.9rem;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 20px;
         }
-        .column-pagination {
-            position: absolute;
-            bottom: 5px;
+
+        .empty-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* ПАГИНАЦИЯ */
+        .pagination-section {
+            margin-top: 24px;
+            padding: 16px 20px;
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .pagination-info {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .pagination-info span {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .page-btn {
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            box-shadow: var(--shadow);
+        }
+
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .page-btn.active {
+            background: var(--primary-dark);
+            color: white;
+            border-color: var(--primary-dark);
+            cursor: default;
+        }
+
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: var(--border-light);
+        }
+
+        .page-btn.dots {
+            border: none;
+            box-shadow: none;
+            background: transparent;
+            cursor: default;
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 50px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left {
+            font-weight: 500;
+        }
+
+        /* МОДАЛЬНЫЕ ОКНА */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
             left: 0;
             right: 0;
-            text-align: center;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
         }
-        .column-pagination .btn-sm {
-            padding: 2px 8px;
-            font-size: 0.75rem;
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
         }
-        .protocol-counter {
-            font-size: 0.7rem;
-            color: #6c757d;
-            text-align: center;
-            margin-top: 5px;
-            margin-bottom: 10px;
+
+        .modal-container {
+            background: var(--card);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
         }
-        .page-size-selector {
-            max-width: 100px;
-            display: inline-block;
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
         }
-        .table-fixed-layout {
-            table-layout: fixed;
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text-main);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
             width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
         }
-        .table-fixed-layout th,
-        .table-fixed-layout td {
-            width: calc(100% / var(--columns-count, 3)); /* Равномерное распределение */
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .btn-modal-primary {
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-modal-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-modal-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* АДАПТИВНОСТЬ */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px 40px;
+            }
+
+            .header-inner {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .logo-block img {
+                height: 35px;
+            }
+
+            .logo-title {
+                font-size: 18px;
+            }
+
+            .main-nav {
+                order: 2;
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .action-buttons {
+                width: 100%;
+            }
+
+            .btn-primary {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .client-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .client-stats {
+                margin-left: 0;
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .stat-item {
+                flex: 1;
+            }
+
+            .search-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input-wrapper {
+                min-width: 100%;
+            }
+
+            .search-actions {
+                flex-direction: column;
+            }
+
+            .btn-search, .btn-clear {
+                width: 100%;
+            }
+
+            .protocols-table td {
+                min-width: 250px;
+            }
+
+            .pagination {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .pagination-controls {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
-<!-- Навигационная панель -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container-fluid">
-        <!-- Логотип и название -->
-        <a class="navbar-brand">
-            <i class="fas fa-qrcode me-2"></i>Control-M
-        </a>
 
-        <!-- Навигационные ссылки -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" th:href="@{/clients}">
-                        <i class="fas fa-users me-1"></i> Клиенты
-                    </a>
-                </li>
-            </ul>
-
-            <div class="d-flex align-items-center">
-                <span class="text-white me-3">
-                    <i class="fas fa-user me-1"></i>
-                    <span th:text="${paginatedDto.client.name}"></span>
-                </span>
+<header>
+    <div class="header-inner">
+        <div class="logo-block">
+            <img th:src="@{/images/logo3.png}"
+                 src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
+                 alt="Логотип Control-M">
+            <div class="logo-text">
+                <div class="logo-title">CONTROL-M</div>
             </div>
         </div>
-    </div>
-</nav>
 
-<div class="container mt-4">
-    <!-- Заголовок и кнопка добавления -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <a th:href="@{/clients}" class="btn btn-outline-secondary back-btn">
-            <i class="fas fa-arrow-left me-1"></i> Назад
-        </a>
-        <div>
+        <nav class="main-nav">
+            <a th:href="@{/clients}" class="nav-link">
+                Клиенты
+            </a>
+            <a th:href="@{/ocr/jobs}" class="nav-link">
+                Загрузки
+            </a>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Заголовок и кнопки -->
+    <div class="page-header">
+        <div class="client-title">
+        </div>
+        <div class="action-buttons">
             <a th:href="@{/clients/{id}/create-protocols(id=${paginatedDto.client.id})}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Добавить протокол
+                <i class="bi bi-plus-circle"></i>
+                Создать протокол
             </a>
-        </div>
-        <div>
             <a th:href="@{/clients/{id}/save-pdf(id=${paginatedDto.client.id})}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Добавить pdf
+                <i class="bi bi-upload"></i>
+                Загрузить PDF
             </a>
         </div>
     </div>
 
-    <!-- Карточка с информацией о клиенте -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h4 class="mb-0"><i class="fas fa-user me-2"></i><span th:text="${paginatedDto.client.name}"></span></h4>
-                </div>
+    <!-- Карточка клиента с общей статистикой -->
+    <div class="client-card">
+        <div class="block-title" th:text="${paginatedDto.client.name}">ООО Пример</div>
+        <div class="client-stats">
+            <div class="stat-item">
+                <div class="stat-value" th:text="${paginatedDto.getProtocolsByCipher().size()}">124</div>
+                <div class="stat-label">всего</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" th:text="${paginatedDto.uniqueCiphers.size()}">5</div>
+                <div class="stat-label">типов</div>
             </div>
         </div>
     </div>
 
-    <!-- Поиск протоколов -->
-    <div class="search-container">
-        <form id="searchForm" th:action="@{/clients/{id}(id=${paginatedDto.client.id})}" method="get" class="mb-0" onsubmit="handleSearchSubmit(event)">
-            <input type="hidden" name="page" th:value="0">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <label for="searchInput" class="form-label fw-bold mb-2">
-                        <i class="fas fa-search me-2"></i>Поиск протоколов
-                    </label>
-                    <div class="input-group search-input-group">
-                        <input type="text"
-                               class="form-control"
-                               id="searchInput"
-                               name="search"
-                               th:value="${paginatedDto.searchQuery}"
-                               placeholder="Введите номер..."
-                               aria-label="Поиск протоколов">
-                        <button class="btn btn-outline-primary" type="submit" id="searchButton">
-                            <i class="fas fa-search"></i> Найти
-                        </button>
-                        <button type="button"
-                                class="btn btn-outline-secondary clear-search-btn"
-                                onclick="clearSearch()">
-                            <i class="fas fa-times"></i> Очистить
-                        </button>
-                    </div>
-                    <div class="form-text mt-1">
-                        Поиск осуществляется по полному или частичному совпадению наименования.
-                    </div>
+    <!-- Поиск протоколо -->
+    <div class="search-section">
+        <form id="searchForm" th:action="@{/clients/{id}(id=${paginatedDto.client.id})}" method="get" class="search-form">
+            <div class="search-input-group">
+                <div class="search-input-wrapper">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text"
+                           class="search-input"
+                           id="searchInput"
+                           name="search"
+                           th:value="${paginatedDto.searchQuery}"
+                           placeholder="Введите номер протокола...">
                 </div>
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="pageSizeSelect" class="form-label fw-bold mb-2">
-                                <i class="fas fa-file-alt me-2"></i>Протоколов на страницу
-                            </label>
-                            <select class="form-select page-size-selector"
-                                    id="pageSizeSelect"
-                                    name="size"
-                                    onchange="updatePageSize(this.value)">
-                                <option value="10" th:selected="${paginatedDto.pageSize == 10}">10</option>
-                                <option value="20" th:selected="${paginatedDto.pageSize == 20}">20</option>
-                                <option value="30" th:selected="${paginatedDto.pageSize == 30}">30</option>
-                                <option value="50" th:selected="${paginatedDto.pageSize == 50}">50</option>
-                            </select>
-                        </div>
-                    </div>
+
+                <div class="search-actions">
+                    <button type="submit" class="btn-search">
+                        <i class="bi bi-search"></i>
+                        Найти
+                    </button>
+                    <a href="#" class="btn-clear" onclick="clearSearch(event)">
+                        <i class="bi bi-x-circle"></i>
+                        Очистить
+                    </a>
                 </div>
             </div>
+
+            <!-- Скрытые поля для пагинации -->
+            <input type="hidden" name="page" th:value="${paginatedDto.currentPage}">
+            <input type="hidden" name="size" th:value="${paginatedDto.pageSize}">
         </form>
     </div>
 
     <!-- Таблица протоколов -->
-    <div class="card">
-        <div class="card-header bg-light">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-file-contract me-2"></i>Выданные протоколы</h5>
-                <span class="badge bg-primary">
-                    <i class="fas fa-list me-1"></i>
-                    <span th:text="${paginatedDto.protocolsByCipher != null ? paginatedDto.countProtocols : 0}"></span>
-                </span>
+    <div class="protocols-card">
+        <div class="protocols-header">
+            <div class="protocols-title">
+                Выданные протоколы
             </div>
+            <span class="protocol-count" th:text="${paginatedDto.getCountTotalProtocols()}">0</span>
         </div>
 
-        <div class="card-body p-0">
-
-            <!-- Динамическая таблица с колонками по шифрам -->
-            <div class="table-responsive">
-                <table class="table table-bordered mb-0 table-fixed-layout"
-                       th:style="${paginatedDto.uniqueCiphers != null} ? '--columns-count: ${uniqueCiphers.size()}' : ''">
-                    <thead class="table-dark">
-                    <tr>
-                        <!-- Динамические заголовки колонок на основе уникальных шифров -->
-                        <th th:each="cipher : ${paginatedDto.uniqueCiphers}"
-                            th:text="${cipher}"
-                            class="text-center cipher-column">
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <!-- Колонки с протоколами для каждого шифра -->
-                        <td th:each="cipher : ${paginatedDto.uniqueCiphers}"
-                            th:id="'cipher-' + ${cipher}"
-                            th:classappend="${(paginatedDto.protocolsByCipher.get(cipher) == null or paginatedDto.protocolsByCipher.get(cipher).empty)} ? 'empty-column' : ''"
-                            class="cipher-column">
-
-                            <div class="protocol-column-content">
-                                <div class="protocol-items-container">
-                                    <div th:if="${paginatedDto.protocolsByCipher.get(cipher) != null and not paginatedDto.protocolsByCipher.get(cipher).empty}">
-                                        <!-- Список протоколов -->
-                                        <div th:each="protocol : ${paginatedDto.protocolsByCipher.get(cipher)}"
-                                             th:id="'protocol-' + ${protocol.id}"
-                                             class="protocol-item">
-                                            <div class="protocol-content">
-                                                <div class="protocol-number text-center fw-bold"
-                                                     th:text="${protocol.getFullProtocolNumber()}">
-                                                </div>
-                                            </div>
-                                            <div class="protocol-actions">
-                                                <!-- Кнопка скачивания PDF -->
-                                                <button type="button"
-                                                        class="btn btn-sm btn-outline-info ms-1"
-                                                        th:data-protocol-id="${protocol.id}"
-                                                        onclick="downloadPdf(this)">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                </button>
-
-                                                <!-- Кнопка редактирования -->
-                                                <button type="button"
-                                                        class="btn btn-sm btn-outline-primary"
-                                                        th:data-protocol-id="${protocol.id}"
-                                                        th:data-client-id="${paginatedDto.client.id}"
-                                                        th:data-cipher="${protocol.cipher}"
-                                                        th:data-unique-number="${protocol.uniqueNumber}"
-                                                        th:data-sequential-number="${protocol.sequentialNumber}"
-                                                        onclick="openEditModal(this)">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-
-                                                <!-- Кнопка удаления -->
-                                                <button type="button"
-                                                        class="btn btn-sm btn-outline-danger ms-1"
-                                                        th:data-protocol-id="${protocol.id}"
-                                                        th:data-client-id="${paginatedDto.client.id}"
-                                                        th:data-protocol-number="${protocol.getFullProtocolNumber()}"
-                                                        onclick="openDeleteModal(this)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
+        <div class="table-responsive">
+            <table class="protocols-table">
+                <thead>
+                <tr>
+                    <th th:each="cipher : ${paginatedDto.uniqueCiphers}">
+                        <div class="cipher-header">
+                            <span class="cipher-name" th:text="${cipher}">Шифр</span>
+                            <span class="cipher-count" th:text="${paginatedDto.getCountProtocolsByCipher().get(cipher)}">0</span>
+                        </div>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td th:each="cipher : ${paginatedDto.uniqueCiphers}">
+                        <div class="column-content">
+                            <div class="protocol-list">
+                                <div th:if="${paginatedDto.protocolsByCipher.get(cipher) != null and not paginatedDto.protocolsByCipher.get(cipher).empty}">
+                                    <div th:each="protocol : ${paginatedDto.protocolsByCipher.get(cipher)}"
+                                         th:id="'protocol-' + ${protocol.id}"
+                                         class="protocol-item">
+                                        <div class="protocol-number" th:text="${protocol.getFullProtocolNumber()}">
+                                            CTM-2024-0001
+                                        </div>
+                                        <div class="protocol-actions">
+                                            <button type="button"
+                                                    class="action-icon info"
+                                                    th:data-protocol-id="${protocol.id}"
+                                                    onclick="downloadPdf(this)">
+                                                <i class="bi bi-file-pdf"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="action-icon"
+                                                    th:data-protocol-id="${protocol.id}"
+                                                    th:data-client-id="${paginatedDto.client.id}"
+                                                    th:data-cipher="${protocol.cipher}"
+                                                    th:data-unique-number="${protocol.uniqueNumber}"
+                                                    th:data-sequential-number="${protocol.sequentialNumber}"
+                                                    onclick="openEditModal(this)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button type="button"
+                                                    class="action-icon danger"
+                                                    th:data-protocol-id="${protocol.id}"
+                                                    th:data-client-id="${paginatedDto.client.id}"
+                                                    th:data-protocol-number="${protocol.getFullProtocolNumber()}"
+                                                    onclick="openDeleteModal(this)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
                                         </div>
                                     </div>
-
-                                    <!-- Пустая колонка -->
-                                    <div th:if="${paginatedDto.protocolsByCipher.get(cipher) == null or paginatedDto.protocolsByCipher.get(cipher).empty}"
-                                         class="text-center text-muted py-4">
-                                        <i class="fas fa-inbox fa-2x mb-2"></i>
-                                        <div>Нет протоколов на этой странице</div>
+                                </div>
+                                <div th:if="${paginatedDto.protocolsByCipher.get(cipher) == null or paginatedDto.protocolsByCipher.get(cipher).empty}"
+                                     class="empty-column">
+                                    <div class="empty-icon">
+                                        <i class="bi bi-inbox"></i>
                                     </div>
+                                    <div>Нет протоколов</div>
                                 </div>
                             </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <!-- Пагинация -->
-    <div th:if="${paginatedDto.totalPages > 1}" class="pagination-container">
-        <nav aria-label="Навигация по страницам">
-            <ul class="pagination mb-0">
+    <div class="pagination-section" th:if="${paginatedDto.totalPages > 1}">
+        <div class="pagination">
+            <div class="pagination-info">
+                Страница <span th:text="${paginatedDto.currentPage + 1}">1</span> из
+                <span th:text="${paginatedDto.totalPages}">10</span>
+            </div>
+
+            <div class="pagination-controls">
                 <!-- Кнопка "Назад" -->
-                <li class="page-item" th:classappend="${paginatedDto.currentPage == 0} ? 'disabled' : ''">
-                    <a class="page-link"
-                       th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.currentPage - 1}, size=${paginatedDto.pageSize})}"
-                       aria-label="Предыдущая">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
+                <a th:if="${paginatedDto.currentPage > 0}"
+                   th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.currentPage - 1}, size=${paginatedDto.pageSize})}"
+                   class="page-btn">
+                    ←
+                </a>
+                <span th:unless="${paginatedDto.currentPage > 0}" class="page-btn disabled">←</span>
 
                 <!-- Первая страница -->
-                <li class="page-item" th:classappend="${paginatedDto.currentPage == 0} ? 'active' : ''">
-                    <a class="page-link"
-                       th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=0, size=${paginatedDto.pageSize})}"
-                       th:text="1">
-                    </a>
-                </li>
+                <a th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=0, size=${paginatedDto.pageSize})}"
+                   class="page-btn"
+                   th:classappend="${paginatedDto.currentPage == 0} ? 'active' : ''">
+                    1
+                </a>
 
-                <!-- Многоточие если нужно -->
-                <li class="page-item disabled" th:if="${paginatedDto.currentPage > 3}">
-                    <span class="page-link">...</span>
-                </li>
+                <!-- Многоточие после первой страницы -->
+                <span class="page-btn dots disabled" th:if="${paginatedDto.currentPage > 2}">...</span>
 
                 <!-- Страницы вокруг текущей -->
-                <li th:each="i : ${#numbers.sequence(T(java.lang.Math).max(1, paginatedDto.currentPage - 2), T(java.lang.Math).min(paginatedDto.totalPages - 2, paginatedDto.currentPage + 2))}"
-                    class="page-item"
-                    th:classappend="${i == paginatedDto.currentPage} ? 'active' : ''">
-                    <a class="page-link"
+                <th:block th:each="i : ${#numbers.sequence(paginatedDto.currentPage > 1 ? paginatedDto.currentPage - 1 : 1, paginatedDto.currentPage < paginatedDto.totalPages - 2 ? paginatedDto.currentPage + 1 : paginatedDto.totalPages - 2)}">
+                    <a th:if="${i > 0 and i < paginatedDto.totalPages - 1}"
                        th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${i}, size=${paginatedDto.pageSize})}"
+                       class="page-btn"
+                       th:classappend="${i == paginatedDto.currentPage} ? 'active' : ''"
                        th:text="${i + 1}">
                     </a>
-                </li>
+                </th:block>
 
-                <!-- Многоточие если нужно -->
-                <li class="page-item disabled" th:if="${paginatedDto.currentPage < paginatedDto.totalPages - 4}">
-                    <span class="page-link">...</span>
-                </li>
+                <!-- Многоточие перед последней страницей -->
+                <span class="page-btn dots disabled" th:if="${paginatedDto.currentPage < paginatedDto.totalPages - 3}">...</span>
 
                 <!-- Последняя страница -->
-                <li class="page-item" th:if="${paginatedDto.totalPages > 1}"
-                    th:classappend="${paginatedDto.currentPage == paginatedDto.totalPages - 1} ? 'active' : ''">
-                    <a class="page-link"
-                       th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.totalPages - 1}, size=${paginatedDto.pageSize})}"
-                       th:text="${paginatedDto.totalPages}">
-                    </a>
-                </li>
+                <a th:if="${paginatedDto.totalPages > 1}"
+                   th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.totalPages - 1}, size=${paginatedDto.pageSize})}"
+                   class="page-btn"
+                   th:classappend="${paginatedDto.currentPage == paginatedDto.totalPages - 1} ? 'active' : ''"
+                   th:text="${paginatedDto.totalPages}">
+                </a>
 
                 <!-- Кнопка "Вперед" -->
-                <li class="page-item" th:classappend="${paginatedDto.currentPage == paginatedDto.totalPages - 1} ? 'disabled' : ''">
-                    <a class="page-link"
-                       th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.currentPage + 1}, size=${paginatedDto.pageSize})}"
-                       aria-label="Следующая">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+                <a th:if="${paginatedDto.currentPage < paginatedDto.totalPages - 1}"
+                   th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.currentPage + 1}, size=${paginatedDto.pageSize})}"
+                   class="page-btn">
+                    →
+                </a>
+                <span th:unless="${paginatedDto.currentPage < paginatedDto.totalPages - 1}" class="page-btn disabled">→</span>
+            </div>
+        </div>
     </div>
+
+    <footer>
+        <div class="footer-left">
+            © Control-M • Внутренняя система протоколов
+        </div>
+    </footer>
 </div>
 
 <!-- Модальное окно для редактирования протокола -->
-<div class="modal fade" id="editProtocolModal" tabindex="-1" aria-labelledby="editProtocolModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="editProtocolForm" method="post">
-                <input type="hidden" name="_method" value="put">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editProtocolModalLabel">Редактировать протокол</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal-overlay" id="editModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h5 class="modal-title">Редактировать протокол</h5>
+            <button type="button" class="modal-close" onclick="closeModal('edit')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="editProtocolForm">
+                <input type="hidden" id="editProtocolId">
+                <input type="hidden" id="editClientId">
+
+                <div class="form-group">
+                    <label class="form-label" for="editCipher">Шифр протокола</label>
+                    <input type="text" class="form-control" id="editCipher" required maxlength="10">
+                    <div class="form-text">Максимум 10 символов</div>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="editCipher" class="form-label">Шифр протокола *</label>
-                        <input type="text" class="form-control" id="editCipher" name="cipher" required maxlength="10">
-                        <div class="form-text">Шифр не должен превышать 10 символов</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editUniqueNumber" class="form-label">Номер заказчика *</label>
-                        <input type="text" class="form-control" id="editUniqueNumber" name="uniqueNumber" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editSequentialNumber" class="form-label">Порядковый номер *</label>
-                        <input type="number" class="form-control" id="editSequentialNumber" name="sequentialNumber" required min="1">
-                    </div>
-                    <input type="hidden" name="clientId" id="editClientId">
+
+                <div class="form-group">
+                    <label class="form-label" for="editUniqueNumber">Номер заказчика</label>
+                    <input type="text" class="form-control" id="editUniqueNumber" required>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+
+                <div class="form-group">
+                    <label class="form-label" for="editSequentialNumber">Порядковый номер</label>
+                    <input type="number" class="form-control" id="editSequentialNumber" required min="1">
                 </div>
             </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-secondary" onclick="closeModal('edit')">Отмена</button>
+            <button type="button" class="btn-modal-primary" onclick="saveEdit()">Сохранить</button>
         </div>
     </div>
 </div>
 
 <!-- Модальное окно для удаления протокола -->
-<div class="modal fade" id="deleteProtocolModal" tabindex="-1" aria-labelledby="deleteProtocolModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="deleteProtocolForm" method="post">
-                <input type="hidden" name="_method" value="delete">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteProtocolModalLabel">Удаление протокола</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Вы уверены, что хотите удалить протокол <strong id="deleteProtocolNumber"></strong>?</p>
-                    <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Это действие нельзя отменить!</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <button type="submit" class="btn btn-danger">Удалить</button>
-                </div>
-            </form>
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h5 class="modal-title">Удаление протокола</h5>
+            <button type="button" class="modal-close" onclick="closeModal('delete')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Вы уверены, что хотите удалить протокол <strong id="deleteProtocolNumber"></strong>?</p>
+            <p style="color: var(--danger);"><i class="bi bi-exclamation-triangle"></i> Это действие нельзя отменить!</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-secondary" onclick="closeModal('delete')">Отмена</button>
+            <button type="button" class="btn-modal-danger" onclick="confirmDelete()">Удалить</button>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/csrf.js"></script>
-
-<!-- JavaScript для страницы -->
 <script>
-    // Функция для скачивания PDF файла протокола
+    // Текущие данные для редактирования/удаления
+    let currentProtocolId = null;
+    let currentClientId = null;
+    let currentDeleteProtocolId = null;
+
+    // Функция для скачивания PDF
     function downloadPdf(button) {
         const protocolId = button.getAttribute('data-protocol-id');
-
-        // Открываем в новой вкладке для скачивания
         window.open(`/protocols/${protocolId}/file`, '_blank');
     }
 
-    // Функция для очистки поиска
-    function clearSearch() {
+    // Очистка поиска
+    function clearSearch(event) {
+        event.preventDefault();
         document.getElementById('searchInput').value = '';
         const url = new URL(window.location.href);
         url.searchParams.delete('search');
@@ -496,107 +1261,67 @@
         window.location.href = url.toString();
     }
 
-    // Функция для обновления размера страницы
-    function updatePageSize(size) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('size', size);
-        url.searchParams.set('page', '0'); // Сбрасываем на первую страницу при изменении размера
-        window.location.href = url.toString();
-    }
-
-    // Обработка отправки формы поиска
-    function handleSearchSubmit(event) {
-        event.preventDefault();
-        const searchInput = document.getElementById('searchInput');
-        const url = new URL(window.location.href);
-        const searchValue = searchInput.value.trim();
-
-        if (searchValue) {
-            url.searchParams.set('search', searchValue);
-        } else {
-            url.searchParams.delete('search');
-        }
-
-        url.searchParams.set('page', '0'); // Всегда сбрасываем на первую страницу при поиске
-        url.searchParams.delete('size'); // Удаляем size, чтобы использовать текущее значение из select
-        url.searchParams.set('size', document.getElementById('pageSizeSelect').value);
-
-        window.location.href = url.toString();
-    }
-
     // Открытие модального окна редактирования
     function openEditModal(button) {
-        const protocolId = button.getAttribute('data-protocol-id');
-        const clientId = button.getAttribute('data-client-id');
-        const cipher = button.getAttribute('data-cipher');
-        const uniqueNumber = button.getAttribute('data-unique-number');
-        const sequentialNumber = button.getAttribute('data-sequential-number');
+        currentProtocolId = button.getAttribute('data-protocol-id');
+        currentClientId = button.getAttribute('data-client-id');
 
-        // Заполняем форму данными
-        document.getElementById('editCipher').value = cipher;
-        document.getElementById('editUniqueNumber').value = uniqueNumber;
-        document.getElementById('editSequentialNumber').value = sequentialNumber;
-        document.getElementById('editClientId').value = clientId;
+        document.getElementById('editCipher').value = button.getAttribute('data-cipher');
+        document.getElementById('editUniqueNumber').value = button.getAttribute('data-unique-number');
+        document.getElementById('editSequentialNumber').value = button.getAttribute('data-sequential-number');
+        document.getElementById('editProtocolId').value = currentProtocolId;
+        document.getElementById('editClientId').value = currentClientId;
 
-        // Устанавливаем действие формы
-        const form = document.getElementById('editProtocolForm');
-        form.action = `/clients/${clientId}/protocols/${protocolId}/edit`;
-
-        // Показываем модальное окно
-        const modal = new bootstrap.Modal(document.getElementById('editProtocolModal'));
-        modal.show();
+        document.getElementById('editModal').classList.add('show');
     }
 
     // Открытие модального окна удаления
     function openDeleteModal(button) {
-        const protocolId = button.getAttribute('data-protocol-id');
-        const clientId = button.getAttribute('data-client-id');
-        const protocolNumber = button.getAttribute('data-protocol-number');
+        currentDeleteProtocolId = button.getAttribute('data-protocol-id');
+        currentClientId = button.getAttribute('data-client-id');
 
-        // Заполняем информацию о протоколе
-        document.getElementById('deleteProtocolNumber').textContent = protocolNumber;
+        document.getElementById('deleteProtocolNumber').textContent =
+            button.getAttribute('data-protocol-number');
 
-        // Устанавливаем действие формы
-        const form = document.getElementById('deleteProtocolForm');
-        form.action = `/clients/${clientId}/protocols/${protocolId}/delete`;
-
-        // Показываем модальное окно
-        const modal = new bootstrap.Modal(document.getElementById('deleteProtocolModal'));
-        modal.show();
+        document.getElementById('deleteModal').classList.add('show');
     }
 
-    // Обработка отправки формы редактирования
-    document.getElementById('editProtocolForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
+    // Закрытие модальных окон
+    function closeModal(type) {
+        if (type === 'edit') {
+            document.getElementById('editModal').classList.remove('show');
+        } else {
+            document.getElementById('deleteModal').classList.remove('show');
+        }
+    }
 
-        // Валидация
+    // Сохранение редактирования
+    function saveEdit() {
         const cipher = document.getElementById('editCipher').value.trim();
         const uniqueNumber = document.getElementById('editUniqueNumber').value.trim();
         const sequentialNumber = document.getElementById('editSequentialNumber').value.trim();
 
         if (!cipher || !uniqueNumber || !sequentialNumber) {
             alert('Все поля обязательны для заполнения!');
-            return false;
+            return;
         }
 
         if (cipher.length > 10) {
             alert('Шифр не должен превышать 10 символов!');
-            return false;
+            return;
         }
 
-        // Добавляем CSRF токен
         const csrfToken = document.querySelector('meta[name="_csrf"]').content;
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
-        // Отправляем данные через fetch
         const formData = new FormData();
         formData.append('cipher', cipher);
         formData.append('uniqueNumber', uniqueNumber);
         formData.append('sequentialNumber', sequentialNumber);
-        formData.append('clientId', document.getElementById('editClientId').value);
+        formData.append('clientId', currentClientId);
         formData.append('_csrf', csrfToken);
 
-        fetch(this.action, {
+        fetch(`/clients/${currentClientId}/protocols/${currentProtocolId}/edit`, {
             method: 'POST',
             body: formData,
             headers: {
@@ -607,31 +1332,26 @@
                 if (response.redirected) {
                     window.location.href = response.url;
                 } else if (response.ok) {
-                    // Обновляем страницу после успешного сохранения
                     window.location.reload();
                 } else {
-                    throw new Error('Ошибка при сохранении изменений');
+                    throw new Error('Ошибка при сохранении');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Произошла ошибка при сохранении изменений');
             });
-    });
+    }
 
-    // Обработка отправки формы удаления
-    document.getElementById('deleteProtocolForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Добавляем CSRF токен
+    // Подтверждение удаления
+    function confirmDelete() {
         const csrfToken = document.querySelector('meta[name="_csrf"]').content;
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
-        // Отправляем запрос на удаление
         const formData = new FormData();
         formData.append('_csrf', csrfToken);
 
-        fetch(this.action, {
+        fetch(`/clients/${currentClientId}/protocols/${currentDeleteProtocolId}/delete`, {
             method: 'POST',
             body: formData,
             headers: {
@@ -642,40 +1362,44 @@
                 if (response.redirected) {
                     window.location.href = response.url;
                 } else if (response.ok) {
-                    // Обновляем страницу после успешного удаления
                     window.location.reload();
                 } else {
-                    throw new Error('Ошибка при удалении протокола');
+                    throw new Error('Ошибка при удалении');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Произошла ошибка при удалении протокола');
             });
-    });
+    }
 
-    // Автофокус на поле поиска при загрузке страницы
+    // Обработка Enter в поиске
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
+
         if (searchInput) {
-            searchInput.focus();
-            if (searchInput.value) {
-                searchInput.select();
-            }
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('searchForm').submit();
+                }
+            });
         }
 
-        // Обработка нажатия Enter для поиска
-        searchInput?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                handleSearchSubmit(new Event('submit'));
+        // Закрытие модальных окон по клику на оверлей
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal('edit');
             }
         });
 
-        // Инициализация CSRF утилит
-        if (window.csrfUtils) {
-            window.csrfUtils.init();
-        }
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal('delete');
+            }
+        });
     });
 </script>
+
 </body>
 </html>

@@ -9,4 +9,6 @@ public interface OcrProtocolPreviewRepository extends JpaRepository<OcrProtocolP
 
     List<OcrProtocolPreview> findAllByOcrJobId(Long ocrJobId);
     void deleteAllByOcrJobId(Long ocrJobId);
+
+    void deleteByFileName(String fileName);
 }
