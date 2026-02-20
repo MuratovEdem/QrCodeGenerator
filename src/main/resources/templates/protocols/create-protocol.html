@@ -17,7 +17,7 @@
     <style>
         :root {
             --primary-dark: #1E2A38;
-            --accent: #FF0000;
+            --accent: #ffffff;
             --bg: #F8FAFC;
             --card: #FFFFFF;
             --text-main: #1A1A1A;
@@ -274,80 +274,6 @@
             margin-top: 4px;
         }
 
-        /* ИСТОРИЯ */
-        .history-section {
-            margin-top: 12px;
-        }
-
-        .history-label {
-            font-size: 11px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 8px;
-        }
-
-        .history-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .history-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            background: var(--border-light);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .history-badge:hover {
-            background: var(--primary-dark);
-            color: white;
-            border-color: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-
-        .btn-clear-history {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 6px 12px;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn-clear-history:hover {
-            border-color: var(--danger);
-            color: var(--danger);
-            background: #FEF2F2;
-        }
-
-        /* ИНФОРМАЦИОННАЯ СТРОКА */
-        .history-info {
-            margin-top: 8px;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .history-info span {
-            color: var(--primary-dark);
-            font-weight: 500;
-        }
-
         /* КНОПКИ */
         .form-actions {
             display: flex;
@@ -486,6 +412,53 @@
             box-shadow: var(--shadow-md);
         }
 
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-icon:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: #FEF2F2;
+        }
+
+        /* Стили для валидации полей */
+        .form-control.is-valid {
+            border-color: var(--success);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2310B981' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .form-control.is-valid:focus {
+            border-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23EF4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23EF4444' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .form-control.is-invalid:focus {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
         /* АДАПТИВНОСТЬ */
         @media (max-width: 768px) {
             .container {
@@ -522,15 +495,6 @@
 
             .btn {
                 width: 100%;
-            }
-
-            .history-tags {
-                gap: 6px;
-            }
-
-            .history-badge {
-                padding: 4px 10px;
-                font-size: 11px;
             }
         }
 
@@ -607,11 +571,11 @@
             <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'">×</button>
         </div>
 
-        <!-- Форма -->
         <form th:action="@{/clients/{id}/create-protocols(id=${client.id})}"
               method="post"
               th:object="${protocolForm}"
-              id="protocolForm">
+              id="protocolForm"
+              enctype="multipart/form-data">
 
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <input type="hidden" th:field="*{clientId}" />
@@ -626,15 +590,10 @@
                        class="form-control"
                        id="cipher"
                        th:field="*{cipher}"
-                       list="cipherList"
-                       placeholder="Например: НК, КБ, ВИК..."
+                       placeholder="НК, КБ, ВИК..."
                        autocomplete="off"
                        required>
-                <datalist id="cipherList">
-                    <option th:each="cipherItem : ${cipherHistory}"
-                            th:value="${cipherItem}">
-                </datalist>
-
+                <div class="form-text">Максимум 10 символов</div>
                 <div th:if="${#fields.hasErrors('cipher')}" class="text-danger" th:errors="*{cipher}"></div>
             </div>
 
@@ -648,15 +607,9 @@
                        class="form-control"
                        id="uniqueNumber"
                        th:field="*{uniqueNumber}"
-                       list="uniqueNumberList"
-                       placeholder="Например: 35, 35а..."
+                       placeholder="35, 35а..."
                        autocomplete="off"
                        required>
-                <datalist id="uniqueNumberList">
-                    <option th:each="numberItem : ${uniqueNumberHistory}"
-                            th:value="${numberItem}">
-                </datalist>
-
                 <div th:if="${#fields.hasErrors('uniqueNumber')}" class="text-danger" th:errors="*{uniqueNumber}"></div>
             </div>
 
@@ -670,22 +623,21 @@
                        class="form-control"
                        id="sequentialNumber"
                        th:field="*{sequentialNumber}"
-                       placeholder="Например: 11"
+                       placeholder="11, 11-18..."
                        required>
                 <div th:if="${#fields.hasErrors('sequentialNumber')}" class="text-danger" th:errors="*{sequentialNumber}"></div>
             </div>
 
             <!-- Дата протокола -->
             <div class="form-group">
-                <label for="protocolDate" class="form-label">
+                <label for="issueDate" class="form-label">
                     <i class="bi bi-calendar"></i>
                     Дата протокола
                 </label>
                 <input type="text"
                        class="form-control"
-                       id="protocolDate"
-                       name="issueDate"
-                       th:value="${protocolForm.issueDate}"
+                       id="issueDate"
+                       th:field="*{issueDate}"
                        placeholder="дд.мм.гггг"
                        pattern="\d{2}\.\d{2}\.\d{4}"
                        required>
@@ -715,17 +667,19 @@
                         <div style="color: var(--text-secondary); margin-bottom: 16px; font-size: 13px;">
                             или
                         </div>
-                        <div class="file-input-container">
-                            <label for="pdfFileInput" class="file-input-label">
-                                <i class="bi bi-folder2-open"></i>
-                                Выбрать файл
-                            </label>
-                            <input type="file"
-                                   id="pdfFileInput"
-                                   name="pdfFile"
-                                   accept=".pdf,application/pdf"
-                                   style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">
-                        </div>
+
+                        <!-- ЕДИНСТВЕННАЯ КНОПКА ВЫБОРА ФАЙЛА -->
+                        <label for="pdfFileInput" class="file-input-label">
+                            <i class="bi bi-folder2-open"></i>
+                            Выбрать файл
+                        </label>
+
+                        <input type="file"
+                               id="pdfFileInput"
+                               name="file"
+                               accept=".pdf,application/pdf"
+                               style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">
+
                         <div class="form-text" style="margin-top: 12px;">
                             Поддерживаются только PDF файлы до 50 МБ
                         </div>
@@ -741,12 +695,13 @@
                                 <div id="selectedFileName" style="font-weight: 600; font-size: 14px; color: var(--text-main); margin-bottom: 4px; word-break: break-word;"></div>
                                 <div id="selectedFileSize" style="font-size: 12px; color: var(--text-secondary);"></div>
                             </div>
-                            <button type="button" class="btn-icon" onclick="removePdfFile()" title="Удалить файл" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                            <button type="button" class="btn-icon" onclick="removePdfFile()" title="Удалить файл">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
                     </div>
                 </div>
+
                 <div id="pdfFileError" class="text-danger" style="display: none; margin-top: 8px;">
                     <i class="bi bi-exclamation-circle"></i>
                     <small>Необходимо загрузить PDF файл</small>
@@ -784,29 +739,126 @@
         const cipherInput = document.getElementById('cipher');
         const uniqueNumberInput = document.getElementById('uniqueNumber');
         const sequentialInput = document.getElementById('sequentialNumber');
+        const issueDateInput = document.getElementById('issueDate');
         const form = document.getElementById('protocolForm');
 
         // Автофокус на первое поле
         cipherInput.focus();
+
+        // Переменные для работы с PDF
+        let currentPdfFile = null;
+        const pdfUploadArea = document.getElementById('uploadArea');
+        const pdfInitialState = document.getElementById('uploadInitialState');
+        const pdfCompletedState = document.getElementById('uploadCompletedState');
+        const pdfFileInput = document.getElementById('pdfFileInput');
+        const pdfFileError = document.getElementById('pdfFileError');
+
+        // Делаем функцию removePdfFile глобально доступной
+        window.removePdfFile = function() {
+            pdfFileInput.value = '';
+            currentPdfFile = null;
+
+            pdfInitialState.style.display = 'block';
+            pdfCompletedState.style.display = 'none';
+            pdfUploadArea.classList.remove('upload-area-completed');
+            pdfUploadArea.classList.remove('upload-area-error');
+            pdfFileError.style.display = 'none';
+        };
+
+        // Функции валидации для каждого поля
+        function validateCipher(value) {
+            return value && value.trim().length > 0 && value.trim().length <= 10;
+        }
+
+        function validateUniqueNumber(value) {
+            return value && value.trim().length > 0;
+        }
+
+        function validateSequentialNumber(value) {
+            return value && value.trim().length > 0;
+        }
+
+        function validateIssueDate(value) {
+            if (!value) return false;
+
+            const dateRegex = /^\d{2}\.\d{2}\.\d{4}$/;
+            if (!dateRegex.test(value)) return false;
+
+            const [day, month, year] = value.split('.').map(Number);
+            const date = new Date(year, month - 1, day);
+
+            return date.getFullYear() === year &&
+                date.getMonth() === month - 1 &&
+                date.getDate() === day &&
+                year >= 1900 && year <= 2100;
+        }
+
+        // Функция обновления подсветки поля
+        function updateFieldValidation(input, validateFn) {
+            const value = input.value.trim();
+
+            if (!value) {
+                // Пустое поле - красный
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+            } else if (validateFn(value)) {
+                // Корректные данные - зеленый
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+            } else {
+                // Некорректные данные - красный
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+            }
+        }
+
+        // Добавляем обработчики событий для каждого поля
+        cipherInput.addEventListener('input', function() {
+            updateFieldValidation(this, validateCipher);
+        });
+
+        uniqueNumberInput.addEventListener('input', function() {
+            updateFieldValidation(this, validateUniqueNumber);
+        });
+
+        sequentialInput.addEventListener('input', function() {
+            updateFieldValidation(this, validateSequentialNumber);
+        });
+
+        issueDateInput.addEventListener('input', function() {
+            updateFieldValidation(this, validateIssueDate);
+        });
+
+        // Первоначальная валидация при загрузке
+        updateFieldValidation(cipherInput, validateCipher);
+        updateFieldValidation(uniqueNumberInput, validateUniqueNumber);
+        updateFieldValidation(sequentialInput, validateSequentialNumber);
+        updateFieldValidation(issueDateInput, validateIssueDate);
 
         // Валидация формы
         form.addEventListener('submit', function(event) {
             const cipher = cipherInput.value.trim();
             const uniqueNumber = uniqueNumberInput.value.trim();
             const sequentialNumber = sequentialInput.value.trim();
-            const protocolDate = document.getElementById('protocolDate').value.trim();
+            const issueDate = issueDateInput.value.trim();
             const dateError = document.getElementById('dateError');
-            const pdfFileError = document.getElementById('pdfFileError');
 
             // Проверка заполнения полей
-            if (!cipher || !uniqueNumber || !sequentialNumber || !protocolDate) {
+            if (!cipher || !uniqueNumber || !sequentialNumber || !issueDate) {
                 event.preventDefault();
                 alert('Пожалуйста, заполните все обязательные поля');
                 return false;
             }
 
+            // Проверка длины шифра
+            if (cipher.length > 10) {
+                event.preventDefault();
+                alert('Шифр протокола не должен превышать 10 символов');
+                return false;
+            }
+
             // Проверка наличия PDF файла
-            if (!currentPdfFile && pdfFileInput.files.length === 0) {
+            if (pdfFileInput.files.length === 0) {
                 event.preventDefault();
                 pdfFileError.style.display = 'block';
                 pdfUploadArea.classList.add('upload-area-error');
@@ -819,15 +871,16 @@
 
             // Проверка формата даты
             const dateRegex = /^\d{2}\.\d{2}\.\d{4}$/;
-            if (!dateRegex.test(protocolDate)) {
+            if (!dateRegex.test(issueDate)) {
                 event.preventDefault();
                 dateError.style.display = 'block';
-                document.getElementById('protocolDate').classList.add('is-invalid');
+                issueDateInput.classList.add('is-invalid');
+                alert('Неверный формат даты. Используйте ДД.ММ.ГГГГ');
                 return false;
             }
 
             // Проверка корректности даты
-            const [day, month, year] = protocolDate.split('.').map(Number);
+            const [day, month, year] = issueDate.split('.').map(Number);
             const date = new Date(year, month - 1, day);
 
             if (date.getFullYear() !== year ||
@@ -837,16 +890,18 @@
                 event.preventDefault();
                 dateError.style.display = 'block';
                 dateError.innerHTML = '<small>Некорректная дата</small>';
-                document.getElementById('protocolDate').classList.add('is-invalid');
+                issueDateInput.classList.add('is-invalid');
+                alert('Некорректная дата');
                 return false;
             }
 
             dateError.style.display = 'none';
-            document.getElementById('protocolDate').classList.remove('is-invalid');
+            issueDateInput.classList.remove('is-invalid');
             return true;
         });
 
-        const inputs = [cipherInput, uniqueNumberInput, sequentialInput, document.getElementById('protocolDate')];
+        // Переход по Enter
+        const inputs = [cipherInput, uniqueNumberInput, sequentialInput, issueDateInput];
         inputs.forEach((input, index) => {
             input.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -854,18 +909,12 @@
                     if (index < inputs.length - 1) {
                         inputs[index + 1].focus();
                     } else {
-                        form.querySelector('button[type="submit"]').click();
+                        // При Enter на последнем поле, фокус на область загрузки
+                        pdfUploadArea.focus();
                     }
                 }
             });
         });
-
-        // Переменные для работы с PDF
-        let currentPdfFile = null;
-        const pdfUploadArea = document.getElementById('uploadArea');
-        const pdfInitialState = document.getElementById('uploadInitialState');
-        const pdfCompletedState = document.getElementById('uploadCompletedState');
-        const pdfFileInput = document.getElementById('pdfFileInput');
 
         // Drag & Drop для PDF
         function initPdfDragAndDrop() {
@@ -923,11 +972,11 @@
                         return;
                     }
 
+                    // Устанавливаем файл в input
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(file);
                     pdfFileInput.files = dataTransfer.files;
 
-                    currentPdfFile = file;
                     showPdfFileInfo(file);
                 }
             });
@@ -951,7 +1000,6 @@
                     return;
                 }
 
-                currentPdfFile = file;
                 showPdfFileInfo(file);
             }
         });
@@ -961,25 +1009,11 @@
             pdfInitialState.style.display = 'none';
             pdfCompletedState.style.display = 'block';
             pdfUploadArea.classList.add('upload-area-completed');
-            pdfUploadArea.classList.remove('upload-area-error'); // убираем ошибку если была
+            pdfUploadArea.classList.remove('upload-area-error');
 
             document.getElementById('selectedFileName').textContent = file.name;
             document.getElementById('selectedFileSize').textContent = formatFileSize(file.size);
-
-            // Скрываем сообщение об ошибке если было
-            document.getElementById('pdfFileError').style.display = 'none';
-        }
-
-        // Удаление файла
-        function removePdfFile() {
-            pdfFileInput.value = '';
-            currentPdfFile = null;
-
-            pdfInitialState.style.display = 'block';
-            pdfCompletedState.style.display = 'none';
-            pdfUploadArea.classList.remove('upload-area-completed');
-            pdfUploadArea.classList.remove('upload-area-error');
-
+            pdfFileError.style.display = 'none';
         }
 
         // Форматирование размера файла
@@ -991,30 +1025,8 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Добавьте инициализацию в DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // ... существующий код ...
-
-            // Инициализация Drag & Drop для PDF
-            initPdfDragAndDrop();
-        });
-
-        // Улучшение для datalist
-        function enhanceDatalist(input, datalistId) {
-            const datalist = document.getElementById(datalistId);
-            if (input && datalist) {
-                input.addEventListener('input', function() {
-                    const value = this.value.toLowerCase();
-                    const options = datalist.querySelectorAll('option');
-                    options.forEach(option => {
-                        option.style.display = option.value.toLowerCase().includes(value) ? '' : 'none';
-                    });
-                });
-            }
-        }
-
-        enhanceDatalist(cipherInput, 'cipherList');
-        enhanceDatalist(uniqueNumberInput, 'uniqueNumberList');
+        // Инициализация Drag & Drop
+        initPdfDragAndDrop();
     });
 </script>
 

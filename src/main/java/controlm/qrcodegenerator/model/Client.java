@@ -26,9 +26,7 @@ public class Client {
     @Column(nullable = false)
     private String name;
 
-    private String inn;
-
-    private String kpp;
+    private String innKpp;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<Contact> contacts;
@@ -42,7 +40,7 @@ public class Client {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<Contract> contracts;
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "client")
     private List<UniqueNumber> uniqueNumbers;
 
     // TODO добавить поля договора, обьекты, инн, кпп, контактные лица

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +20,10 @@ public class ClientService {
 
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
+    private final ContactService contactService;
+    private final ContractService contractService;
+    private final UniqueNumberService uniqueNumberService;
+    private final ConstructionSiteService constructionSiteService;
 
     public Client getClientById(Long id){
         return clientRepository.findById(id)
@@ -34,9 +39,29 @@ public class ClientService {
         return clients.map(clientMapper::toClientDto);
     }
 
+    @Transactional
     public Client createClient(ClientRequestDto clientRequestDto) {
-        Client client = new Client();
-        client.setName(clientRequestDto.getName());
+
+        Client client = clientMapper.clientRequestDtoToClient(clientRequestDto);
+
+        Client saved = clientRepository.save(client);
+
+        if (!client.getContacts().isEmpty()) {
+            contactService.saveListByClient(client.getContacts(), saved);
+        }
+
+        if (!client.getContracts().isEmpty()) {
+            contractService.saveListByClient(client.getContracts(), saved);
+        }
+
+        if (!client.getConstructionSites().isEmpty()) {
+            constructionSiteService.saveListByClient(client.getConstructionSites(), saved);
+        }
+
+        if (!client.getUniqueNumbers().isEmpty()) {
+            uniqueNumberService.saveListByClient(client.getUniqueNumbers(), saved);
+        }
+
         return clientRepository.save(client);
     }
 

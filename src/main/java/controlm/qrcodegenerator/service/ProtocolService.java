@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -40,12 +41,6 @@ public class ProtocolService {
 
     @Transactional
     public void createProtocol(ProtocolRequestDto protocolRequestDto) throws IOException {
-
-        if (protocolRepository.existsByUniqueNumberAndClientIdNot(protocolRequestDto.getUniqueNumber(),
-                protocolRequestDto.getClientId())) {
-            throw new IllegalArgumentException("Такой номер клиента уже занят");
-        }
-
         Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(
                 protocolRequestDto,
                 protocolRequestDto.getSequentialNumber());
@@ -54,7 +49,8 @@ public class ProtocolService {
             throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
         }
 
-        fileStorageService.saveProtocolFile(protocolRequestDto);
+        Path path = fileStorageService.saveProtocolFile(protocolRequestDto);
+        protocol.setFilePath(path.toString());
         protocolRepository.save(protocol);
     }
 

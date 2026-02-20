@@ -72,7 +72,7 @@ public class ProtocolMapper {
         protocol.setUniqueNumber(protocolRequestDto.getUniqueNumber());
         protocol.setSequentialNumber(sequentialNumber);
         protocol.setClient(clientService.getClientById(protocolRequestDto.getClientId()));
-        protocol.setIssueDate(protocolRequestDto.getIssueDate());
+        protocol.setIssueDate(LocalDate.parse(protocolRequestDto.getIssueDate(), DateTimeFormatter.ofPattern("dd.MM.yyyy")));
 
         return protocol;
     }

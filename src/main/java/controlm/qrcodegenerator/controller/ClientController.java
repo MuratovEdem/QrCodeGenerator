@@ -87,10 +87,17 @@ public class ClientController {
     }
 
     @PostMapping("/create")
-    public String createClient(@ModelAttribute ClientRequestDto clientRequestDto) {
-        clientService.createClient(clientRequestDto);
+    public String createClient(@ModelAttribute ClientRequestDto clientRequestDto, RedirectAttributes redirectAttributes) {
+        try {
+            clientService.createClient(clientRequestDto);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Клиент успешно создан");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Ошибка при создании клиента: " + e.getMessage());
+        }
 
-        return "redirect:/clients";
+        return "redirect:/clients/create";
     }
 
     @GetMapping("/{id}")
@@ -142,7 +149,7 @@ public class ClientController {
     @PostMapping("/{id}/create-protocols")
     public String createProtocolByClientId(@PathVariable Long id,
                                            @Valid @ModelAttribute("protocolForm") ProtocolRequestDto formDto,
-                                           @RequestParam("pdfFile") MultipartFile file,
+
                                            BindingResult bindingResult,
                                            Model model,
                                            RedirectAttributes redirectAttributes) {
@@ -150,7 +157,7 @@ public class ClientController {
         try {
             Client client = clientService.getClientById(id);
             formDto.setClientId(id);
-            formDto.setFile(file);
+
 
             if (bindingResult.hasErrors()) {
 

@@ -254,6 +254,32 @@
             box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
         }
 
+        .form-control.is-valid {
+            border-color: var(--success);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2310B981' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .form-control.is-valid:focus {
+            border-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23EF4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23EF4444' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .form-control.is-invalid:focus {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
         .form-text {
             font-size: 12px;
             color: var(--text-secondary);
@@ -533,7 +559,6 @@
         <!-- Заголовок -->
         <div class="form-header">
             <div class="form-title">
-                <i class="bi bi-building"></i>
                 СОЗДАНИЕ КЛИЕНТА
             </div>
             <div class="form-subtitle">
@@ -568,29 +593,25 @@
                        class="form-control"
                        id="name"
                        th:field="*{name}"
-                       placeholder="ООО 'Пример'"
                        required
-                       minlength="2"
+                       minlength="1"
                        maxlength="100">
-                <div class="form-text">От 2 до 100 символов</div>
                 <div th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></div>
             </div>
 
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="inn" class="form-label">
+                        <label for="innKpp" class="form-label">
                             <i class="bi bi-upc-scan"></i>
                             ИНН/КПП
                         </label>
                         <input type="text"
                                class="form-control"
-                               id="inn"
+                               id="innKpp"
                                th:field="*{innKpp}"
-                               placeholder="1234567890"
                                maxlength="12">
-                        <div class="form-text">Идентификационный номер налогоплательщика</div>
-                        <div th:if="${#fields.hasErrors('inn')}" class="text-danger" th:errors="*{innKpp}"></div>
+                        <div th:if="${#fields.hasErrors('innKpp')}" class="text-danger" th:errors="*{innKpp}"></div>
                     </div>
                 </div>
             </div>
@@ -744,6 +765,47 @@
     let contractIndex = 0;
     let uniqueNumberIndex = 0;
 
+    // Валидация полей
+    function validateField(input, required = true) {
+        if (!input) return true;
+
+        const value = input.value.trim();
+
+        if (required && !value) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            return false;
+        } else if (value) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+            return true;
+        } else {
+            input.classList.remove('is-valid', 'is-invalid');
+            return true;
+        }
+    }
+
+    // Валидация email
+    function validateEmail(email) {
+        if (!email) return true;
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    // Валидация даты
+    function validateDate(dateStr) {
+        if (!dateStr) return true;
+        const regex = /^\d{2}\.\d{2}\.\d{4}$/;
+        if (!regex.test(dateStr)) return false;
+
+        const [day, month, year] = dateStr.split('.').map(Number);
+        const date = new Date(year, month - 1, day);
+
+        return date.getFullYear() === year &&
+            date.getMonth() === month - 1 &&
+            date.getDate() === day;
+    }
+
     // Добавление контакта
     function addContact() {
         const tbody = document.getElementById('contacts-body');
@@ -753,25 +815,27 @@
         row.innerHTML = `
             <td>
                 <input type="text"
-                       class="form-control form-control-sm"
+                       class="form-control form-control-sm contact-name"
                        name="contacts[${index}].name"
-                       placeholder="Иванов Иван Иванович">
+                       placeholder="Иванов Иван"
+                       required>
             </td>
             <td>
                 <input type="text"
                        class="form-control form-control-sm"
-                       name="contacts[${index}].position"
+                       name="contacts[${index}].post"
                        placeholder="Генеральный директор">
             </td>
             <td>
                 <input type="text"
-                       class="form-control form-control-sm"
-                       name="contacts[${index}].phone"
-                       placeholder="+7 (999) 123-45-67">
+                       class="form-control form-control-sm contact-phone"
+                       name="contacts[${index}].phoneNumber"
+                       placeholder="+7 (999) 123-45-67"
+                       required>
             </td>
             <td>
                 <input type="email"
-                       class="form-control form-control-sm"
+                       class="form-control form-control-sm contact-email"
                        name="contacts[${index}].email"
                        placeholder="mail@example.com">
             </td>
@@ -782,6 +846,22 @@
             </td>
         `;
         tbody.appendChild(row);
+
+        // Добавляем обработчики валидации для новой строки
+        const nameInput = row.querySelector('.contact-name');
+        const phoneInput = row.querySelector('.contact-phone');
+        const emailInput = row.querySelector('.contact-email');
+
+        nameInput.addEventListener('input', function() { validateField(this, true); });
+        phoneInput.addEventListener('input', function() { validateField(this, true); });
+        emailInput.addEventListener('input', function() {
+            if (this.value && !validateEmail(this.value)) {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            } else {
+                validateField(this, false);
+            }
+        });
     }
 
     // Добавление объекта строительства
@@ -793,9 +873,10 @@
         row.innerHTML = `
             <td>
                 <input type="text"
-                       class="form-control form-control-sm"
+                       class="form-control form-control-sm site-name"
                        name="constructionSites[${index}].name"
-                       placeholder="ЖК 'Солнечный'">
+                       placeholder="ЖК 'Солнечный'"
+                       required>
             </td>
             <td>
                 <input type="text"
@@ -810,6 +891,10 @@
             </td>
         `;
         tbody.appendChild(row);
+
+        // Добавляем обработчик валидации
+        const nameInput = row.querySelector('.site-name');
+        nameInput.addEventListener('input', function() { validateField(this, true); });
     }
 
     // Добавление договора
@@ -821,13 +906,14 @@
         row.innerHTML = `
             <td>
                 <input type="text"
-                       class="form-control form-control-sm"
-                       name="contracts[${index}].number"
-                       placeholder="№ 123/2024">
+                       class="form-control form-control-sm contract-name"
+                       name="contracts[${index}].name"
+                       placeholder="№ 123/2024"
+                       required>
             </td>
             <td>
                 <input type="text"
-                       class="form-control form-control-sm"
+                       class="form-control form-control-sm contract-date"
                        name="contracts[${index}].date"
                        placeholder="дд.мм.гггг">
             </td>
@@ -838,6 +924,20 @@
             </td>
         `;
         tbody.appendChild(row);
+
+        // Добавляем обработчики валидации
+        const nameInput = row.querySelector('.contract-name');
+        const dateInput = row.querySelector('.contract-date');
+
+        nameInput.addEventListener('input', function() { validateField(this, true); });
+        dateInput.addEventListener('input', function() {
+            if (this.value && !validateDate(this.value)) {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            } else {
+                validateField(this, false);
+            }
+        });
     }
 
     // Добавление уникального номера
@@ -849,15 +949,9 @@
         row.innerHTML = `
             <td>
                 <input type="text"
-                       class="form-control form-control-sm"
+                       class="form-control form-control-sm unique-number"
                        name="uniqueNumbers[${index}].number"
-                       placeholder="УН-2024-001">
-            </td>
-            <td>
-                <input type="text"
-                       class="form-control form-control-sm"
-                       name="uniqueNumbers[${index}].description"
-                       placeholder="Описание номера">
+                       placeholder="12345">
             </td>
             <td>
                 <button type="button" class="btn-remove" onclick="this.closest('tr').remove()">
@@ -866,19 +960,118 @@
             </td>
         `;
         tbody.appendChild(row);
+
+        // Добавляем обработчик валидации (необязательное поле, но если заполнено - должно быть числом)
+        const numberInput = row.querySelector('.unique-number');
+        numberInput.addEventListener('input', function() {
+            if (this.value && isNaN(parseInt(this.value))) {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            } else {
+                validateField(this, false);
+            }
+        });
     }
 
-    // Валидация формы перед отправкой
-    document.getElementById('clientForm').addEventListener('submit', function(e) {
-        const name = document.getElementById('name').value.trim();
-
-        if (!name) {
-            e.preventDefault();
+    // Валидация всей формы перед отправкой
+    function validateForm() {
+        // Проверка основного поля name
+        const nameInput = document.getElementById('name');
+        if (!nameInput.value.trim()) {
+            nameInput.classList.add('is-invalid');
             alert('Пожалуйста, заполните наименование клиента');
+            nameInput.focus();
             return false;
         }
 
+        // Проверка контактов
+        const contactRows = document.querySelectorAll('#contacts-body tr');
+        for (let row of contactRows) {
+            const nameInput = row.querySelector('.contact-name');
+            const phoneInput = row.querySelector('.contact-phone');
+            const emailInput = row.querySelector('.contact-email');
+
+            if (!nameInput.value.trim()) {
+                nameInput.classList.add('is-invalid');
+                alert('Заполните имя контактного лица');
+                nameInput.focus();
+                return false;
+            }
+
+            if (!phoneInput.value.trim()) {
+                phoneInput.classList.add('is-invalid');
+                alert('Заполните телефон контактного лица');
+                phoneInput.focus();
+                return false;
+            }
+
+            if (emailInput.value.trim() && !validateEmail(emailInput.value.trim())) {
+                emailInput.classList.add('is-invalid');
+                alert('Введите корректный email адрес');
+                emailInput.focus();
+                return false;
+            }
+        }
+
+        // Проверка объектов строительства
+        const siteRows = document.querySelectorAll('#sites-body tr');
+        for (let row of siteRows) {
+            const nameInput = row.querySelector('.site-name');
+            if (!nameInput.value.trim()) {
+                nameInput.classList.add('is-invalid');
+                alert('Заполните наименование объекта строительства');
+                nameInput.focus();
+                return false;
+            }
+        }
+
+        // Проверка договоров
+        const contractRows = document.querySelectorAll('#contracts-body tr');
+        for (let row of contractRows) {
+            const nameInput = row.querySelector('.contract-name');
+            const dateInput = row.querySelector('.contract-date');
+
+            if (!nameInput.value.trim()) {
+                nameInput.classList.add('is-invalid');
+                alert('Заполните номер договора');
+                nameInput.focus();
+                return false;
+            }
+
+            if (dateInput.value.trim() && !validateDate(dateInput.value.trim())) {
+                dateInput.classList.add('is-invalid');
+                alert('Введите корректную дату договора в формате ДД.ММ.ГГГГ');
+                dateInput.focus();
+                return false;
+            }
+        }
+
+        // Проверка уникальных номеров (необязательные, но если есть - должны быть числами)
+        const uniqueNumberRows = document.querySelectorAll('#unique-numbers-body tr');
+        for (let row of uniqueNumberRows) {
+            const numberInput = row.querySelector('.unique-number');
+            if (numberInput.value.trim() && isNaN(parseInt(numberInput.value.trim()))) {
+                numberInput.classList.add('is-invalid');
+                alert('Уникальный номер должен быть числом');
+                numberInput.focus();
+                return false;
+            }
+        }
+
         return true;
+    }
+
+    // Обработчик отправки формы
+    document.getElementById('clientForm').addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    // Валидация основного поля name
+    document.getElementById('name').addEventListener('input', function() {
+        validateField(this, true);
     });
 
     // Автофокус на первое поле
