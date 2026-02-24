@@ -100,6 +100,12 @@ public class ClientController {
         return "redirect:/clients/create";
     }
 
+    @GetMapping("/generate-unique-number")
+    public Long generateUniqueNumber() {
+
+        return 1L;
+    } //TODO
+
     @GetMapping("/{id}")
     public String viewClient(@PathVariable Long id,
                              @RequestParam(value = "search", required = false) String searchQuery,

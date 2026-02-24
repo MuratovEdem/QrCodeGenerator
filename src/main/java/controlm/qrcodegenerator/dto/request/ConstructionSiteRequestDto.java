@@ -8,5 +8,4 @@ public class ConstructionSiteRequestDto {
 
     @NotBlank(message = "Наименование объекта обязательно")
     private String name;
-    private String address;
 }

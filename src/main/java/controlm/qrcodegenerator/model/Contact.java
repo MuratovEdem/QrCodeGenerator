@@ -27,6 +27,7 @@ public class Contact {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column()
     private String post;
 
     @Column(name = "phone_number", nullable = false)

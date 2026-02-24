@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
+<!--    TODO проверить как распознаются файлы если указать неправильное количество страниц-->
+
     <style>
         :root {
             --primary-dark: #1E2A38;
@@ -761,9 +763,6 @@
                                required
                                onchange="handleFileSelect(this)">
                     </div>
-                    <div class="form-text" style="margin-top: 16px;">
-                        Поддерживаются только PDF файлы до 50 МБ
-                    </div>
                 </div>
 
                 <!-- Состояние: файл выбран (изначально скрыто) -->
@@ -821,7 +820,6 @@
                     <li>Каждый протокол будет содержать указанное количество страниц</li>
                     <li>Например: если указать 2 страницы, то из файла на 10 страниц получится 5 протоколов</li>
                     <li>Если в файле протоколы имеют разное количество страниц, то необходимо указать 0 страниц</li>
-                    <li>Максимальный размер файла: 50 МБ</li>
                 </ul>
             </div>
 
@@ -908,13 +906,6 @@
                     return;
                 }
 
-                // Проверяем размер файла
-                const maxSize = 50 * 1024 * 1024;
-                if (file.size > maxSize) {
-                    alert('Файл слишком большой! Максимальный размер: 50 МБ');
-                    return;
-                }
-
                 // Устанавливаем файл в input
                 const dataTransfer = new DataTransfer();
                 dataTransfer.items.add(file);
@@ -935,13 +926,6 @@
             // Проверки
             if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
                 alert('Пожалуйста, выберите PDF файл!');
-                input.value = '';
-                return;
-            }
-
-            const maxSize = 50 * 1024 * 1024;
-            if (file.size > maxSize) {
-                alert('Файл слишком большой! Максимальный размер: 50 МБ');
                 input.value = '';
                 return;
             }

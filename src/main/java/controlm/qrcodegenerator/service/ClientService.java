@@ -7,6 +7,7 @@ import controlm.qrcodegenerator.mapper.ClientMapper;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ClientService {
@@ -46,23 +48,29 @@ public class ClientService {
 
         Client saved = clientRepository.save(client);
 
+        log.info("{}", saved);
+
         if (!client.getContacts().isEmpty()) {
+            log.info("contacts");
             contactService.saveListByClient(client.getContacts(), saved);
         }
 
         if (!client.getContracts().isEmpty()) {
+            log.info("contracts");
             contractService.saveListByClient(client.getContracts(), saved);
         }
 
         if (!client.getConstructionSites().isEmpty()) {
+            log.info("ConstructionSites");
             constructionSiteService.saveListByClient(client.getConstructionSites(), saved);
         }
 
         if (!client.getUniqueNumbers().isEmpty()) {
+            log.info("UniqueNumbers");
             uniqueNumberService.saveListByClient(client.getUniqueNumbers(), saved);
         }
 
-        return clientRepository.save(client);
+        return clientRepository.save(saved);
     }
 
     public Page<PublicClientDto> searchPaginatedClientsByName(String name, Pageable pageable) {

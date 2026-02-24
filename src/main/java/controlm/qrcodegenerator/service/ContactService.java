@@ -4,10 +4,12 @@ import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.model.Contact;
 import controlm.qrcodegenerator.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ContactService {

@@ -14,10 +14,14 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
+<!--    TODO убрать историю из полей пор номер и дата-->
+<!--    TODO сделать ограничение на количество символов в дате-->
+<!--    TODO убрать уведомление когда файла нет-->
+
     <style>
         :root {
             --primary-dark: #1E2A38;
-            --accent: #ffffff;
+            --accent: #ff0000;
             --bg: #F8FAFC;
             --card: #FFFFFF;
             --text-main: #1A1A1A;
@@ -590,10 +594,9 @@
                        class="form-control"
                        id="cipher"
                        th:field="*{cipher}"
-                       placeholder="НК, КБ, ВИК..."
+                       placeholder="НК, КБ, ВИК"
                        autocomplete="off"
                        required>
-                <div class="form-text">Максимум 10 символов</div>
                 <div th:if="${#fields.hasErrors('cipher')}" class="text-danger" th:errors="*{cipher}"></div>
             </div>
 
@@ -607,7 +610,7 @@
                        class="form-control"
                        id="uniqueNumber"
                        th:field="*{uniqueNumber}"
-                       placeholder="35, 35а..."
+                       placeholder="35, 35а"
                        autocomplete="off"
                        required>
                 <div th:if="${#fields.hasErrors('uniqueNumber')}" class="text-danger" th:errors="*{uniqueNumber}"></div>
@@ -623,7 +626,7 @@
                        class="form-control"
                        id="sequentialNumber"
                        th:field="*{sequentialNumber}"
-                       placeholder="11, 11-18..."
+                       placeholder="11"
                        required>
                 <div th:if="${#fields.hasErrors('sequentialNumber')}" class="text-danger" th:errors="*{sequentialNumber}"></div>
             </div>
@@ -847,13 +850,6 @@
             if (!cipher || !uniqueNumber || !sequentialNumber || !issueDate) {
                 event.preventDefault();
                 alert('Пожалуйста, заполните все обязательные поля');
-                return false;
-            }
-
-            // Проверка длины шифра
-            if (cipher.length > 10) {
-                event.preventDefault();
-                alert('Шифр протокола не должен превышать 10 символов');
                 return false;
             }
 
