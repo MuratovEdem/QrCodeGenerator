@@ -7,12 +7,7 @@ import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
 import controlm.qrcodegenerator.mapper.ClientMapper;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.model.OcrJob;
-import controlm.qrcodegenerator.service.ClientService;
-import controlm.qrcodegenerator.service.FileStorageService;
-import controlm.qrcodegenerator.service.OcrAsyncService;
-import controlm.qrcodegenerator.service.OcrJobService;
-import controlm.qrcodegenerator.service.ProtocolService;
-import controlm.qrcodegenerator.service.QRCodeService;
+import controlm.qrcodegenerator.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +48,7 @@ public class ClientController {
     private final OcrAsyncService ocrAsyncService;
     private final OcrJobService ocrJobService;
     private final ClientMapper clientMapper;
+    private final UniqueNumberService uniqueNumberService;
 
     @GetMapping
     public String listClients(@RequestParam(value = "search", required = false) String searchQuery,
@@ -99,12 +95,6 @@ public class ClientController {
 
         return "redirect:/clients/create";
     }
-
-    @GetMapping("/generate-unique-number")
-    public Long generateUniqueNumber() {
-
-        return 1L;
-    } //TODO
 
     @GetMapping("/{id}")
     public String viewClient(@PathVariable Long id,

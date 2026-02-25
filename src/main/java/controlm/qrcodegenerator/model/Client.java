@@ -49,6 +49,5 @@ public class Client {
     private LocalDateTime createdAt;
 
 //    TODO кем создан
-
-    // TODO добавить поля договора, обьекты, инн, кпп, контактные лица
+    // TODO кем и когда отредактирован
 }

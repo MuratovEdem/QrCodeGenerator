@@ -3,11 +3,18 @@
 <head>
     <meta charset="UTF-8" />
     <title>Control-M — Страница клиента</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1" />-->
+    <meta name="viewport" content="width=1100, initial-scale=1" />
 
     <!-- Шрифты -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <!--TODO настроить масшатбирование-->
+    <!--TODO добавить количество протоколов-->
+    <!--        TODO уменьшить размер кнопок найти и сбросить, чтобы они помещанились в 1 строку на телефоне-->
+    <!--        TODO убрать надпись страница 1 из 3-->
+    <!--        TODO поправить футер оставить только дату-->
+    <!--        TODO фраза выданные протоколы испытаний не помещается, придумать новую-->
+
     <style>
         :root {
             --primary-dark: #1E2A38;
@@ -382,99 +389,99 @@
             gap: 8px;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px 16px 40px;
-            }
+        /*!* RESPONSIVE *!*/
+        /*@media (max-width: 768px) {*/
+        /*    .container {*/
+        /*        padding: 20px 16px 40px;*/
+        /*    }*/
 
-            .header-inner {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-                padding: 0 16px;
-            }
+        /*    .header-inner {*/
+        /*        flex-direction: column;*/
+        /*        align-items: flex-start;*/
+        /*        gap: 15px;*/
+        /*        padding: 0 16px;*/
+        /*    }*/
 
-            .logo-block {
-                width: 100%;
-            }
+        /*    .logo-block {*/
+        /*        width: 100%;*/
+        /*    }*/
 
-            .card {
-                padding: 24px;
-            }
+        /*    .card {*/
+        /*        padding: 24px;*/
+        /*    }*/
 
-            .grid-2 {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
+        /*    .grid-2 {*/
+        /*        grid-template-columns: 1fr;*/
+        /*        gap: 20px;*/
+        /*    }*/
 
-            .search-form {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+        /*    .search-form {*/
+        /*        flex-direction: column;*/
+        /*        align-items: flex-start;*/
+        /*    }*/
 
-            .search-input {
-                width: 100%;
-            }
+        /*    .search-input {*/
+        /*        width: 100%;*/
+        /*    }*/
 
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
+        /*    .btn {*/
+        /*        width: 100%;*/
+        /*        justify-content: center;*/
+        /*    }*/
 
-            .pagination {
-                flex-direction: column;
-                gap: 16px;
-                align-items: flex-start;
-            }
+        /*    .pagination {*/
+        /*        flex-direction: column;*/
+        /*        gap: 16px;*/
+        /*        align-items: flex-start;*/
+        /*    }*/
 
-            .pagination-controls {
-                flex-wrap: wrap;
-            }
+        /*    .pagination-controls {*/
+        /*        flex-wrap: wrap;*/
+        /*    }*/
 
-            th, td {
-                padding: 12px 14px;
-            }
+        /*    th, td {*/
+        /*        padding: 12px 14px;*/
+        /*    }*/
 
-            footer {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
+        /*    footer {*/
+        /*        flex-direction: column;*/
+        /*        align-items: flex-start;*/
+        /*        gap: 12px;*/
+        /*    }*/
 
-            .footer-right {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
+        /*    .footer-right {*/
+        /*        flex-direction: column;*/
+        /*        align-items: flex-start;*/
+        /*    }*/
+        /*}*/
 
-        @media (max-width: 480px) {
-            .block-title {
-                font-size: 16px;
-            }
+        /*@media (max-width: 480px) {*/
+        /*    .block-title {*/
+        /*        font-size: 16px;*/
+        /*    }*/
 
-            .client-name-title {
-                font-size: 20px;
-            }
+        /*    .client-name-title {*/
+        /*        font-size: 20px;*/
+        /*    }*/
 
-            table {
-                font-size: 13px;
-            }
+        /*    table {*/
+        /*        font-size: 13px;*/
+        /*    }*/
 
-            .protocol-number {
-                font-size: 13px;
-            }
+        /*    .protocol-number {*/
+        /*        font-size: 13px;*/
+        /*    }*/
 
-            .pagination-controls {
-                justify-content: flex-start;
-            }
+        /*    .pagination-controls {*/
+        /*        justify-content: flex-start;*/
+        /*    }*/
 
-            .page-btn {
-                min-width: 32px;
-                height: 32px;
-                font-size: 12px;
-            }
-        }
+        /*    .page-btn {*/
+        /*        min-width: 32px;*/
+        /*        height: 32px;*/
+        /*        font-size: 12px;*/
+        /*    }*/
+        /*}*/
     </style>
 </head>
 
@@ -527,12 +534,6 @@
                 Сбросить
             </a>
         </form>
-<!--TODO добавить количество протоколов-->
-<!--        TODO убрать автофокус на строку поиска-->
-<!--        TODO уменьшить размер кнопок найти и сбросить, чтобы они помещанились в 1 строку на телефоне-->
-<!--        TODO убрать надпись страница 1 из 3-->
-<!--        TODO поправить футер оставить только дату-->
-<!--        TODO фраза выданные протоколы испытаний не помещается, придумать новую-->
         <!-- 📋 ТАБЛИЦА -->
         <div th:if="${paginatedDto.protocols != null && !paginatedDto.protocols.isEmpty()}">
             <table>
@@ -743,16 +744,6 @@
         document.getElementById('sizeInput').value = e.target.value;
     });
 
-    // Автофокус на поле поиска при загрузке
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.focus();
-            if (searchInput.value) {
-                searchInput.select();
-            }
-        }
-    });
 </script>
 
 </body>

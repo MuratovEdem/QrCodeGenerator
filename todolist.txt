@@ -24,9 +24,10 @@ return "redirect:/clients?error=Ошибка загрузки формы"
 во всех сущностях исправить аннотацию @Data
 сделать админскую панель для просмотра временных файлов
 сделать расшифровку шифров и перенести их в отдельную сущность
+убрать всю возможную адаптацию к телефонам
 
 
-готовый дизайн страниц: upload-pdf-form, confirm-pdf-form, job-monitor, client-view, list, protocols-view
+готовый дизайн страниц: create-form, upload-pdf-form, confirm-pdf-form, job-monitor, client-view, list, protocols-view
 
 
 индикатор прогресса загрузки пдф файла +

@@ -14,11 +14,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
-<!--    TODO сделать нормальное отображение неправильных данных, а не во всплывающем окне-->
-<!--    TODO инн/кпп только цифры и спец символы-->
-<!--    TODO телефон только цифры и спец символы-->
-<!--    TODO уникальный номер только цифры-->
-<!--    TODO уникальный номер добавить генерацию нового не занятого уникального номера-->
+<!--    TODO сделать поле для загрузки файлов (договор, карточка предприятия)-->
 
     <style>
         :root {
@@ -224,6 +220,7 @@
         /* ПОЛЯ ФОРМЫ */
         .form-group {
             margin-bottom: 24px;
+            position: relative;
         }
 
         .form-label {
@@ -393,7 +390,45 @@
         .items-table td {
             padding: 10px 12px;
             border-bottom: 1px solid var(--border-light);
-            vertical-align: middle;
+            vertical-align: top;
+            position: relative;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .field-hint {
+            color: var(--danger);
+            font-size: 11px;
+            line-height: 1.4;
+            margin-top: 4px;
+            padding: 2px 0;
+            position: absolute;
+            bottom: -18px;
+            left: 0;
+            right: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            animation: fadeIn 0.2s ease;
+            z-index: 5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-2px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .field-hint.wrap {
+            white-space: normal;
+            bottom: -30px;
+        }
+
+        /* Дополнительный отступ для строк с подсказкой */
+        tr.has-hint td {
+            padding-bottom: 25px;
         }
 
         .items-table tr:last-child td {
@@ -455,6 +490,23 @@
 
         .btn i {
             font-size: 16px;
+        }
+
+        footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left {
+            font-weight: 500;
         }
 
         /* АДАПТИВНОСТЬ */
@@ -757,13 +809,13 @@
             </div>
         </form>
     </div>
+    <footer>
+        <div class="footer-left">
+            © Control-M • Внутренняя система протоколов
+        </div>
+    </footer>
 </div>
 
-<footer style="margin-top: 50px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-secondary); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; max-width: 1100px; margin-left: auto; margin-right: auto; padding-left: 20px; padding-right: 20px;">
-    <div class="footer-left">
-        © Control-M • Внутренняя система протоколов
-    </div>
-</footer>
 
 <script src="/js/csrf.js"></script>
 <script>
@@ -818,6 +870,49 @@
         return re.test(value);
     }
 
+    // Функция для отображения подсказки под полем
+    // Функция для отображения подсказки под полем
+    function showFieldHint(input, message) {
+        // Ищем существующую подсказку или создаем новую
+        let hintDiv = input.parentElement.querySelector('.field-hint');
+
+        if (!hintDiv) {
+            hintDiv = document.createElement('div');
+            hintDiv.className = 'field-hint';
+            input.parentElement.appendChild(hintDiv);
+        }
+
+        hintDiv.textContent = message;
+        hintDiv.style.display = 'block';
+
+        // Если сообщение длинное, добавляем класс для переноса
+        if (message.length > 30) {
+            hintDiv.classList.add('wrap');
+        } else {
+            hintDiv.classList.remove('wrap');
+        }
+
+        // Добавляем класс к родительской строке для дополнительного отступа
+        const row = input.closest('tr');
+        if (row) {
+            row.classList.add('has-hint');
+        }
+    }
+
+    // Функция для скрытия подсказки
+    function hideFieldHint(input) {
+        const hintDiv = input.parentElement.querySelector('.field-hint');
+        if (hintDiv) {
+            hintDiv.style.display = 'none';
+        }
+
+        // Убираем класс с родительской строки
+        const row = input.closest('tr');
+        if (row) {
+            row.classList.remove('has-hint');
+        }
+    }
+
     // Добавление контакта
     function addContact() {
         const tbody = document.getElementById('contacts-body');
@@ -826,30 +921,39 @@
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>
+                <div class="input-wrapper">
                 <input type="text"
                        class="form-control form-control-sm contact-name"
                        name="contacts[${index}].name"
                        placeholder="Иванов Иван"
                        required>
+                </div>
             </td>
             <td>
-                <input type="text"
+                <div class="input-wrapper">
+                    <input type="text"
                        class="form-control form-control-sm"
                        name="contacts[${index}].post"
                        placeholder="Генеральный директор">
+                </div>
             </td>
             <td>
-                <input type="text"
+                <div class="input-wrapper">
+                    <input type="text"
                        class="form-control form-control-sm contact-phone"
                        name="contacts[${index}].phoneNumber"
                        placeholder="+7 (999) 123-45-67"
                        required>
+                </div>
             </td>
             <td>
-                <input type="email"
+                <div class="input-wrapper">
+                    <input type="email"
                        class="form-control form-control-sm contact-email"
                        name="contacts[${index}].email"
-                       placeholder="mail@example.com">
+                       placeholder="mail@example.com"
+                       formnovalidate>
+                </div>
             </td>
             <td>
                 <button type="button" class="btn-remove" onclick="this.closest('tr').remove()">
@@ -889,12 +993,27 @@
             }
         });
         emailInput.addEventListener('input', function() {
-            if (this.value && !validateEmail(this.value)) {
+            const value = this.value.trim();
+
+            if (value && !validateEmail(value)) {
                 this.classList.remove('is-valid');
                 this.classList.add('is-invalid');
+                // Показываем только нашу кастомную подсказку
+                showFieldHint(this, 'Некорректный формат email');
+            } else if (value) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+                hideFieldHint(this);
             } else {
-                validateField(this, false);
+                this.classList.remove('is-valid', 'is-invalid');
+                hideFieldHint(this);
             }
+        });
+
+        emailInput.addEventListener('invalid', function(e) {
+            e.preventDefault();
+            this.classList.add('is-invalid');
+            showFieldHint(this, 'Некорректный формат email');
         });
     }
 
@@ -906,10 +1025,12 @@
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>
-                <input type="text"
+                <div class="input-wrapper">
+                    <input type="text"
                        class="form-control form-control-sm site-name"
                        name="constructionSites[${index}].name"
                        required>
+                </div>
             </td>
             <td>
                 <button type="button" class="btn-remove" onclick="this.closest('tr').remove()">
@@ -932,10 +1053,12 @@
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>
+            <div class="input-wrapper">
                 <input type="text"
                        class="form-control form-control-sm contract-name"
                        name="contracts[${index}].name"
                        required>
+                       </div>
             </td>
             <td>
                 <button type="button" class="btn-remove" onclick="this.closest('tr').remove()">
@@ -959,38 +1082,45 @@
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>
+            <div class="input-wrapper">
                 <input type="text"
                        class="form-control form-control-sm unique-number"
                        name="uniqueNumbers[${index}].number"
-                       placeholder="35">
+                       placeholder="35"
+                       inputmode="numeric"
+                       pattern="[0-9]*">
+                       </div>
             </td>
-            <td>
+            <td style="display: flex; gap: 4px; align-items: center;">
                 <button type="button" class="btn-remove generate-number" onclick="generateUniqueNumber(this)" title="Сгенерировать номер">
-                    <i class="bi bi-dice"></i>
+                    <i class="bi bi-plus-circle"></i>
                 </button>
-                <button type="button" class="btn-remove" onclick="this.closest('tr').remove()">
+                <button type="button" class="btn-remove" onclick="this.closest('tr').remove()" title="Удалить">
                     <i class="bi bi-trash"></i>
                 </button>
             </td>
         `;
         tbody.appendChild(row);
 
-        // Добавляем обработчик валидации (необязательное поле, но если заполнено - должно быть числом)
+        // Добавляем обработчик валидации
         const numberInput = row.querySelector('.unique-number');
         const hintDiv = row.querySelector('.unique-number-hint');
+
         numberInput.addEventListener('input', function() {
-            const value = this.value.trim();
-            if (value && !validateUniqueNumber(value)) {
-                this.classList.remove('is-valid');
-                this.classList.add('is-invalid');
-                hintDiv.style.display = 'block';
-            } else {
+            let value = this.value;
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+
+            value = value.replace(/[^0-9]/g, '');
+            this.value = value;
+            this.setSelectionRange(start, end);
+
+            if (value) {
                 this.classList.remove('is-invalid');
-                if (value) {
-                    this.classList.add('is-valid');
-                } else {
-                    this.classList.remove('is-valid');
-                }
+                this.classList.add('is-valid');
+                hintDiv.style.display = 'none';
+            } else {
+                this.classList.remove('is-valid', 'is-invalid');
                 hintDiv.style.display = 'none';
             }
         });
@@ -1006,7 +1136,7 @@
         button.innerHTML = '<i class="bi bi-arrow-repeat spin"></i>';
         button.disabled = true;
 
-        // Добавляем стили для анимации вращения
+        // Добавляем стили для анимации вращения, если еще нет
         if (!document.querySelector('#spin-style')) {
             const style = document.createElement('style');
             style.id = 'spin-style';
@@ -1023,6 +1153,7 @@
             document.head.appendChild(style);
         }
 
+        // Получаем CSRF токен
         const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
 
@@ -1034,34 +1165,40 @@
             headers[csrfHeader] = csrfToken;
         }
 
-        fetch('/clients/generate-unique-number', {
+        // Отправляем запрос на сервер
+        fetch('/generate-unique-number', {
             method: 'GET',
             headers: headers
         })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Ошибка при генерации номера');
+                    return response.text().then(text => {
+                        throw new Error(text || 'Ошибка при генерации номера');
+                    });
                 }
                 return response.text();
             })
             .then(number => {
+                // Вставляем сгенерированный номер
                 numberInput.value = number;
-                numberInput.classList.remove('is-invalid');
-                numberInput.classList.add('is-valid');
 
-                // Скрываем подсказку если есть
-                const hintDiv = row.querySelector('.unique-number-hint');
-                if (hintDiv) hintDiv.style.display = 'none';
-
-                // Триггерим событие input для валидации
+                // Запускаем событие input для валидации
                 const event = new Event('input', { bubbles: true });
                 numberInput.dispatchEvent(event);
+
+                // Показываем успех (зеленый)
+                numberInput.classList.remove('is-invalid');
+                numberInput.classList.add('is-valid');
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Ошибка при генерации уникального номера');
+
+                // Показываем ошибку под полем
+                showFieldHint(numberInput, 'Ошибка при генерации номера');
+                numberInput.classList.add('is-invalid');
             })
             .finally(() => {
+                // Восстанавливаем кнопку
                 button.innerHTML = originalHtml;
                 button.disabled = false;
             });
@@ -1073,7 +1210,7 @@
         const nameInput = document.getElementById('name');
         if (!nameInput.value.trim()) {
             nameInput.classList.add('is-invalid');
-            alert('Пожалуйста, заполните наименование клиента');
+            showFieldHint(nameInput, 'Наименование клиента обязательно');
             nameInput.focus();
             return false;
         }
@@ -1101,21 +1238,21 @@
 
             if (!nameInput.value.trim()) {
                 nameInput.classList.add('is-invalid');
-                alert('Заполните имя контактного лица');
+                showFieldHint(nameInput, 'Заполните имя контактного лица');
                 nameInput.focus();
                 return false;
             }
 
             if (!phoneInput.value.trim()) {
                 phoneInput.classList.add('is-invalid');
-                alert('Заполните телефон контактного лица');
+                showFieldHint(nameInput, 'Заполните имя контактного лица');
                 phoneInput.focus();
                 return false;
             }
 
             if (emailInput.value.trim() && !validateEmail(emailInput.value.trim())) {
                 emailInput.classList.add('is-invalid');
-                alert('Введите корректный email адрес');
+                showFieldHint(emailInput, 'Введите корректный email адрес');
                 emailInput.focus();
                 return false;
             }
@@ -1127,7 +1264,7 @@
             const nameInput = row.querySelector('.site-name');
             if (!nameInput.value.trim()) {
                 nameInput.classList.add('is-invalid');
-                alert('Заполните наименование объекта строительства');
+                showFieldHint(nameInput, 'Заполните наименование объекта строительства');
                 nameInput.focus();
                 return false;
             }
@@ -1140,7 +1277,7 @@
 
             if (!nameInput.value.trim()) {
                 nameInput.classList.add('is-invalid');
-                alert('Заполните номер договора');
+                showFieldHint(nameInput, 'Заполните номер договора');
                 nameInput.focus();
                 return false;
             }
@@ -1152,7 +1289,7 @@
             const numberInput = row.querySelector('.unique-number');
             if (numberInput.value.trim() && isNaN(parseInt(numberInput.value.trim()))) {
                 numberInput.classList.add('is-invalid');
-                alert('Уникальный номер должен быть числом');
+                showFieldHint(nameInput, 'Уникальный номер должен быть числом');
                 numberInput.focus();
                 return false;
             }

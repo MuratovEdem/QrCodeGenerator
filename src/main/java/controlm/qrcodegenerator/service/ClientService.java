@@ -48,25 +48,19 @@ public class ClientService {
 
         Client saved = clientRepository.save(client);
 
-        log.info("{}", saved);
-
         if (!client.getContacts().isEmpty()) {
-            log.info("contacts");
             contactService.saveListByClient(client.getContacts(), saved);
         }
 
         if (!client.getContracts().isEmpty()) {
-            log.info("contracts");
             contractService.saveListByClient(client.getContracts(), saved);
         }
 
         if (!client.getConstructionSites().isEmpty()) {
-            log.info("ConstructionSites");
             constructionSiteService.saveListByClient(client.getConstructionSites(), saved);
         }
 
         if (!client.getUniqueNumbers().isEmpty()) {
-            log.info("UniqueNumbers");
             uniqueNumberService.saveListByClient(client.getUniqueNumbers(), saved);
         }
 
