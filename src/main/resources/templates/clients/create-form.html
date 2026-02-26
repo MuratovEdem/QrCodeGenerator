@@ -824,7 +824,6 @@
     let contractIndex = 0;
     let uniqueNumberIndex = 0;
 
-    // Валидация полей
     function validateField(input, required = true) {
         if (!input) return true;
 
@@ -870,10 +869,7 @@
         return re.test(value);
     }
 
-    // Функция для отображения подсказки под полем
-    // Функция для отображения подсказки под полем
     function showFieldHint(input, message) {
-        // Ищем существующую подсказку или создаем новую
         let hintDiv = input.parentElement.querySelector('.field-hint');
 
         if (!hintDiv) {
@@ -885,28 +881,24 @@
         hintDiv.textContent = message;
         hintDiv.style.display = 'block';
 
-        // Если сообщение длинное, добавляем класс для переноса
         if (message.length > 30) {
             hintDiv.classList.add('wrap');
         } else {
             hintDiv.classList.remove('wrap');
         }
 
-        // Добавляем класс к родительской строке для дополнительного отступа
         const row = input.closest('tr');
         if (row) {
             row.classList.add('has-hint');
         }
     }
 
-    // Функция для скрытия подсказки
     function hideFieldHint(input) {
         const hintDiv = input.parentElement.querySelector('.field-hint');
         if (hintDiv) {
             hintDiv.style.display = 'none';
         }
 
-        // Убираем класс с родительской строки
         const row = input.closest('tr');
         if (row) {
             row.classList.remove('has-hint');
