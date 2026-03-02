@@ -110,12 +110,7 @@ public class ClientController {
 
         ClientProtocolsViewDto paginatedDto = protocolService.findAllByClientIdWithFilter(id, searchQuery, pageable);
 
-        Client clientById = clientService.getClientById(id); // TODO перенести в сервис
-
-        PublicClientDto publicClientDto = new PublicClientDto();
-        publicClientDto.setName(clientById.getName());
-        publicClientDto.setId(clientById.getId());
-        paginatedDto.setClient(publicClientDto);
+        paginatedDto.setClient(clientService.getDtoById(id));
 
         model.addAttribute("paginatedDto", paginatedDto);
 
@@ -125,7 +120,7 @@ public class ClientController {
     @GetMapping("/{id}/create-protocols")
     public String showCreateFrom(@PathVariable Long id, Model model) {
         try {
-            PublicClientDto client = clientMapper.toClientDto(clientService.getClientById(id));
+            PublicClientDto client = clientMapper.toPublicClientDto(clientService.getClientById(id));
 
             ProtocolRequestDto formDto = new ProtocolRequestDto();
 

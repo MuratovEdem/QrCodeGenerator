@@ -1,6 +1,7 @@
 package controlm.qrcodegenerator.mapper;
 
 import controlm.qrcodegenerator.dto.request.ContactRequestDto;
+import controlm.qrcodegenerator.dto.response.ContactResponseDto;
 import controlm.qrcodegenerator.model.Contact;
 import org.springframework.stereotype.Component;
 
@@ -33,5 +34,26 @@ public class ContactMapper {
         }
 
         return contacts;
+    }
+
+    public ContactResponseDto toResponseDto(Contact contact) {
+        ContactResponseDto contactResponseDto = new ContactResponseDto();
+
+        contactResponseDto.setEmail(contact.getEmail());
+        contactResponseDto.setName(contact.getName());
+        contactResponseDto.setPost(contact.getPost());
+        contactResponseDto.setPhoneNumber(contact.getPhoneNumber());
+
+        return contactResponseDto;
+    }
+
+    public List<ContactResponseDto> toResponseDtos(List<Contact> contacts) {
+        List<ContactResponseDto> contactResponseDtoList = new ArrayList<>();
+
+        for (Contact contact : contacts) {
+            contactResponseDtoList.add(toResponseDto(contact));
+        }
+
+        return contactResponseDtoList;
     }
 }

@@ -1,6 +1,7 @@
 package controlm.qrcodegenerator.service;
 
 import controlm.qrcodegenerator.dto.request.ClientRequestDto;
+import controlm.qrcodegenerator.dto.response.ClientResponseDto;
 import controlm.qrcodegenerator.dto.response.PublicClientDto;
 import controlm.qrcodegenerator.exception.NotFoundException;
 import controlm.qrcodegenerator.mapper.ClientMapper;
@@ -32,13 +33,19 @@ public class ClientService {
                 .orElseThrow(() -> new NotFoundException("Client not found with id: " + id));
     }
 
+    public ClientResponseDto getDtoById(Long clientId) {
+        Client client = getClientById(clientId);
+
+        return clientMapper.toResponseDto(client);
+    }
+
     public List<Client> getAllClients() {
         return clientRepository.findAll();
     }
 
     public Page<PublicClientDto> getPaginatedClients(Pageable pageable) {
         Page<Client> clients = clientRepository.findAll(pageable);
-        return clients.map(clientMapper::toClientDto);
+        return clients.map(clientMapper::toPublicClientDto);
     }
 
     @Transactional
@@ -69,6 +76,6 @@ public class ClientService {
 
     public Page<PublicClientDto> searchPaginatedClientsByName(String name, Pageable pageable) {
         Page<Client> clients = clientRepository.findByNameIsContainingIgnoreCase(name, pageable);
-        return clients.map(clientMapper::toClientDto);
+        return clients.map(clientMapper::toPublicClientDto);
     }
 }

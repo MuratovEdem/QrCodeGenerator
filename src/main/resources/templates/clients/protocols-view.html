@@ -279,13 +279,28 @@
             flex-wrap: wrap;
         }
 
-        /* КАРТОЧКА КЛИЕНТА */
-        .client-card {
+        /* ДЕТАЛЬНАЯ КАРТОЧКА КЛИЕНТА */
+        .client-details-card {
             background: var(--card);
             border-radius: var(--radius);
             padding: 24px;
             margin-bottom: 24px;
             border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .client-title-section {
             display: flex;
             align-items: center;
             gap: 16px;
@@ -303,39 +318,184 @@
             color: var(--primary-dark);
         }
 
-        .client-name-large {
+        .client-name {
             font-size: 20px;
             font-weight: 600;
             color: var(--text-main);
+            margin-bottom: 4px;
         }
 
-        .client-stats {
+        .client-inn {
+            font-size: 13px;
+            color: var(--text-secondary);
             display: flex;
-            gap: 24px;
-            margin-left: auto;
+            align-items: center;
+            gap: 4px;
         }
 
-        .stat-item {
-            text-align: center;
+        .client-inn i {
+            color: var(--accent);
+            font-size: 12px;
+        }
+
+        .client-stats-compact {
+            display: flex;
+            gap: 12px;
+        }
+
+        .stat-badge {
             background: var(--bg);
-            padding: 8px 16px;
-            border-radius: 8px;
+            border-radius: 20px;
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border-light);
         }
 
-        .stat-value {
-            font-size: 20px;
+        .stat-badge-value {
             font-weight: 700;
+            font-size: 16px;
             color: var(--primary-dark);
         }
 
-        .stat-label {
+        .stat-badge-label {
             font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
-        /* ПОИСК - АККУРАТНЫЙ КАК НА ПРОШЛОЙ СТРАНИЦЕ */
+        /* СЕТКА ИНФОРМАЦИИ */
+        .client-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-section {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid var(--border-light);
+        }
+
+        .info-section-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-section-title i {
+            color: var(--accent);
+            font-size: 14px;
+        }
+
+        .info-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .info-item {
+            padding: 8px 10px;
+            background: var(--card);
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+        }
+
+        .info-item-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .info-item-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .info-item-phone {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .info-item-phone::before {
+            content: "📞";
+            font-size: 10px;
+        }
+
+        .info-item-email {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .info-item-email::before {
+            content: "✉️";
+            font-size: 10px;
+        }
+
+        .no-info-message {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .no-info-message i {
+            color: var(--accent);
+            font-size: 16px;
+        }
+
+        /* АДАПТИВНОСТЬ ДЛЯ НОВЫХ БЛОКОВ */
+        @media (max-width: 768px) {
+            .client-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .client-stats-compact {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .client-info-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-badge {
+                padding: 4px 12px;
+            }
+
+            .stat-badge-value {
+                font-size: 14px;
+            }
+
+            .stat-badge-label {
+                font-size: 10px;
+            }
+        }
+
         .search-section {
             margin-bottom: 24px;
         }
@@ -1001,22 +1161,93 @@
         </div>
     </div>
 
-    <!-- Карточка клиента с общей статистикой -->
-    <div class="client-card">
-        <div class="block-title" th:text="${paginatedDto.client.name}">ООО Пример</div>
-        <div class="client-stats">
-            <div class="stat-item">
-                <div class="stat-value" th:text="${paginatedDto.getProtocolsByCipher().size()}">124</div>
-                <div class="stat-label">всего</div>
+    <!-- Карточка клиента с подробной информацией -->
+    <div class="client-details-card">
+        <div class="client-header">
+            <div class="client-title-section">
+                <div class="client-icon">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div>
+                    <div class="client-name" th:text="${paginatedDto.client.name}">ООО Пример</div>
+                    <div class="client-inn" th:if="${paginatedDto.client.innKpp != null and !paginatedDto.client.innKpp.isEmpty()}">
+                        <i class="bi bi-upc-scan"></i> ИНН/КПП: <span th:text="${paginatedDto.client.innKpp}">1234567890</span>
+                    </div>
+                </div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value" th:text="${paginatedDto.uniqueCiphers.size()}">5</div>
-                <div class="stat-label">типов</div>
+        </div>
+
+        <!-- Дополнительная информация в виде сетки -->
+        <div class="client-info-grid">
+            <!-- Контакты -->
+            <div class="info-section" th:if="${paginatedDto.client.contacts != null and !paginatedDto.client.contacts.isEmpty()}">
+                <div class="info-section-title">
+                    <i class="bi bi-telephone"></i>
+                    Контактные лица
+                </div>
+                <div class="info-items">
+                    <div th:each="contact : ${paginatedDto.client.contacts}" class="info-item">
+                        <div class="info-item-name" th:text="${contact.name}">Иванов Иван</div>
+                        <div class="info-item-details">
+                            <span th:if="${contact.post}" th:text="${contact.post}">Директор</span>
+                            <span th:if="${contact.phoneNumber}" class="info-item-phone" th:text="${contact.phoneNumber}">+7 (999) 123-45-67</span>
+                            <span th:if="${contact.email}" class="info-item-email" th:text="${contact.email}">mail@example.com</span>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Объекты строительства -->
+            <div class="info-section" th:if="${paginatedDto.client.constructionSites != null and !paginatedDto.client.constructionSites.isEmpty()}">
+                <div class="info-section-title">
+                    <i class="bi bi-geo-alt"></i>
+                    Объекты строительства
+                </div>
+                <div class="info-items">
+                    <div th:each="site : ${paginatedDto.client.constructionSites}" class="info-item">
+                        <div class="info-item-name" th:text="${site.name}">ЖК Солнечный</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Договора -->
+            <div class="info-section" th:if="${paginatedDto.client.contracts != null and !paginatedDto.client.contracts.isEmpty()}">
+                <div class="info-section-title">
+                    <i class="bi bi-file-text"></i>
+                    Договора
+                </div>
+                <div class="info-items">
+                    <div th:each="contract : ${paginatedDto.client.contracts}" class="info-item">
+                        <div class="info-item-name" th:text="${contract.name}">Договор №123/2024</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Уникальные номера -->
+            <div class="info-section" th:if="${paginatedDto.client.uniqueNumbers != null and !paginatedDto.client.uniqueNumbers.isEmpty()}">
+                <div class="info-section-title">
+                    <i class="bi bi-hash"></i>
+                    Уникальные номера
+                </div>
+                <div class="info-items">
+                    <div th:each="number : ${paginatedDto.client.uniqueNumbers}" class="info-item">
+                        <div class="info-item-name" th:text="${number.number}">12345</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Сообщение, если нет дополнительной информации -->
+        <div class="no-info-message" th:if="${(paginatedDto.client.contacts == null or paginatedDto.client.contacts.isEmpty())
+        and (paginatedDto.client.constructionSites == null or paginatedDto.client.constructionSites.isEmpty())
+        and (paginatedDto.client.contracts == null or paginatedDto.client.contracts.isEmpty())
+        and (paginatedDto.client.uniqueNumbers == null or paginatedDto.client.uniqueNumbers.isEmpty())}">
+            <i class="bi bi-info-circle"></i>
+            Дополнительная информация о клиенте отсутствует
         </div>
     </div>
 
-    <!-- Поиск протоколо -->
+    <!-- Поиск протоколов -->
     <div class="search-section">
         <form id="searchForm" th:action="@{/clients/{id}(id=${paginatedDto.client.id})}" method="get" class="search-form">
             <div class="search-input-group">
@@ -1134,7 +1365,6 @@
             </div>
 
             <div class="pagination-controls">
-                <!-- Кнопка "Назад" -->
                 <a th:if="${paginatedDto.currentPage > 0}"
                    th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.currentPage - 1}, size=${paginatedDto.pageSize})}"
                    class="page-btn">
@@ -1142,17 +1372,14 @@
                 </a>
                 <span th:unless="${paginatedDto.currentPage > 0}" class="page-btn disabled">←</span>
 
-                <!-- Первая страница -->
                 <a th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=0, size=${paginatedDto.pageSize})}"
                    class="page-btn"
                    th:classappend="${paginatedDto.currentPage == 0} ? 'active' : ''">
                     1
                 </a>
 
-                <!-- Многоточие после первой страницы -->
                 <span class="page-btn dots disabled" th:if="${paginatedDto.currentPage > 2}">...</span>
 
-                <!-- Страницы вокруг текущей -->
                 <th:block th:each="i : ${#numbers.sequence(paginatedDto.currentPage > 1 ? paginatedDto.currentPage - 1 : 1, paginatedDto.currentPage < paginatedDto.totalPages - 2 ? paginatedDto.currentPage + 1 : paginatedDto.totalPages - 2)}">
                     <a th:if="${i > 0 and i < paginatedDto.totalPages - 1}"
                        th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${i}, size=${paginatedDto.pageSize})}"
@@ -1162,10 +1389,8 @@
                     </a>
                 </th:block>
 
-                <!-- Многоточие перед последней страницей -->
                 <span class="page-btn dots disabled" th:if="${paginatedDto.currentPage < paginatedDto.totalPages - 3}">...</span>
 
-                <!-- Последняя страница -->
                 <a th:if="${paginatedDto.totalPages > 1}"
                    th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.totalPages - 1}, size=${paginatedDto.pageSize})}"
                    class="page-btn"
@@ -1173,7 +1398,6 @@
                    th:text="${paginatedDto.totalPages}">
                 </a>
 
-                <!-- Кнопка "Вперед" -->
                 <a th:if="${paginatedDto.currentPage < paginatedDto.totalPages - 1}"
                    th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.currentPage + 1}, size=${paginatedDto.pageSize})}"
                    class="page-btn">

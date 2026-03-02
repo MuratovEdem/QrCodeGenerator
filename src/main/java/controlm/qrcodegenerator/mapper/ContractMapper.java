@@ -1,6 +1,7 @@
 package controlm.qrcodegenerator.mapper;
 
 import controlm.qrcodegenerator.dto.request.ContractRequestDto;
+import controlm.qrcodegenerator.dto.response.ContractResponseDto;
 import controlm.qrcodegenerator.model.Contract;
 import org.springframework.stereotype.Component;
 
@@ -30,5 +31,23 @@ public class ContractMapper {
         }
 
         return contracts;
+    }
+
+    public ContractResponseDto toResponseDto(Contract contract) {
+        ContractResponseDto contractResponseDto = new ContractResponseDto();
+
+        contractResponseDto.setName(contract.getName());
+
+        return contractResponseDto;
+    }
+
+    public List<ContractResponseDto> toResponseDtos(List<Contract> contracts) {
+        List<ContractResponseDto> contractResponseDtos = new ArrayList<>();
+
+        for (Contract contract : contracts) {
+            contractResponseDtos.add(toResponseDto(contract));
+        }
+
+        return contractResponseDtos;
     }
 }
