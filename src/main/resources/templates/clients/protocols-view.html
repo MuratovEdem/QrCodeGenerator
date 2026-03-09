@@ -287,17 +287,17 @@
             margin-bottom: 24px;
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
+            width: 100%;
         }
 
-        .client-header {
+        /* ВЕРТИКАЛЬНАЯ ШАПКА */
+        .client-header-vertical {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
             border-bottom: 1px solid var(--border-light);
-            flex-wrap: wrap;
-            gap: 16px;
         }
 
         .client-title-section {
@@ -307,163 +307,170 @@
         }
 
         .client-icon {
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             background: var(--border-light);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 28px;
             color: var(--primary-dark);
         }
 
         .client-name {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 600;
             color: var(--text-main);
             margin-bottom: 4px;
         }
 
         .client-inn {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
         }
 
         .client-inn i {
             color: var(--accent);
-            font-size: 12px;
+            font-size: 14px;
         }
 
-        .client-stats-compact {
+        /* СТАТИСТИКА НА ВСЮ ШИРИНУ */
+        .client-stats-full {
             display: flex;
-            gap: 12px;
+            gap: 16px;
+            width: 100%;
         }
 
-        .stat-badge {
+        .stat-card {
+            flex: 1;
             background: var(--bg);
-            border-radius: 20px;
-            padding: 6px 14px;
+            border-radius: 10px;
+            padding: 16px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 6px;
+            text-align: center;
             border: 1px solid var(--border-light);
         }
 
-        .stat-badge-value {
+        .stat-card-value {
             font-weight: 700;
-            font-size: 16px;
+            font-size: 28px;
             color: var(--primary-dark);
+            line-height: 1.2;
+            margin-bottom: 4px;
         }
 
-        .stat-badge-label {
-            font-size: 11px;
+        .stat-card-label {
+            font-size: 12px;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
         }
 
-        /* СЕТКА ИНФОРМАЦИИ */
-        .client-info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+        /* ВЕРТИКАЛЬНЫЕ СЕКЦИИ НА ВСЮ ШИРИНУ */
+        .client-info-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
         }
 
-        .info-section {
+        .info-section-full {
             background: var(--bg);
-            border-radius: 8px;
-            padding: 16px;
+            border-radius: 10px;
+            padding: 20px;
             border: 1px solid var(--border-light);
+            width: 100%;
         }
 
         .info-section-title {
             font-weight: 600;
-            font-size: 13px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 12px;
+            font-size: 16px;
+            color: var(--primary-dark);
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
         }
 
         .info-section-title i {
             color: var(--accent);
-            font-size: 14px;
+            font-size: 18px;
         }
 
-        .info-items {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        /* СЕТКА ДЛЯ КАРТОЧЕК ВНУТРИ СЕКЦИЙ */
+        .info-items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px;
         }
 
-        .info-item {
-            padding: 8px 10px;
+        .info-card {
             background: var(--card);
-            border-radius: 6px;
-            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
         }
 
-        .info-item-name {
+        .info-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent);
+        }
+
+        .info-card-name {
             font-weight: 600;
-            font-size: 13px;
+            font-size: 15px;
             color: var(--text-main);
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
 
-        .info-item-details {
-            font-size: 12px;
-            color: var(--text-secondary);
+        .info-card-details {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 6px;
         }
 
-        .info-item-phone {
+        .info-detail-item {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
         }
 
-        .info-item-phone::before {
-            content: "📞";
-            font-size: 10px;
+        .info-detail-item i {
+            color: var(--accent);
+            font-size: 14px;
+            width: 18px;
         }
 
-        .info-item-email {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .info-item-email::before {
-            content: "✉️";
-            font-size: 10px;
-        }
-
+        /* СООБЩЕНИЕ ОБ ОТСУТСТВИИ ИНФОРМАЦИИ */
         .no-info-message {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             color: var(--text-secondary);
-            font-size: 13px;
+            font-size: 14px;
             background: var(--bg);
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px dashed var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
+            margin-top: 16px;
         }
 
         .no-info-message i {
             color: var(--accent);
-            font-size: 16px;
+            font-size: 18px;
         }
 
         /* АДАПТИВНОСТЬ ДЛЯ НОВЫХ БЛОКОВ */
@@ -1161,15 +1168,14 @@
         </div>
     </div>
 
-    <!-- Карточка клиента с подробной информацией -->
+    <!-- Карточка клиента с подробной информацией-->
     <div class="client-details-card">
-        <div class="client-header">
+        <div class="client-header-vertical">
             <div class="client-title-section">
-                <div class="client-icon">
-                    <i class="bi bi-building"></i>
+                <div class="block-title">
+                    <div class="client-name" th:text="${paginatedDto.client.name}">ООО Пример</div>
                 </div>
                 <div>
-                    <div class="client-name" th:text="${paginatedDto.client.name}">ООО Пример</div>
                     <div class="client-inn" th:if="${paginatedDto.client.innKpp != null and !paginatedDto.client.innKpp.isEmpty()}">
                         <i class="bi bi-upc-scan"></i> ИНН/КПП: <span th:text="${paginatedDto.client.innKpp}">1234567890</span>
                     </div>
@@ -1177,73 +1183,72 @@
             </div>
         </div>
 
-        <!-- Дополнительная информация в виде сетки -->
-        <div class="client-info-grid">
+        <div class="client-info-vertical">
             <!-- Контакты -->
-            <div class="info-section" th:if="${paginatedDto.client.contacts != null and !paginatedDto.client.contacts.isEmpty()}">
+            <div class="info-section-full" th:if="${paginatedDto.client.contacts != null and !paginatedDto.client.contacts.isEmpty()}">
                 <div class="info-section-title">
                     <i class="bi bi-telephone"></i>
-                    Контактные лица
+                    Контактное лицо
                 </div>
-                <div class="info-items">
-                    <div th:each="contact : ${paginatedDto.client.contacts}" class="info-item">
-                        <div class="info-item-name" th:text="${contact.name}">Иванов Иван</div>
-                        <div class="info-item-details">
-                            <span th:if="${contact.post}" th:text="${contact.post}">Директор</span>
-                            <span th:if="${contact.phoneNumber}" class="info-item-phone" th:text="${contact.phoneNumber}">+7 (999) 123-45-67</span>
-                            <span th:if="${contact.email}" class="info-item-email" th:text="${contact.email}">mail@example.com</span>
+                <div class="info-items-grid">
+                    <div th:each="contact : ${paginatedDto.client.contacts}" class="info-card">
+                        <div class="info-card-name" th:text="${contact.name}">Иванов Иван</div>
+                        <div class="info-card-details">
+                            <div th:if="${contact.post}" class="info-detail-item">
+                                <i class="bi bi-briefcase"></i>
+                                <span th:text="${contact.post}">Генеральный директор</span>
+                            </div>
+                            <div th:if="${contact.phoneNumber}" class="info-detail-item">
+                                <i class="bi bi-telephone"></i>
+                                <span th:text="${contact.phoneNumber}">+7 (999) 123-45-67</span>
+                            </div>
+                            <div th:if="${contact.email}" class="info-detail-item">
+                                <i class="bi bi-envelope"></i>
+                                <span th:text="${contact.email}">mail@example.com</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Объекты строительства -->
-            <div class="info-section" th:if="${paginatedDto.client.constructionSites != null and !paginatedDto.client.constructionSites.isEmpty()}">
+            <!-- Объект строительства -->
+            <div class="info-section-full" th:if="${paginatedDto.client.constructionSites != null and !paginatedDto.client.constructionSites.isEmpty()}">
                 <div class="info-section-title">
                     <i class="bi bi-geo-alt"></i>
-                    Объекты строительства
+                    Объект строительства
                 </div>
-                <div class="info-items">
-                    <div th:each="site : ${paginatedDto.client.constructionSites}" class="info-item">
-                        <div class="info-item-name" th:text="${site.name}">ЖК Солнечный</div>
+                <div class="info-items-grid">
+                    <div th:each="site : ${paginatedDto.client.constructionSites}" class="info-card">
+                        <div class="info-card-name" th:text="${site.name}">ЖК Солнечный</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Договора -->
-            <div class="info-section" th:if="${paginatedDto.client.contracts != null and !paginatedDto.client.contracts.isEmpty()}">
+            <!-- Договор -->
+            <div class="info-section-full" th:if="${paginatedDto.client.contracts != null and !paginatedDto.client.contracts.isEmpty()}">
                 <div class="info-section-title">
                     <i class="bi bi-file-text"></i>
-                    Договора
+                    Договор
                 </div>
-                <div class="info-items">
-                    <div th:each="contract : ${paginatedDto.client.contracts}" class="info-item">
-                        <div class="info-item-name" th:text="${contract.name}">Договор №123/2024</div>
+                <div class="info-items-grid">
+                    <div th:each="contract : ${paginatedDto.client.contracts}" class="info-card">
+                        <div class="info-card-name" th:text="${contract.name}">Договор №123/2024</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Уникальные номера -->
-            <div class="info-section" th:if="${paginatedDto.client.uniqueNumbers != null and !paginatedDto.client.uniqueNumbers.isEmpty()}">
+            <!-- Уникальный номер -->
+            <div class="info-section-full" th:if="${paginatedDto.client.uniqueNumbers != null and !paginatedDto.client.uniqueNumbers.isEmpty()}">
                 <div class="info-section-title">
                     <i class="bi bi-hash"></i>
-                    Уникальные номера
+                    Уникальный номер
                 </div>
-                <div class="info-items">
-                    <div th:each="number : ${paginatedDto.client.uniqueNumbers}" class="info-item">
-                        <div class="info-item-name" th:text="${number.number}">12345</div>
+                <div class="info-items-grid">
+                    <div th:each="number : ${paginatedDto.client.uniqueNumbers}" class="info-card">
+                        <div class="info-card-name" th:text="${number.number}">12345</div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Сообщение, если нет дополнительной информации -->
-        <div class="no-info-message" th:if="${(paginatedDto.client.contacts == null or paginatedDto.client.contacts.isEmpty())
-        and (paginatedDto.client.constructionSites == null or paginatedDto.client.constructionSites.isEmpty())
-        and (paginatedDto.client.contracts == null or paginatedDto.client.contracts.isEmpty())
-        and (paginatedDto.client.uniqueNumbers == null or paginatedDto.client.uniqueNumbers.isEmpty())}">
-            <i class="bi bi-info-circle"></i>
-            Дополнительная информация о клиенте отсутствует
         </div>
     </div>
 

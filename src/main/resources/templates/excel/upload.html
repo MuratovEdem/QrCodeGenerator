@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Загрузка заявки</title>
+</head>
+<body>
+<h1>Загрузите файл заявки</h1>
+<form method="POST" action="/upload" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".xlsx, .xls" required>
+    <button type="submit">Обработать</button>
+</form>
+</body>
+</html>

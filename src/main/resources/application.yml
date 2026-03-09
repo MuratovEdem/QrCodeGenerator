@@ -35,3 +35,19 @@ test:
   input:
     dir: ./test-pdfs
   client-id: 1
+
+
+protocol:
+  template:
+    path: /app/templates/protocol_template.xlsx   # путь к шаблону внутри контейнера
+  mapping:
+    fields:
+      - sourceColumnName: "Наименование конструкции"
+        sheetName: "Лист1"
+        cellReference: "B2"
+      - sourceColumnName: "Класс бетона"
+        sheetName: "Лист1"
+        cellReference: "C5"
+      - sourceColumnName: "Дата заливки"
+        sheetName: "Лист1"
+        cellReference: "D7"
