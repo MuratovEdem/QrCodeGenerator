@@ -58,7 +58,6 @@ public class FastOcrService {
         int ch = y2 - y;
 
         if (cw < 20 || ch < 20) {
-            // слишком маленькая область — OCR бессмысленен
             return img;
         }
 
