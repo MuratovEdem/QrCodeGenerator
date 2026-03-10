@@ -1,14 +1,17 @@
 package controlm.qrcodegenerator.excel.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UploadService {
@@ -19,24 +22,47 @@ public class UploadService {
      * Основной метод обработки: парсинг, генерация протоколов, упаковка в ZIP.
      * Возвращает массив байт готового архива.
      */
-    public byte[] processUpload(MultipartFile file) throws IOException {
-        // 1. Парсим заявку
-        List<Map<String, String>> data = excelService.parseRequestFile(file);
-        if (data.isEmpty()) {
-            throw new IllegalArgumentException("Файл заявки не содержит данных (нет строк после заголовка)");
-        }
+    public byte[] processUpload(MultipartFile file, String templateType) throws IOException {
+        log.info("Начало обработки файла: {} с типом шаблона: {}",
+                file.getOriginalFilename(), templateType);
 
-        // 2. Генерируем временные файлы протоколов
-        List<File> protocolFiles = excelService.generateProtocols(data);
+        Map<File, String> protocolFiles = null;
 
         try {
-            // 3. Создаём ZIP-архив
-            return zipService.createZip(protocolFiles, "protocols.zip");
+            // Генерируем протоколы с нужным типом шаблона
+            protocolFiles = excelService.generateProtocols(file, templateType);
+
+            if (protocolFiles.isEmpty()) {
+                throw new IOException("Не удалось сгенерировать протоколы");
+            }
+
+            log.info("Сгенерировано {} файлов протоколов", protocolFiles.size());
+
+            // Создаем ZIP-архив
+            String zipName = "protocols_" + templateType + ".zip";
+            byte[] zipData = zipService.createZipWithNames(protocolFiles, zipName);
+
+            if (zipData == null || zipData.length == 0) {
+                throw new IOException("Созданный ZIP архив пуст");
+            }
+
+            log.info("ZIP архив успешно создан, размер: {} байт", zipData.length);
+
+            return zipData;
+
+        } catch (Exception e) {
+            log.error("Ошибка при обработке файла: ", e);
+            throw e;
         } finally {
-            // 4. Удаляем временные файлы
-            for (File f : protocolFiles) {
-                if (f.exists()) {
-                    f.delete();
+            // Удаляем временные файлы
+            if (protocolFiles != null) {
+                for (File f : protocolFiles.keySet()) {
+                    if (f != null && f.exists()) {
+                        boolean deleted = f.delete();
+                        if (!deleted) {
+                            f.deleteOnExit();
+                        }
+                    }
                 }
             }
         }
