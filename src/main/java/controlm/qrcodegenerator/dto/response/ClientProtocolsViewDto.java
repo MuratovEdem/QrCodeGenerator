@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Data
 public class ClientProtocolsViewDto {
-    private PublicClientDto client;
+    private ClientResponseDto client;
     private Map<String, List<ProtocolResponseDto>> protocolsByCipher;
     private Set<String> uniqueCiphers;
     private Map<String, Long> countProtocolsByCipher;
