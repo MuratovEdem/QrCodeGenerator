@@ -1,8 +1,8 @@
 package controlm.qrcodegenerator.excel.service;
 
-import controlm.qrcodegenerator.excel.config.MappingConfig;
 import controlm.qrcodegenerator.excel.config.TemplateConfig;
 import controlm.qrcodegenerator.excel.dto.FieldMapping;
+import controlm.qrcodegenerator.excel.dto.TemplateInfo;
 import controlm.qrcodegenerator.excel.dto.TemplateMapping;
 import controlm.qrcodegenerator.excel.dto.TemplateSubType;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -126,7 +125,6 @@ public class ExcelService {
             throws IOException {
 
         log.info("=== Генерация протокола ===");
-        log.info("Путь к шаблону: {}", templateInfo.getPath());
         log.info("Количество полей для заполнения: {}", templateInfo.getFields().size());
 
         // Выводим все поля, которые будем заполнять
@@ -220,6 +218,10 @@ public class ExcelService {
 
             log.info("Заполнено {} полей из {}", filledCount, templateInfo.getFields().size());
 
+            FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+
+            evaluator.evaluateAll();
+
             try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                 workbook.write(fos);
                 log.info("Изменения сохранены во временный файл");
@@ -228,27 +230,6 @@ public class ExcelService {
 
         log.info("Протокол успешно сгенерирован: {}", tempFile.getAbsolutePath());
         return tempFile;
-    }
-
-    /**
-     * Вспомогательный класс для передачи информации о шаблоне
-     */
-    private static class TemplateInfo {
-        private final String path;
-        private final List<FieldMapping> fields;
-
-        public TemplateInfo(String path, List<FieldMapping> fields) {
-            this.path = path;
-            this.fields = fields;
-        }
-
-        public String getPath() {
-            return path;
-        }
-
-        public List<FieldMapping> getFields() {
-            return fields;
-        }
     }
 
     /**

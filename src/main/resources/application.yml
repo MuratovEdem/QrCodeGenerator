@@ -61,7 +61,7 @@ protocol:
     - type: "28days"
       name: "28 суток"
       sub-types:
-        - concrete-class: "В20"
+        - concrete-class: "B20"
           path: /app/test-pdfs/rnd_28s_B20.xlsx
           fields:
             - sourceColumnName: "Номер протокола"
@@ -80,7 +80,7 @@ protocol:
               sheetName: "Лицевая"
               cellReference: "F22"
 
-        - concreteClass: "В25"
+        - concreteClass: "B25"
           path: /app/test-pdfs/rnd_28s_B25.xlsx
           fields:
             - sourceColumnName: "Номер протокола"
@@ -99,7 +99,7 @@ protocol:
               sheetName: "Лицевая"
               cellReference: "F22"
 
-        - concreteClass: "В30"
+        - concreteClass: "B30"
           path: /app/test-pdfs/rnd_28s_B25.xlsx
           fields:
             - sourceColumnName: "Номер протокола"
