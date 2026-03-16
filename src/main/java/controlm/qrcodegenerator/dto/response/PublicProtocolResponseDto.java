@@ -6,11 +6,9 @@ import lombok.Data;
 public class PublicProtocolResponseDto {
 
     private Long id;
-    private String cipher;
-    private String uniqueNumber;
-    private String sequentialNumber;
+    private String protocolNumber;
 
     public String getFullProtocolNumber() {
-        return String.format("%s-%s-%s", cipher, uniqueNumber, sequentialNumber);
+        return String.format("%s", protocolNumber);
     }
 }

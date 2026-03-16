@@ -4,7 +4,6 @@ import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.response.ProtocolNumberDto;
 import controlm.qrcodegenerator.dto.response.ProtocolResponseDto;
 import controlm.qrcodegenerator.dto.response.PublicProtocolResponseDto;
-import controlm.qrcodegenerator.exception.NotFoundException;
 import controlm.qrcodegenerator.model.Protocol;
 import controlm.qrcodegenerator.service.ClientService;
 import lombok.RequiredArgsConstructor;
@@ -12,11 +11,10 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -39,9 +37,7 @@ public class ProtocolMapper {
         PublicProtocolResponseDto publicProtocolResponseDto = new PublicProtocolResponseDto();
 
         publicProtocolResponseDto.setId(protocol.getId());
-        publicProtocolResponseDto.setCipher(protocol.getCipher());
-        publicProtocolResponseDto.setUniqueNumber(protocol.getUniqueNumber());
-        publicProtocolResponseDto.setSequentialNumber(protocol.getSequentialNumber());
+        publicProtocolResponseDto.setProtocolNumber(protocol.getProtocolNumber());
 
         return publicProtocolResponseDto;
     }
@@ -58,19 +54,18 @@ public class ProtocolMapper {
         ProtocolResponseDto protocolResponseDto = new ProtocolResponseDto();
 
         protocolResponseDto.setId(protocol.getId());
-        protocolResponseDto.setCipher(protocol.getCipher());
-        protocolResponseDto.setUniqueNumber(protocol.getUniqueNumber());
-        protocolResponseDto.setSequentialNumber(protocol.getSequentialNumber());
+        protocolResponseDto.setProtocolNumber(protocol.getProtocolNumber());
         protocolResponseDto.setIssueDate(protocol.getIssueDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+        protocolResponseDto.setFullProtocolNumber(protocol.getFullProtocolNumber());
+        protocolResponseDto.setClientId(protocol.getClient().getId());
 
         return protocolResponseDto;
     }
 
     public Protocol protocolRequestDtoToProtocol(ProtocolRequestDto protocolRequestDto, String sequentialNumber) {
         Protocol protocol = new Protocol();
-        protocol.setCipher(protocolRequestDto.getCipher());
-        protocol.setUniqueNumber(protocolRequestDto.getUniqueNumber());
-        protocol.setSequentialNumber(sequentialNumber);
+
+        protocol.setProtocolNumber(protocolRequestDto.getUniqueNumber().replaceAll(" ", ""));
         protocol.setClient(clientService.getClientById(protocolRequestDto.getClientId()));
         protocol.setIssueDate(LocalDate.parse(protocolRequestDto.getIssueDate(), DateTimeFormatter.ofPattern("dd.MM.yyyy")));
 
@@ -78,15 +73,10 @@ public class ProtocolMapper {
     }
 
     public Protocol fieldsToProtocol(Long clientId, String number, String issueDate, String pathFile) {
-        ProtocolNumberDto protocolNumber = parseNumberToNumberDto(number)
-                .orElseThrow(() -> new NotFoundException("Parse protocol number exception"));
-
         Protocol protocol = new Protocol();
         protocol.setClient(clientService.getClientById(clientId));
 
-        protocol.setCipher(protocolNumber.getCipher());
-        protocol.setUniqueNumber(protocolNumber.getUniqueNumber());
-        protocol.setSequentialNumber(protocolNumber.getSequentialNumber());
+        protocol.setProtocolNumber(number.replaceAll(" ", ""));
 
         protocol.setIssueDate(parseDate(issueDate));
         protocol.setFilePath(pathFile);
@@ -94,29 +84,43 @@ public class ProtocolMapper {
         return protocol;
     }
 
-
-    public Optional<ProtocolNumberDto> parseNumberToNumberDto(String number) {
-        if (number == null || number.trim().isEmpty()) {
-            return Optional.empty();
+    public Map<String, List<ProtocolResponseDto>> groupProtocolsByCipher(List<ProtocolResponseDto> protocols) {
+        if (protocols == null || protocols.isEmpty()) {
+            return Collections.emptyMap();
         }
 
-        Matcher matcher = PROTOCOL_PATTERN.matcher(number.trim());
-        if (matcher.matches()) {
-            try {
-                String code = matcher.group(1);
-                String uniqueNumber = matcher.group(2);
-                String serialNumber = matcher.group(3);
-
-                return Optional.of(new ProtocolNumberDto(code, uniqueNumber, serialNumber));
-            } catch (NumberFormatException e) {
-                return Optional.empty();
-            }
-        }
-
-        return Optional.empty();
+        return protocols.stream()
+                .filter(protocol -> protocol.getProtocolNumber() != null && !protocol.getProtocolNumber().isEmpty())
+                .collect(Collectors.groupingBy(
+                        protocol -> extractCipher(protocol.getProtocolNumber())
+                ));
     }
 
-    private LocalDate parseDate(String date) {
+    public Map<String, Long> getCipherStatistics(List<ProtocolResponseDto> protocols) {
+        if (protocols == null || protocols.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        return protocols.stream()
+                .filter(Objects::nonNull)
+                .filter(p -> p.getProtocolNumber() != null && !p.getProtocolNumber().isEmpty())
+                .collect(Collectors.groupingBy(
+                        p -> extractCipher(p.getProtocolNumber()),
+                        Collectors.counting()
+                ));
+    }
+
+    private String extractCipher(String protocolNumber) {
+        int firstDashIndex = protocolNumber.indexOf('-');
+
+        if (firstDashIndex != -1) {
+            return protocolNumber.substring(0, firstDashIndex);
+        }
+
+        return protocolNumber;
+    }
+
+    public LocalDate parseDate(String date) {
         if (date == null) return null;
 
         DateTimeFormatter f1 = DateTimeFormatter.ofPattern("dd.MM.yyyy");

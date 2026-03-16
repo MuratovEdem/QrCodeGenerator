@@ -9,9 +9,7 @@ import java.util.Map;
 public class PublicPaginatedProtocolsDto {
     private PublicClientDto client;
     private List<PublicProtocolResponseDto> protocols;
-    private Map<String, List<PublicProtocolResponseDto>> protocolsByCipher;
-    private List<String> uniqueCiphers;
-    private int countProtocols;
+    private Long countProtocols;
     private int currentPage;
     private int pageSize;
     private int totalPages;

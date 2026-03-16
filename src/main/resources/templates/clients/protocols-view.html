@@ -9,17 +9,18 @@
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 
     <!-- Шрифты Control-M -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap"
+          rel="stylesheet">
 
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
-<!--    TODO в окно изменения протоколов добавить поле для файла (удалить старый сохранить новый)-->
-<!--    TODO кнопку изменить перекрасить в желтый-->
-<!--    TODO добавить сохранение того кто внес изменения в протокол-->
-<!--    TODO отобразить информацию о клиенте-->
-<!--    TODO добавить возможность редактировать информацию и клиенте-->
-<!--    TODO решить что делать с широкой таблицей-->
+    <!--    TODO в окно изменения протоколов добавить поле для файла (удалить старый сохранить новый)-->
+    <!--    TODO кнопку изменить перекрасить в желтый-->
+    <!--    TODO добавить сохранение того кто внес изменения в протокол-->
+    <!--    TODO отобразить информацию о клиенте-->
+    <!--    TODO добавить возможность редактировать информацию и клиенте-->
+    <!--    TODO решить что делать с широкой таблицей-->
 
     <style>
         :root {
@@ -504,6 +505,7 @@
                 font-size: 13px;
             }
         }
+
         .search-section {
             margin-bottom: 24px;
         }
@@ -755,17 +757,27 @@
         }
 
         .protocol-actions {
-            position: absolute;
-            top: 8px;
-            right: 8px;
             display: flex;
-            gap: 4px;
-            opacity: 0;
+            gap: 8px;
+            opacity: 1;
             transition: var(--transition);
         }
 
-        .protocol-item:hover .protocol-actions {
-            opacity: 1;
+        .protocol-meta {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .protocol-badge {
+            background: var(--primary-dark);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
 
         .action-icon {
@@ -817,8 +829,267 @@
             opacity: 0.5;
         }
 
+        /* Стили для табов */
+        .tabs-container {
+            background: var(--card);
+            border-top: 1px solid var(--border);
+        }
+
+        .tabs-header {
+            display: flex;
+            flex-wrap: wrap;
+            background: var(--bg);
+            border-bottom: 2px solid var(--border);
+            gap: 2px;
+            padding: 0 20px;
+        }
+
+        .tab-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            position: relative;
+            font-size: 14px;
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 0, 0, 0.05);
+            color: var(--accent);
+        }
+
+        .tab-button.active {
+            color: var(--accent);
+            background: white;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .tab-cipher {
+            font-weight: 600;
+        }
+
+        .tab-count {
+            background: var(--border);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--text-main);
+        }
+
+        .tab-button.active .tab-count {
+            background: var(--accent);
+            color: white;
+        }
+
+        .tab-content {
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .cipher-info-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .cipher-title-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cipher-code {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .cipher-total {
+            background: var(--accent);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .protocols-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .protocol-card {
+            padding: 15px 20px;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .protocol-card:hover {
+            background: white;
+            box-shadow: var(--shadow-md);
+            transform: translateX(5px);
+        }
+
+        .protocol-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .protocol-number {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-main);
+        }
+
+        .protocol-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .protocol-badge {
+            background: var(--primary-dark);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .protocol-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            cursor: pointer;
+            font-size: 14px;
+            opacity: 1;
+            box-shadow: var(--shadow);
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .action-btn.danger:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            text-align: center;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px dashed var(--border);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .tabs-stats {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .ciphers-count {
+            background: var(--bg);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .tabs-header {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 0 10px;
+            }
+
+            .tab-button {
+                flex: 0 0 auto;
+                padding: 10px 15px;
+            }
+
+            .protocol-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .protocol-actions {
+                align-self: flex-end;
+            }
+
+            .cipher-code {
+                font-size: 20px;
+            }
+        }
+
         /* ПАГИНАЦИЯ */
-        .pagination-section {
+        .pagination-container {
             margin-top: 24px;
             padding: 16px 20px;
             background: var(--card);
@@ -1126,6 +1397,55 @@
                 flex-wrap: wrap;
             }
         }
+
+        /* Loader styles */
+        .loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            border-radius: var(--radius);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-message {
+            background: #fee;
+            color: var(--danger);
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--danger);
+        }
+
+        .tab-content {
+            position: relative;
+            min-height: 400px;
+        }
     </style>
 </head>
 <body>
@@ -1171,18 +1491,19 @@
 
     <!-- Карточка клиента с подробной информацией -->
     <div class="client-details-card">
-        <!-- Заголовок с красной полосой (без иконки) -->
         <div class="client-header">
             <div class="section-title">
                 <div class="client-name" th:text="${paginatedDto.client.name}">ООО Пример</div>
             </div>
-            <div class="client-inn" th:if="${paginatedDto.client.innKpp != null and !paginatedDto.client.innKpp.isEmpty()}">
+            <div class="client-inn"
+                 th:if="${paginatedDto.client.innKpp != null and !paginatedDto.client.innKpp.isEmpty()}">
                 <i class="bi bi-upc-scan"></i> <span th:text="${paginatedDto.client.innKpp}">1234567890</span>
             </div>
         </div>
 
         <!-- Дополнительная информация в компактном виде -->
-        <div class="info-section" th:if="${paginatedDto.client.contacts != null and !paginatedDto.client.contacts.isEmpty()}">
+        <div class="info-section"
+             th:if="${paginatedDto.client.contacts != null and !paginatedDto.client.contacts.isEmpty()}">
             <div class="info-section-title">
                 <i class="bi bi-telephone"></i>
                 Контактное лицо
@@ -1209,7 +1530,8 @@
         </div>
 
         <!-- Объект строительства -->
-        <div class="info-section" th:if="${paginatedDto.client.constructionSites != null and !paginatedDto.client.constructionSites.isEmpty()}">
+        <div class="info-section"
+             th:if="${paginatedDto.client.constructionSites != null and !paginatedDto.client.constructionSites.isEmpty()}">
             <div class="info-section-title">
                 <i class="bi bi-geo-alt"></i>
                 Объект строительства
@@ -1222,7 +1544,8 @@
         </div>
 
         <!-- Договор -->
-        <div class="info-section" th:if="${paginatedDto.client.contracts != null and !paginatedDto.client.contracts.isEmpty()}">
+        <div class="info-section"
+             th:if="${paginatedDto.client.contracts != null and !paginatedDto.client.contracts.isEmpty()}">
             <div class="info-section-title">
                 <i class="bi bi-file-text"></i>
                 Договор
@@ -1235,7 +1558,8 @@
         </div>
 
         <!-- Уникальный номер -->
-        <div class="info-section" th:if="${paginatedDto.client.uniqueNumbers != null and !paginatedDto.client.uniqueNumbers.isEmpty()}">
+        <div class="info-section"
+             th:if="${paginatedDto.client.uniqueNumbers != null and !paginatedDto.client.uniqueNumbers.isEmpty()}">
             <div class="info-section-title">
                 <i class="bi bi-hash"></i>
                 Уникальный номер
@@ -1259,7 +1583,8 @@
 
     <!-- Поиск протоколов -->
     <div class="search-section">
-        <form id="searchForm" th:action="@{/clients/{id}(id=${paginatedDto.client.id})}" method="get" class="search-form">
+        <form id="searchForm" th:action="@{/clients/{id}(id=${paginatedDto.client.id})}" method="get"
+              class="search-form">
             <div class="search-input-group">
                 <div class="search-input-wrapper">
                     <i class="bi bi-search search-icon"></i>
@@ -1283,139 +1608,39 @@
                 </div>
             </div>
 
-            <!-- Скрытые поля для пагинации -->
-            <input type="hidden" name="page" th:value="${paginatedDto.currentPage}">
+            <input type="hidden" name="cipher" th:value="${paginatedDto.currentCipher}">
+            <input type="hidden" name="page" th:value="0">
             <input type="hidden" name="size" th:value="${paginatedDto.pageSize}">
         </form>
     </div>
 
-    <!-- Таблица протоколов -->
-    <div class="protocols-card">
-        <div class="protocols-header">
-            <div class="protocols-title">
-                Выданные протоколы
-            </div>
-            <span class="protocol-count" th:text="${paginatedDto.getCountTotalProtocols()}">0</span>
-        </div>
+    <div class="tabs-header">
 
-        <div class="table-responsive">
-            <table class="protocols-table">
-                <thead>
-                <tr>
-                    <th th:each="cipher : ${paginatedDto.uniqueCiphers}">
-                        <div class="cipher-header">
-                            <span class="cipher-name" th:text="${cipher}">Шифр</span>
-                            <span class="cipher-count" th:text="${paginatedDto.getCountProtocolsByCipher().get(cipher)}">0</span>
-                        </div>
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td th:each="cipher : ${paginatedDto.uniqueCiphers}">
-                        <div class="column-content">
-                            <div class="protocol-list">
-                                <div th:if="${paginatedDto.protocolsByCipher.get(cipher) != null and not paginatedDto.protocolsByCipher.get(cipher).empty}">
-                                    <div th:each="protocol : ${paginatedDto.protocolsByCipher.get(cipher)}"
-                                         th:id="'protocol-' + ${protocol.id}"
-                                         class="protocol-item">
-                                        <div class="protocol-number" th:text="${protocol.getFullProtocolNumber()}">
-                                            CTM-2024-0001
-                                        </div>
-                                        <div class="protocol-actions">
-                                            <button type="button"
-                                                    class="action-icon info"
-                                                    th:data-protocol-id="${protocol.id}"
-                                                    onclick="downloadPdf(this)">
-                                                <i class="bi bi-file-pdf"></i>
-                                            </button>
-                                            <button type="button"
-                                                    class="action-icon"
-                                                    th:data-protocol-id="${protocol.id}"
-                                                    th:data-client-id="${paginatedDto.client.id}"
-                                                    th:data-cipher="${protocol.cipher}"
-                                                    th:data-unique-number="${protocol.uniqueNumber}"
-                                                    th:data-sequential-number="${protocol.sequentialNumber}"
-                                                    onclick="openEditModal(this)">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button"
-                                                    class="action-icon danger"
-                                                    th:data-protocol-id="${protocol.id}"
-                                                    th:data-client-id="${paginatedDto.client.id}"
-                                                    th:data-protocol-number="${protocol.getFullProtocolNumber()}"
-                                                    onclick="openDeleteModal(this)">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div th:if="${paginatedDto.protocolsByCipher.get(cipher) == null or paginatedDto.protocolsByCipher.get(cipher).empty}"
-                                     class="empty-column">
-                                    <div class="empty-icon">
-                                        <i class="bi bi-inbox"></i>
-                                    </div>
-                                    <div>Нет протоколов</div>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+        <button class="tab-button"
+                th:each="cipher : ${paginatedDto.uniqueCiphers}"
+                th:data-cipher="${cipher}">
+
+            <span class="cipher-name"
+                  th:text="${cipher}">НК</span>
+
+            <span class="cipher-count"
+                  th:text="${paginatedDto.getCountProtocolsByCipher().get(cipher)}">0</span>
+        </button>
+
     </div>
 
-    <!-- Пагинация -->
-    <div class="pagination-section" th:if="${paginatedDto.totalPages > 1}">
-        <div class="pagination">
-            <div class="pagination-info">
-                Страница <span th:text="${paginatedDto.currentPage + 1}">1</span> из
-                <span th:text="${paginatedDto.totalPages}">10</span>
-            </div>
 
-            <div class="pagination-controls">
-                <a th:if="${paginatedDto.currentPage > 0}"
-                   th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.currentPage - 1}, size=${paginatedDto.pageSize})}"
-                   class="page-btn">
-                    ←
-                </a>
-                <span th:unless="${paginatedDto.currentPage > 0}" class="page-btn disabled">←</span>
+    <!-- Контент вкладок -->
+    <div class="tab-content">
+        <div class="tab-pane"
+             th:each="cipher : ${paginatedDto.uniqueCiphers}"
+             th:id="'tab-' + ${cipher}">
 
-                <a th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=0, size=${paginatedDto.pageSize})}"
-                   class="page-btn"
-                   th:classappend="${paginatedDto.currentPage == 0} ? 'active' : ''">
-                    1
-                </a>
+            <div class="protocols-list"></div>
 
-                <span class="page-btn dots disabled" th:if="${paginatedDto.currentPage > 2}">...</span>
-
-                <th:block th:each="i : ${#numbers.sequence(paginatedDto.currentPage > 1 ? paginatedDto.currentPage - 1 : 1, paginatedDto.currentPage < paginatedDto.totalPages - 2 ? paginatedDto.currentPage + 1 : paginatedDto.totalPages - 2)}">
-                    <a th:if="${i > 0 and i < paginatedDto.totalPages - 1}"
-                       th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${i}, size=${paginatedDto.pageSize})}"
-                       class="page-btn"
-                       th:classappend="${i == paginatedDto.currentPage} ? 'active' : ''"
-                       th:text="${i + 1}">
-                    </a>
-                </th:block>
-
-                <span class="page-btn dots disabled" th:if="${paginatedDto.currentPage < paginatedDto.totalPages - 3}">...</span>
-
-                <a th:if="${paginatedDto.totalPages > 1}"
-                   th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.totalPages - 1}, size=${paginatedDto.pageSize})}"
-                   class="page-btn"
-                   th:classappend="${paginatedDto.currentPage == paginatedDto.totalPages - 1} ? 'active' : ''"
-                   th:text="${paginatedDto.totalPages}">
-                </a>
-
-                <a th:if="${paginatedDto.currentPage < paginatedDto.totalPages - 1}"
-                   th:href="@{/clients/{id}(id=${paginatedDto.client.id}, search=${paginatedDto.searchQuery}, page=${paginatedDto.currentPage + 1}, size=${paginatedDto.pageSize})}"
-                   class="page-btn">
-                    →
-                </a>
-                <span th:unless="${paginatedDto.currentPage < paginatedDto.totalPages - 1}" class="page-btn disabled">→</span>
-            </div>
+            <div class="pagination-container"></div>
         </div>
+
     </div>
 
     <footer>
@@ -1423,224 +1648,477 @@
             © Control-M • Внутренняя система протоколов
         </div>
     </footer>
-</div>
 
-<!-- Модальное окно для редактирования протокола -->
-<div class="modal-overlay" id="editModal">
-    <div class="modal-container">
-        <div class="modal-header">
-            <h5 class="modal-title">Редактировать протокол</h5>
-            <button type="button" class="modal-close" onclick="closeModal('edit')">&times;</button>
-        </div>
-        <div class="modal-body">
-            <form id="editProtocolForm">
-                <input type="hidden" id="editProtocolId">
-                <input type="hidden" id="editClientId">
 
-                <div class="form-group">
-                    <label class="form-label" for="editCipher">Шифр протокола</label>
-                    <input type="text" class="form-control" id="editCipher" required maxlength="10">
-                    <div class="form-text">Максимум 10 символов</div>
-                </div>
+    <!-- Модальное окно для редактирования протокола -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактировать протокол</h5>
+                <button type="button" class="modal-close" onclick="closeModal('edit')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProtocolForm" enctype="multipart/form-data">
+                    <input type="hidden" id="editProtocolId">
+                    <input type="hidden" id="editClientId">
 
-                <div class="form-group">
-                    <label class="form-label" for="editUniqueNumber">Номер заказчика</label>
-                    <input type="text" class="form-control" id="editUniqueNumber" required>
-                </div>
+                    <!-- Номер протокола (обязательное) -->
+                    <div class="form-group">
+                        <label class="form-label" for="editProtocolNumber">Номер протокола</label>
+                        <input type="text" class="form-control" id="editProtocolNumber" required>
+                        <div class="form-text">Формат: шифр-уникальный номер-порядковый номер (например: НК-123-45)
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="editSequentialNumber">Порядковый номер</label>
-                    <input type="number" class="form-control" id="editSequentialNumber" required min="1">
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn-modal-secondary" onclick="closeModal('edit')">Отмена</button>
-            <button type="button" class="btn-modal-primary" onclick="saveEdit()">Сохранить</button>
-        </div>
-    </div>
-</div>
+                    <!-- Дата выдачи (обязательное) -->
+                    <div class="form-group">
+                        <label class="form-label" for="editIssueDate">Дата выдачи</label>
+                        <input type="text" class="form-control" id="editIssueDate" required>
+                    </div>
 
-<!-- Модальное окно для удаления протокола -->
-<div class="modal-overlay" id="deleteModal">
-    <div class="modal-container">
-        <div class="modal-header">
-            <h5 class="modal-title">Удаление протокола</h5>
-            <button type="button" class="modal-close" onclick="closeModal('delete')">&times;</button>
-        </div>
-        <div class="modal-body">
-            <p>Вы уверены, что хотите удалить протокол <strong id="deleteProtocolNumber"></strong>?</p>
-            <p style="color: var(--danger);"><i class="bi bi-exclamation-triangle"></i> Это действие нельзя отменить!</p>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn-modal-secondary" onclick="closeModal('delete')">Отмена</button>
-            <button type="button" class="btn-modal-danger" onclick="confirmDelete()">Удалить</button>
+                    <!-- Файл (необязательный) -->
+                    <div class="form-group">
+                        <label class="form-label" for="editFile">Файл (необязательно)</label>
+                        <input type="file" class="form-control" id="editFile" name="file">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modal-secondary" onclick="closeModal('edit')">Отмена</button>
+                <button type="button" class="btn-modal-primary" onclick="saveEdit()">Сохранить</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="/js/csrf.js"></script>
-<script>
-    // Текущие данные для редактирования/удаления
-    let currentProtocolId = null;
-    let currentClientId = null;
-    let currentDeleteProtocolId = null;
+    <!-- Модальное окно для удаления протокола -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h5 class="modal-title">Удаление протокола</h5>
+                <button type="button" class="modal-close" onclick="closeModal('delete')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить протокол <strong id="deleteProtocolNumber"></strong>?</p>
+                <p style="color: var(--danger);"><i class="bi bi-exclamation-triangle"></i> Это действие нельзя
+                    отменить!
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modal-secondary" onclick="closeModal('delete')">Отмена</button>
+                <button type="button" class="btn-modal-danger" onclick="confirmDelete()">Удалить</button>
+            </div>
+        </div>
+    </div>
 
-    // Функция для скачивания PDF
-    function downloadPdf(button) {
-        const protocolId = button.getAttribute('data-protocol-id');
-        window.open(`/protocols/${protocolId}/file`, '_blank');
-    }
+    <script src="/js/csrf.js"></script>
+    <script>
+        // Текущие данные для редактирования/удаления
+        let currentProtocolId = null;
+        let currentClientId = null;
+        let currentDeleteProtocolId = null;
+        const cipherState = {};
 
-    // Очистка поиска
-    function clearSearch(event) {
-        event.preventDefault();
-        document.getElementById('searchInput').value = '';
-        const url = new URL(window.location.href);
-        url.searchParams.delete('search');
-        url.searchParams.set('page', '0');
-        window.location.href = url.toString();
-    }
-
-    // Открытие модального окна редактирования
-    function openEditModal(button) {
-        currentProtocolId = button.getAttribute('data-protocol-id');
-        currentClientId = button.getAttribute('data-client-id');
-
-        document.getElementById('editCipher').value = button.getAttribute('data-cipher');
-        document.getElementById('editUniqueNumber').value = button.getAttribute('data-unique-number');
-        document.getElementById('editSequentialNumber').value = button.getAttribute('data-sequential-number');
-        document.getElementById('editProtocolId').value = currentProtocolId;
-        document.getElementById('editClientId').value = currentClientId;
-
-        document.getElementById('editModal').classList.add('show');
-    }
-
-    // Открытие модального окна удаления
-    function openDeleteModal(button) {
-        currentDeleteProtocolId = button.getAttribute('data-protocol-id');
-        currentClientId = button.getAttribute('data-client-id');
-
-        document.getElementById('deleteProtocolNumber').textContent =
-            button.getAttribute('data-protocol-number');
-
-        document.getElementById('deleteModal').classList.add('show');
-    }
-
-    // Закрытие модальных окон
-    function closeModal(type) {
-        if (type === 'edit') {
-            document.getElementById('editModal').classList.remove('show');
-        } else {
-            document.getElementById('deleteModal').classList.remove('show');
-        }
-    }
-
-    // Сохранение редактирования
-    function saveEdit() {
-        const cipher = document.getElementById('editCipher').value.trim();
-        const uniqueNumber = document.getElementById('editUniqueNumber').value.trim();
-        const sequentialNumber = document.getElementById('editSequentialNumber').value.trim();
-
-        if (!cipher || !uniqueNumber || !sequentialNumber) {
-            alert('Все поля обязательны для заполнения!');
-            return;
+        // Функция для скачивания PDF
+        function downloadPdf(button) {
+            const protocolId = button.getAttribute('data-protocol-id');
+            window.open(`/protocols/${protocolId}/file`, '_blank');
         }
 
-        if (cipher.length > 10) {
-            alert('Шифр не должен превышать 10 символов!');
-            return;
+        // Очистка поиска
+        function clearSearch(event) {
+            event.preventDefault();
+
+            const currentUrl = new URL(window.location.href);
+            const cipher = currentUrl.searchParams.get('cipher') ||
+                document.querySelector('.tab-button.active')?.getAttribute('data-cipher') ||
+                'НК'; // Значение по умолчанию
+
+            window.location.href = `/clients/${getClientIdFromUrl()}?cipher=${cipher}&page=0&size=10`;
         }
 
-        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 
-        const formData = new FormData();
-        formData.append('cipher', cipher);
-        formData.append('uniqueNumber', uniqueNumber);
-        formData.append('sequentialNumber', sequentialNumber);
-        formData.append('clientId', currentClientId);
-        formData.append('_csrf', csrfToken);
+        // Получить ID клиента из URL
+        function getClientIdFromUrl() {
+            return window.location.pathname.split('/').pop();
+        }
 
-        fetch(`/clients/${currentClientId}/protocols/${currentProtocolId}/edit`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                [csrfHeader]: csrfToken
+        function renderPagination(cipher, currentPage, totalPages) {
+
+            const tab = document.getElementById("tab-" + cipher);
+            const container = tab.querySelector(".pagination-container");
+
+            if (totalPages <= 1) {
+                container.innerHTML = "";
+                return;
             }
-        })
-            .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
-                } else if (response.ok) {
-                    window.location.reload();
-                } else {
-                    throw new Error('Ошибка при сохранении');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Произошла ошибка при сохранении изменений');
-            });
-    }
 
-    // Подтверждение удаления
-    function confirmDelete() {
-        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+            let html = `
+        <div class="pagination-section">
+            <div class="pagination">
 
-        const formData = new FormData();
-        formData.append('_csrf', csrfToken);
+                <div class="pagination-info">
+                    Страница <span>${currentPage + 1}</span> из
+                    <span>${totalPages}</span>
+                </div>
 
-        fetch(`/clients/${currentClientId}/protocols/${currentDeleteProtocolId}/delete`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                [csrfHeader]: csrfToken
+                <div class="pagination-controls">
+    `;
+
+            // ← предыдущая
+            if (currentPage > 0) {
+                html += `
+            <button class="page-btn"
+                onclick="changePage('${cipher}', ${currentPage - 1})">
+                ←
+            </button>
+        `;
+            } else {
+                html += `<span class="page-btn disabled">←</span>`;
             }
-        })
-            .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
-                } else if (response.ok) {
-                    window.location.reload();
-                } else {
-                    throw new Error('Ошибка при удалении');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Произошла ошибка при удалении протокола');
-            });
-    }
 
-    // Обработка Enter в поиске
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
+            // первая страница
+            html += `
+        <button class="page-btn ${currentPage === 0 ? 'active' : ''}"
+            onclick="changePage('${cipher}', 0)">
+            1
+        </button>
+    `;
 
-        if (searchInput) {
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    document.getElementById('searchForm').submit();
-                }
-            });
+            // троеточие слева
+            if (currentPage > 2) {
+                html += `<span class="page-btn dots disabled">...</span>`;
+            }
+
+            // страницы вокруг текущей
+            const start = Math.max(1, currentPage - 1);
+            const end = Math.min(totalPages - 2, currentPage + 1);
+
+            for (let i = start; i <= end; i++) {
+
+                html += `
+            <button class="page-btn ${i === currentPage ? 'active' : ''}"
+                onclick="changePage('${cipher}', ${i})">
+                ${i + 1}
+            </button>
+        `;
+            }
+
+            // троеточие справа
+            if (currentPage < totalPages - 3) {
+                html += `<span class="page-btn dots disabled">...</span>`;
+            }
+
+            // последняя страница
+            if (totalPages > 1) {
+
+                const last = totalPages - 1;
+
+                html += `
+            <button class="page-btn ${currentPage === last ? 'active' : ''}"
+                onclick="changePage('${cipher}', ${last})">
+                ${totalPages}
+            </button>
+        `;
+            }
+
+            // → следующая
+            if (currentPage < totalPages - 1) {
+                html += `
+            <button class="page-btn"
+                onclick="changePage('${cipher}', ${currentPage + 1})">
+                →
+            </button>
+        `;
+            } else {
+                html += `<span class="page-btn disabled">→</span>`;
+            }
+
+            html += `
+                </div>
+            </div>
+        </div>
+    `;
+
+            container.innerHTML = html;
         }
 
-        // Закрытие модальных окон по клику на оверлей
-        document.getElementById('editModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal('edit');
+        function changePage(cipher, page) {
+            loadProtocols(cipher, page)
+        }
+
+        // Отрендерить протоколы
+        function renderProtocols(cipher, protocols) {
+            const tab = document.getElementById("tab-" + cipher);
+            const list = tab.querySelector(".protocols-list");
+
+            if (!protocols.length) {
+                list.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <p>Нет протоколов</p>
+                </div>`;
+                return;
             }
+
+            list.innerHTML = protocols.map(p =>
+                `<div class="protocol-card">
+                    <div class="protocol-info">
+                        <span class="protocol-number">${p.fullProtocolNumber}</span>
+                    </div>
+
+                    <div class="protocol-actions">
+
+                        <!-- Скачать PDF -->
+                        <button class="action-btn"
+                                data-protocol-id="${p.id}"
+                                onclick="downloadPdf(this)">
+                            <i class="bi bi-file-pdf"></i>
+                        </button>
+
+                        <!-- Редактировать -->
+                        <button class="action-btn"
+                                data-protocol-id="${p.id}"
+                                data-client-id="${p.clientId}"
+                                data-protocol-number="${p.protocolNumber}"
+                                data-issue-date="${p.issueDate}"
+                                onclick="openEditModal(this)">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+
+                        <!-- Удалить -->
+                        <button class="action-btn"
+                                data-protocol-id="${p.id}"
+                                data-client-id="${p.clientId}"
+                                data-protocol-number="${p.fullProtocolNumber}"
+                                onclick="openDeleteModal(this)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+
+                    </div>
+                </div>`
+            ).join("");
+        }
+
+        // Инициализация первого таба при загрузке
+        document.addEventListener('DOMContentLoaded', function () {
+            const firstTab = document.querySelector(".tab-button");
+
+            if (!firstTab) return;
+
+            const cipher = firstTab.dataset.cipher;
+
+            firstTab.classList.add("active");
+
+            document.getElementById("tab-" + cipher).classList.add("active");
+
+            loadProtocols(cipher, 0);
+
+            const activeCipher = document.querySelector(".tab-button.active")?.dataset.cipher;
+
+            if (activeCipher) {
+                loadProtocols(activeCipher, 0);
+            }
+
+            // const loadedTabs = new Set();
+
+            document.querySelectorAll(".tab-button").forEach(button => {
+
+                button.addEventListener("click", async function () {
+
+                    const cipher = this.dataset.cipher;
+                    // const clientId = window.location.pathname.split('/').pop();
+
+                    document.querySelectorAll(".tab-button")
+                        .forEach(b => b.classList.remove("active"));
+
+                    this.classList.add("active");
+
+                    document.querySelectorAll(".tab-pane").forEach(p =>
+                        p.classList.remove("active"));
+
+                    document.getElementById("tab-" + cipher).classList.add("active")
+
+                    const page = cipherState[cipher]?.page ?? 0;
+
+                    loadProtocols(cipher, page)
+                });
+
+            });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const cipherFromUrl = urlParams.get('cipher');
+
+            if (cipherFromUrl) {
+
+                const tab = document.querySelector(`.tab-button[data-cipher="${cipherFromUrl}"]`);
+
+                if (tab) {
+
+                    document.querySelectorAll(".tab-button")
+                        .forEach(b => b.classList.remove("active"));
+
+                    document.querySelectorAll(".tab-pane")
+                        .forEach(p => p.classList.remove("active"));
+
+                    tab.classList.add("active");
+
+                    document.getElementById("tab-" + cipherFromUrl)
+                        .classList.add("active");
+
+                    loadProtocols(cipherFromUrl, 0);
+
+                }
+
+            }
+
+            const searchInput = document.getElementById('searchInput');
+
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        document.getElementById('searchForm').submit();
+                    }
+                });
+            }
+
+            // Закрытие модальных окон по клику на оверлей
+            document.getElementById('editModal').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeModal('edit');
+                }
+            });
+
+            document.getElementById('deleteModal').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeModal('delete');
+                }
+            });
         });
 
-        document.getElementById('deleteModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal('delete');
+        async function loadProtocols(cipher, page = 0) {
+            const clientId = getClientIdFromUrl();
+            const size = 10;
+
+            const response = await fetch(
+                `/clients/${clientId}/protocols?cipher=${cipher}&page=${page}&size=${size}`
+            );
+
+            const data = await response.json();
+
+            renderProtocols(cipher, data.protocols);
+
+            renderPagination(cipher, data.currentPage, data.totalPages);
+
+            cipherState[cipher] = {page: data.currentPage};
+        }
+
+        // Открытие модального окна редактирования
+        function openEditModal(button) {
+            currentProtocolId = button.getAttribute('data-protocol-id');
+            currentClientId = button.getAttribute('data-client-id');
+
+            const protocolNumber = button.getAttribute('data-protocol-number') || '';
+            const issueDate = button.getAttribute('data-issue-date') || '';
+
+            document.getElementById('editProtocolNumber').value = protocolNumber;
+            document.getElementById('editIssueDate').value = issueDate;
+            document.getElementById('editProtocolId').value = currentProtocolId;
+            document.getElementById('editClientId').value = currentClientId;
+
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        // Открытие модального окна удаления
+        function openDeleteModal(button) {
+            currentDeleteProtocolId = Number(button.getAttribute('data-protocol-id'));
+            currentClientId = Number(button.getAttribute('data-client-id'));
+
+            document.getElementById('deleteProtocolNumber').textContent =
+                button.getAttribute('data-protocol-number');
+
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        // Закрытие модальных окон
+        function closeModal(type) {
+            if (type === 'edit') {
+                document.getElementById('editModal').classList.remove('show');
+            } else {
+                document.getElementById('deleteModal').classList.remove('show');
             }
-        });
-    });
-</script>
+        }
+
+        // Сохранение редактирования
+        function saveEdit() {
+            const protocolNumber = document.getElementById('editProtocolNumber').value.trim();
+            const issueDate = document.getElementById('editIssueDate').value.trim();
+            const fileInput = document.getElementById('editFile');
+
+            if (!protocolNumber || !issueDate) {
+                alert('Номер протокола и дата обязательны для заполнения!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('protocolNumber', protocolNumber);
+            formData.append('issueDate', issueDate);
+            formData.append('clientId', currentClientId);
+
+            if (fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
+            }
+
+            fetch(`/clients/${currentClientId}/protocols/${currentProtocolId}/edit`, {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        throw new Error('Ошибка при сохранении');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при сохранении изменений');
+                });
+        }
+
+        // Подтверждение удаления
+        function confirmDelete() {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+            const formData = new FormData();
+            formData.append('_csrf', csrfToken);
+
+            fetch(`/clients/${currentClientId}/protocols/${currentDeleteProtocolId}/delete`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    [csrfHeader]: csrfToken
+                }
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        throw new Error('Ошибка при удалении');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при удалении протокола');
+                });
+        }
+
+    </script>
 
 </body>
 </html>

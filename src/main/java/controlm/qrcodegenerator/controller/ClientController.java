@@ -2,11 +2,15 @@ package controlm.qrcodegenerator.controller;
 
 import controlm.qrcodegenerator.dto.request.ClientRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
+import controlm.qrcodegenerator.dto.request.ProtocolUpdateDto;
+import controlm.qrcodegenerator.dto.response.ProtocolPageDto;
+import controlm.qrcodegenerator.dto.response.ProtocolResponseDto;
 import controlm.qrcodegenerator.dto.response.PublicClientDto;
 import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
 import controlm.qrcodegenerator.mapper.ClientMapper;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.model.OcrJob;
+import controlm.qrcodegenerator.model.Protocol;
 import controlm.qrcodegenerator.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +38,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -98,23 +105,33 @@ public class ClientController {
 
     @GetMapping("/{id}")
     public String viewClient(@PathVariable Long id,
-                             @RequestParam(value = "search", required = false) String searchQuery,
-                             @RequestParam(required = false, value = "page", defaultValue = "0") int page,
-                             @RequestParam(required = false, value = "size", defaultValue = "20") int pageSize,
+                             @RequestParam(required = false) String search,
+                             @RequestParam(required = false) String cipher,
+                             @RequestParam(defaultValue = "0") int page,
+                             @RequestParam(defaultValue = "10") int size,
                              Model model) {
 
-        Pageable pageable = PageRequest.of(
-                page,
-                pageSize
-        );
-
-        ClientProtocolsViewDto paginatedDto = protocolService.findAllByClientIdWithFilter(id, searchQuery, pageable);
+        ClientProtocolsViewDto paginatedDto = protocolService
+                .findAllByClientIdWithFilter(id, search, cipher, page, size);
 
         paginatedDto.setClient(clientService.getDtoById(id));
-
         model.addAttribute("paginatedDto", paginatedDto);
 
         return "clients/protocols-view";
+    }
+
+    @GetMapping("/{clientId}/protocols")
+    @ResponseBody
+    public ProtocolPageDto getProtocolsByCipher(
+            @PathVariable Long clientId,
+            @RequestParam String cipher,
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String search) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return protocolService.getProtocolsByCipher(clientId, search, cipher, pageable);
     }
 
     @GetMapping("/{id}/create-protocols")
@@ -202,16 +219,16 @@ public class ClientController {
     @PostMapping("/{clientId}/protocols/{protocolId}/edit")
     public String updateProtocol(@PathVariable Long clientId,
                                  @PathVariable Long protocolId,
-                                 @ModelAttribute ProtocolRequestDto protocolDto) {
-        log.info("Updating protocol {} for client {}", protocolId, clientId);
+                                 @ModelAttribute ProtocolUpdateDto protocolDto) throws IOException {
+
         protocolService.updateProtocol(protocolId, protocolDto);
         return "redirect:/clients/" + clientId;
     }
 
     @PostMapping("/{clientId}/protocols/{protocolId}/delete")
     public String deleteProtocol(@PathVariable Long clientId,
-                                 @PathVariable Long protocolId) {
-        log.info("Deleting protocol {} for client {}", protocolId, clientId);
+                                 @PathVariable Long protocolId) throws IOException {
+
         protocolService.deleteProtocolById(protocolId);
         return "redirect:/clients/" + clientId;
     }

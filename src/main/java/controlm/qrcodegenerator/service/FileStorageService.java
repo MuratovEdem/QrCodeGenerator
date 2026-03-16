@@ -1,6 +1,7 @@
 package controlm.qrcodegenerator.service;
 
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
+import controlm.qrcodegenerator.dto.request.ProtocolUpdateDto;
 import controlm.qrcodegenerator.dto.response.ProtocolPreviewDto;
 import controlm.qrcodegenerator.utils.TransliterateUtils;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,22 @@ public class FileStorageService {
 
     public Path saveProtocolFile(ProtocolRequestDto dto) throws IOException {
         String safeNumber = transliterateUtils.transliterateToLatin(dto.getFullNumber());
-        String safeDate = dto.getIssueDate().toString();
+        String safeDate = dto.getIssueDate();
+
+        String fileName = safeNumber + "_" + safeDate + ".pdf";
+
+        Path target = createDirectory(dto.getClientId()).resolve(fileName);
+
+        try (InputStream inputStream = dto.getFile().getInputStream()) {
+            Files.copy(inputStream, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        return target;
+    }
+
+    public Path saveProtocolFile(ProtocolUpdateDto dto) throws IOException {
+        String safeNumber = transliterateUtils.transliterateToLatin(dto.getProtocolNumber());
+        String safeDate = dto.getIssueDate();
 
         String fileName = safeNumber + "_" + safeDate + ".pdf";
 
@@ -97,6 +113,16 @@ public class FileStorageService {
 
     public void deleteFile(String filePath) throws IOException {
         Files.deleteIfExists(Path.of(filePath));
+    }
+
+    public Path replaceProtocolFile(String oldFilePath, ProtocolUpdateDto dto) throws IOException {
+
+        if (oldFilePath != null && !oldFilePath.trim().isEmpty()) {
+            Path oldPath = Paths.get(oldFilePath);
+            Files.deleteIfExists(oldPath);
+        }
+
+        return saveProtocolFile(dto);
     }
 
     private Path createDirectory(Long clientId) throws IOException {

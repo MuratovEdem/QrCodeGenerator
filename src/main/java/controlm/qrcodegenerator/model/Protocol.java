@@ -27,14 +27,8 @@ public class Protocol {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "cipher", nullable = false, length = 10)
-    private String cipher;
-
-    @Column(name = "unique_number", nullable = false)
-    private String uniqueNumber;
-
-    @Column(name = "sequential_number", nullable = false)
-    private String sequentialNumber;
+    @Column(name = "protocol_number", nullable = false, unique = true)
+    private String protocolNumber;
 
     @Column(name = "issue_date", nullable = false)
     private LocalDate issueDate;
@@ -52,7 +46,7 @@ public class Protocol {
 
     @Transient
     public String getFullProtocolNumber() {
-        return String.format("%s-%s-%s", cipher, uniqueNumber, sequentialNumber);
+        return String.format("%s от %s", protocolNumber, issueDate);
     }
 
     // TODO сделать кем создан протокол

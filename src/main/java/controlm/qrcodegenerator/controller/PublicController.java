@@ -6,6 +6,8 @@ import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.service.ClientService;
 import controlm.qrcodegenerator.service.ProtocolService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,8 +29,13 @@ public class PublicController {
                                    @RequestParam(required = false, defaultValue = "0") int page,
                                    Model model) {
 
+        Pageable pageable = PageRequest.of(
+                page,
+                20
+        );
+
         PublicPaginatedProtocolsDto paginatedDto = protocolService.getFilteredAndPaginatedDtoForPublic(
-                id, search, page, 10);
+                id, search, pageable);
 
         Client clientById = clientService.getClientById(id); // TODO перенести в сервис
 

@@ -13,8 +13,9 @@ public class ClientProtocolsViewDto {
     private Set<String> uniqueCiphers;
     private Map<String, Long> countProtocolsByCipher;
     private long countTotalProtocols;
-    private int currentPage;
+    private Map<String, Integer> currentPagesByCipher;
+    private Map<String, Integer> totalPagesByCipher;
     private int pageSize;
-    private int totalPages;
     private String searchQuery;
+    private String currentCipher;
 }
