@@ -109,4 +109,18 @@ public interface ProtocolRepository extends JpaRepository<Protocol, Long> {
     """, nativeQuery = true)
     List<String> findAllCiphersByClientId(@Param("clientId") Long clientId);
 
+    @Query(value = """
+    SELECT 
+        CASE 
+            WHEN POSITION('-' IN p.protocol_number) > 0 
+            THEN SUBSTRING(p.protocol_number, 1, POSITION('-' IN p.protocol_number) - 1)
+            ELSE p.protocol_number
+        END as cipher,
+        COUNT(*) as cnt
+    FROM protocols p
+    WHERE p.client_id = :clientId
+    GROUP BY cipher
+    ORDER BY cipher
+    """, nativeQuery = true)
+    List<Object[]> countCiphersByClientId(@Param("clientId") Long clientId);
 }

@@ -56,7 +56,7 @@ public class ProtocolMapper {
         protocolResponseDto.setId(protocol.getId());
         protocolResponseDto.setProtocolNumber(protocol.getProtocolNumber());
         protocolResponseDto.setIssueDate(protocol.getIssueDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-        protocolResponseDto.setFullProtocolNumber(protocol.getFullProtocolNumber());
+        protocolResponseDto.setFullProtocolNumber(protocolResponseDto.getProtocolNumber() + " от " + protocolResponseDto.getIssueDate());
         protocolResponseDto.setClientId(protocol.getClient().getId());
 
         return protocolResponseDto;

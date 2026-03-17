@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -115,67 +116,22 @@ public class ProtocolService {
 
     public ClientProtocolsViewDto findAllByClientIdWithFilter(
             Long clientId,
-            String filter,
-            String currentCipher,
-            int page,
-            int pageSize) {
+            String filter) {
 
-        // Получаем все уникальные шифры клиента
-        List<String> allCiphers = protocolRepository.findAllCiphersByClientId(clientId);
+        Map<String, Long> countProtocolsByCipher = protocolRepository.countCiphersByClientId(clientId).stream().collect(Collectors.toMap(
+                row -> (String) row[0],
+                row -> ((Number) row[1]).longValue()
+        ));
 
-        Map<String, List<ProtocolResponseDto>> protocolsByCipher = new HashMap<>();
-        Map<String, Long> countProtocolsByCipher = new HashMap<>();
-        Map<String, Integer> currentPagesByCipher = new HashMap<>();
-        Map<String, Integer> totalPagesByCipher = new HashMap<>();
-
-        // Если шифр не выбран, берем первый из списка
-        if (currentCipher == null && !allCiphers.isEmpty()) {
-            currentCipher = allCiphers.get(0);
-        }
-
-        // Для каждого шифра получаем данные с пагинацией
-        for (String cipher : allCiphers) {
-            Pageable pageable = PageRequest.of(
-                    cipher.equals(currentCipher) ? page : 0,
-                    pageSize
-            );
-
-            Page<Protocol> pageProtocols = findProtocolsByClientIdWithSearchAndCipher(
-                            clientId,
-                            filter,
-                            cipher,
-                            pageable
-            );
-
-            if (!pageProtocols.getContent().isEmpty()) {
-                List<ProtocolResponseDto> protocols = pageProtocols
-                        .map(protocolMapper::protocolToProtocolResponseDto)
-                        .toList();
-
-                protocolsByCipher.put(cipher, protocols);
-                countProtocolsByCipher.put(cipher, pageProtocols.getTotalElements());
-                currentPagesByCipher.put(cipher, pageProtocols.getNumber());
-                totalPagesByCipher.put(cipher, pageProtocols.getTotalPages());
-            } else {
-                protocolsByCipher.put(cipher, new ArrayList<>());
-                countProtocolsByCipher.put(cipher, 0L);
-                currentPagesByCipher.put(cipher, 0);
-                totalPagesByCipher.put(cipher, 0);
-            }
-        }
+        Set<String> ciphers = countProtocolsByCipher.keySet();
 
         ClientProtocolsViewDto clientProtocolsViewDto = new ClientProtocolsViewDto();
-        clientProtocolsViewDto.setProtocolsByCipher(protocolsByCipher);
-        clientProtocolsViewDto.setUniqueCiphers(new LinkedHashSet<>(allCiphers));
+        clientProtocolsViewDto.setUniqueCiphers(ciphers);
         clientProtocolsViewDto.setCountProtocolsByCipher(countProtocolsByCipher);
         clientProtocolsViewDto.setCountTotalProtocols(
                 protocolRepository.countByClientId(clientId)
         );
-        clientProtocolsViewDto.setCurrentPagesByCipher(currentPagesByCipher);
-        clientProtocolsViewDto.setTotalPagesByCipher(totalPagesByCipher);
-        clientProtocolsViewDto.setPageSize(pageSize);
         clientProtocolsViewDto.setSearchQuery(filter);
-        clientProtocolsViewDto.setCurrentCipher(currentCipher);
 
         return clientProtocolsViewDto;
     }

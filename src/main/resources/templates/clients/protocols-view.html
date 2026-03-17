@@ -15,12 +15,8 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
-    <!--    TODO в окно изменения протоколов добавить поле для файла (удалить старый сохранить новый)-->
-    <!--    TODO кнопку изменить перекрасить в желтый-->
     <!--    TODO добавить сохранение того кто внес изменения в протокол-->
-    <!--    TODO отобразить информацию о клиенте-->
     <!--    TODO добавить возможность редактировать информацию и клиенте-->
-    <!--    TODO решить что делать с широкой таблицей-->
 
     <style>
         :root {
@@ -140,17 +136,6 @@
             border-bottom: 2px solid var(--accent);
         }
 
-        /* CARD */
-        .card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-
         .card:hover {
             box-shadow: var(--shadow-md);
         }
@@ -204,55 +189,6 @@
             background: #2A3A4A;
             transform: translateY(-1px);
             box-shadow: var(--shadow-md);
-        }
-
-        .btn-outline {
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: var(--text-secondary);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .btn-icon {
-            width: 32px;
-            height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: var(--text-secondary);
-            transition: var(--transition);
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .btn-icon:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-icon.info:hover {
-            border-color: var(--info);
-            color: var(--info);
-        }
-
-        .btn-icon.danger:hover {
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-
-        .btn-icon.success:hover {
-            border-color: var(--success);
-            color: var(--success);
         }
 
         /* ЗАГОЛОВОК СТРАНИЦЫ */
@@ -331,13 +267,6 @@
         .client-inn i {
             color: var(--accent);
             font-size: 12px;
-        }
-
-        /* НАЗВАНИЕ КЛИЕНТА */
-        .client-name-block {
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-light);
         }
 
         .client-name {
@@ -448,64 +377,6 @@
             font-size: 16px;
         }
 
-        /* АДАПТИВНОСТЬ */
-        @media (max-width: 992px) {
-            .info-items-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .client-details-card {
-                padding: 16px;
-            }
-
-            .client-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .section-title {
-                font-size: 15px;
-            }
-
-            .section-title::before {
-                height: 16px;
-            }
-
-            .client-name {
-                font-size: 18px;
-            }
-
-            .info-items-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-
-            .info-card {
-                padding: 12px;
-            }
-
-            .info-card-name {
-                font-size: 13px;
-            }
-
-            .info-detail-item {
-                font-size: 12px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .client-inn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .info-section-title {
-                font-size: 13px;
-            }
-        }
-
         .search-section {
             margin-bottom: 24px;
         }
@@ -514,17 +385,6 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-        }
-
-        .search-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .search-input-group {
@@ -619,56 +479,6 @@
             background: #FFF5F5;
         }
 
-        /* ТАБЛИЦА ПРОТОКОЛОВ */
-        .protocols-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            margin-bottom: 24px;
-        }
-
-        .protocols-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .protocols-title {
-            font-weight: 600;
-            font-size: 16px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-        }
-
-        .protocols-title::before {
-            content: "";
-            width: 5px;
-            height: 16px;
-            background: var(--accent);
-            border-radius: 2px;
-            flex-shrink: 0;
-        }
-
-        .table-responsive {
-            overflow-x: auto;
-            overflow-y: visible;
-            width: 100%;
-
-        }
-
-        .protocols-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px
-        }
-
         .protocols-table th {
             padding: 16px 20px;
             font-weight: 600;
@@ -692,13 +502,6 @@
             border-right: none;
         }
 
-        /* СТАТИСТИКА В ЗАГОЛОВКЕ КОЛОНКИ */
-        .cipher-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .cipher-name {
             font-weight: 600;
         }
@@ -708,45 +511,6 @@
             border-radius: 20px;
             font-weight: 600;
             margin-left: 8px;
-        }
-
-        .protocol-count {
-            border-radius: 20px;
-            font-weight: 600;
-            margin-left: 8px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-        }
-
-
-        /* КОНТЕНТ КОЛОНКИ */
-        .column-content {
-            display: flex;
-            flex-direction: column;
-            min-height: 300px;
-        }
-
-        .protocol-list {
-            flex: 1;
-        }
-
-        .protocol-item {
-            position: relative;
-            padding: 12px;
-            margin-bottom: 8px;
-            background: var(--border-light);
-            border-radius: 6px;
-            border-left: 3px solid var(--primary-dark);
-            transition: var(--transition);
-        }
-
-        .protocol-item:hover {
-            background: white;
-            box-shadow: var(--shadow-md);
-            transform: translateY(-1px);
         }
 
         .protocol-number {
@@ -761,78 +525,6 @@
             gap: 8px;
             opacity: 1;
             transition: var(--transition);
-        }
-
-        .protocol-meta {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-
-        .protocol-badge {
-            background: var(--primary-dark);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-        }
-
-        .action-icon {
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            background: white;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-size: 12px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .action-icon:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .action-icon.info:hover {
-            border-color: var(--info);
-            color: var(--info);
-        }
-
-        .action-icon.danger:hover {
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-
-        .empty-column {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 200px;
-            color: var(--text-secondary);
-            text-align: center;
-            background: var(--bg);
-            border-radius: 8px;
-            padding: 20px;
-        }
-
-        .empty-icon {
-            font-size: 32px;
-            margin-bottom: 12px;
-            opacity: 0.5;
-        }
-
-        /* Стили для табов */
-        .tabs-container {
-            background: var(--card);
-            border-top: 1px solid var(--border);
         }
 
         .tabs-header {
@@ -880,18 +572,6 @@
             background: var(--accent);
         }
 
-        .tab-cipher {
-            font-weight: 600;
-        }
-
-        .tab-count {
-            background: var(--border);
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 11px;
-            color: var(--text-main);
-        }
-
         .tab-button.active .tab-count {
             background: var(--accent);
             color: white;
@@ -908,33 +588,6 @@
 
         .tab-pane.active {
             display: block;
-        }
-
-        .cipher-info-header {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .cipher-title-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .cipher-code {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--primary-dark);
-        }
-
-        .cipher-total {
-            background: var(--accent);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
         }
 
         .protocols-list {
@@ -970,22 +623,6 @@
             font-weight: 600;
             font-size: 15px;
             color: var(--text-main);
-        }
-
-        .protocol-meta {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .protocol-badge {
-            background: var(--primary-dark);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
         }
 
         .protocol-actions {
@@ -1043,49 +680,6 @@
 
         .empty-state p {
             font-size: 14px;
-        }
-
-        .tabs-stats {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .ciphers-count {
-            background: var(--bg);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-        }
-
-        @media (max-width: 768px) {
-            .tabs-header {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                padding: 0 10px;
-            }
-
-            .tab-button {
-                flex: 0 0 auto;
-                padding: 10px 15px;
-            }
-
-            .protocol-card {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .protocol-actions {
-                align-self: flex-end;
-            }
-
-            .cipher-code {
-                font-size: 20px;
-            }
         }
 
         /* ПАГИНАЦИЯ */
@@ -1311,137 +905,6 @@
             cursor: pointer;
         }
 
-        /* АДАПТИВНОСТЬ */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px 16px 40px;
-            }
-
-            .header-inner {
-                flex-direction: row;
-                align-items: center;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .logo-block img {
-                height: 35px;
-            }
-
-            .logo-title {
-                font-size: 18px;
-            }
-
-            .main-nav {
-                order: 2;
-                width: 100%;
-            }
-
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .action-buttons {
-                width: 100%;
-            }
-
-            .btn-primary {
-                flex: 1;
-                justify-content: center;
-            }
-
-            .client-card {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .client-stats {
-                margin-left: 0;
-                width: 100%;
-                flex-wrap: wrap;
-            }
-
-            .stat-item {
-                flex: 1;
-            }
-
-            .search-input-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-input-wrapper {
-                min-width: 100%;
-            }
-
-            .search-actions {
-                flex-direction: column;
-            }
-
-            .btn-search, .btn-clear {
-                width: 100%;
-            }
-
-            .protocols-table td {
-                min-width: 250px;
-            }
-
-            .pagination {
-                flex-direction: column;
-                gap: 16px;
-                align-items: flex-start;
-            }
-
-            .pagination-controls {
-                flex-wrap: wrap;
-            }
-        }
-
-        /* Loader styles */
-        .loader {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            border-radius: var(--radius);
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 10px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .error-message {
-            background: #fee;
-            color: var(--danger);
-            padding: 10px 20px;
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid var(--danger);
-        }
-
         .tab-content {
             position: relative;
             min-height: 400px;
@@ -1608,9 +1071,9 @@
                 </div>
             </div>
 
-            <input type="hidden" name="cipher" th:value="${paginatedDto.currentCipher}">
+            <!--            <input type="hidden" name="cipher" th:value="${paginatedDto.currentCipher}">-->
             <input type="hidden" name="page" th:value="0">
-            <input type="hidden" name="size" th:value="${paginatedDto.pageSize}">
+            <!--            <input type="hidden" name="size" th:value="${paginatedDto.pageSize}">-->
         </form>
     </div>
 
@@ -1666,8 +1129,6 @@
                     <div class="form-group">
                         <label class="form-label" for="editProtocolNumber">Номер протокола</label>
                         <input type="text" class="form-control" id="editProtocolNumber" required>
-                        <div class="form-text">Формат: шифр-уникальный номер-порядковый номер (например: НК-123-45)
-                        </div>
                     </div>
 
                     <!-- Дата выдачи (обязательное) -->
@@ -1724,20 +1185,19 @@
             window.open(`/protocols/${protocolId}/file`, '_blank');
         }
 
-        // Очистка поиска
         function clearSearch(event) {
             event.preventDefault();
 
-            const currentUrl = new URL(window.location.href);
-            const cipher = currentUrl.searchParams.get('cipher') ||
-                document.querySelector('.tab-button.active')?.getAttribute('data-cipher') ||
-                'НК'; // Значение по умолчанию
+            const input = document.getElementById('searchInput');
+            input.value = '';
 
-            window.location.href = `/clients/${getClientIdFromUrl()}?cipher=${cipher}&page=0&size=10`;
+            const activeCipher = document.querySelector('.tab-button.active')?.dataset.cipher;
+
+            if (activeCipher) {
+                loadProtocols(activeCipher, 0);
+            }
         }
 
-
-        // Получить ID клиента из URL
         function getClientIdFromUrl() {
             return window.location.pathname.split('/').pop();
         }
@@ -1846,6 +1306,10 @@
             loadProtocols(cipher, page)
         }
 
+        function getSearchQuery() {
+            return document.getElementById('searchInput')?.value.trim() || '';
+        }
+
         // Отрендерить протоколы
         function renderProtocols(cipher, protocols) {
             const tab = document.getElementById("tab-" + cipher);
@@ -1919,14 +1383,12 @@
                 loadProtocols(activeCipher, 0);
             }
 
-            // const loadedTabs = new Set();
 
             document.querySelectorAll(".tab-button").forEach(button => {
 
                 button.addEventListener("click", async function () {
 
                     const cipher = this.dataset.cipher;
-                    // const clientId = window.location.pathname.split('/').pop();
 
                     document.querySelectorAll(".tab-button")
                         .forEach(b => b.classList.remove("active"));
@@ -1971,16 +1433,15 @@
 
             }
 
-            const searchInput = document.getElementById('searchInput');
+            document.getElementById('searchForm').addEventListener('submit', function (e) {
+                e.preventDefault();
 
-            if (searchInput) {
-                searchInput.addEventListener('keypress', function (e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        document.getElementById('searchForm').submit();
-                    }
-                });
-            }
+                const activeCipher = document.querySelector('.tab-button.active')?.dataset.cipher;
+
+                if (activeCipher) {
+                    loadProtocols(activeCipher, 0);
+                }
+            });
 
             // Закрытие модальных окон по клику на оверлей
             document.getElementById('editModal').addEventListener('click', function (e) {
@@ -1999,10 +1460,19 @@
         async function loadProtocols(cipher, page = 0) {
             const clientId = getClientIdFromUrl();
             const size = 10;
+            const search = getSearchQuery();
 
-            const response = await fetch(
-                `/clients/${clientId}/protocols?cipher=${cipher}&page=${page}&size=${size}`
-            );
+            const url = new URL(`/clients/${clientId}/protocols`, window.location.origin);
+
+            url.searchParams.append('cipher', cipher);
+            url.searchParams.append('page', page);
+            url.searchParams.append('size', size);
+
+            if (search) {
+                url.searchParams.append('search', search);
+            }
+
+            const response = await fetch(url);
 
             const data = await response.json();
 
@@ -2090,18 +1560,9 @@
 
         // Подтверждение удаления
         function confirmDelete() {
-            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
-            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
-
-            const formData = new FormData();
-            formData.append('_csrf', csrfToken);
 
             fetch(`/clients/${currentClientId}/protocols/${currentDeleteProtocolId}/delete`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    [csrfHeader]: csrfToken
-                }
+                method: 'POST'
             })
                 .then(response => {
                     if (response.redirected) {
@@ -2119,6 +1580,5 @@
         }
 
     </script>
-
 </body>
 </html>

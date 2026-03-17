@@ -106,13 +106,10 @@ public class ClientController {
     @GetMapping("/{id}")
     public String viewClient(@PathVariable Long id,
                              @RequestParam(required = false) String search,
-                             @RequestParam(required = false) String cipher,
-                             @RequestParam(defaultValue = "0") int page,
-                             @RequestParam(defaultValue = "10") int size,
                              Model model) {
 
         ClientProtocolsViewDto paginatedDto = protocolService
-                .findAllByClientIdWithFilter(id, search, cipher, page, size);
+                .findAllByClientIdWithFilter(id, search);
 
         paginatedDto.setClient(clientService.getDtoById(id));
         model.addAttribute("paginatedDto", paginatedDto);
