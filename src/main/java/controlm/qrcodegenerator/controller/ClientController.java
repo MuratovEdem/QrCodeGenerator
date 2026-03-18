@@ -15,6 +15,7 @@ import controlm.qrcodegenerator.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -90,17 +91,30 @@ public class ClientController {
     }
 
     @PostMapping("/create")
-    public String createClient(@ModelAttribute ClientRequestDto clientRequestDto, RedirectAttributes redirectAttributes) {
+    public String createClient(@Valid @ModelAttribute("clientRequestDto") ClientRequestDto clientRequestDto,
+                               RedirectAttributes redirectAttributes,
+                               Model model,
+                               BindingResult result) {
+        if (result.hasErrors()) {
+            return "clients/create-form";
+        }
+
         try {
             clientService.createClient(clientRequestDto);
             redirectAttributes.addFlashAttribute("successMessage",
                     "Клиент успешно создан");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Ошибка при создании клиента: " + e.getMessage());
-        }
 
-        return "redirect:/clients/create";
+            return "redirect:/clients/create";
+
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("clientRequestDto", clientRequestDto);
+            model.addAttribute("errorMessage", e.getMessage());
+            return "clients/create-form";
+        } catch (Exception e) {
+            model.addAttribute("clientRequestDto", clientRequestDto);
+            model.addAttribute("errorMessage", "Ошибка при создании клиента");
+            return "clients/create-form";
+        }
     }
 
     @GetMapping("/{id}")
@@ -211,23 +225,23 @@ public class ClientController {
         model.addAttribute("clientName", clientService.getClientById(clientId).getName());
 
         return "redirect:/ocr/jobs" ;
-    } // TODO обработать ошибки
+    }
 
     @PostMapping("/{clientId}/protocols/{protocolId}/edit")
-    public String updateProtocol(@PathVariable Long clientId,
+    public ResponseEntity<Void> updateProtocol(@PathVariable Long clientId,
                                  @PathVariable Long protocolId,
                                  @ModelAttribute ProtocolUpdateDto protocolDto) throws IOException {
 
         protocolService.updateProtocol(protocolId, protocolDto);
-        return "redirect:/clients/" + clientId;
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{clientId}/protocols/{protocolId}/delete")
-    public String deleteProtocol(@PathVariable Long clientId,
+    public ResponseEntity<Void> deleteProtocol(@PathVariable Long clientId,
                                  @PathVariable Long protocolId) throws IOException {
 
         protocolService.deleteProtocolById(protocolId);
-        return "redirect:/clients/" + clientId;
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/qr")

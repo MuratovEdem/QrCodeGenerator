@@ -15,7 +15,6 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
-    <!--    TODO добавить сохранение того кто внес изменения в протокол-->
     <!--    TODO добавить возможность редактировать информацию и клиенте-->
 
     <style>
@@ -103,7 +102,6 @@
             line-height: 1.2;
         }
 
-        /* НАВИГАЦИЯ */
         .main-nav {
             display: flex;
             align-items: center;
@@ -140,29 +138,6 @@
             box-shadow: var(--shadow-md);
         }
 
-        /* ЗАГОЛОВОК С КРАСНОЙ ПОЛОСКОЙ */
-        .block-title {
-            font-weight: 600;
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .block-title::before {
-            content: "";
-            width: 5px;
-            height: 24px;
-            background: var(--accent);
-            border-radius: 2px;
-            flex-shrink: 0;
-        }
-
         /* КНОПКИ */
         .btn {
             display: inline-flex;
@@ -191,7 +166,6 @@
             box-shadow: var(--shadow-md);
         }
 
-        /* ЗАГОЛОВОК СТРАНИЦЫ */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -216,7 +190,6 @@
             flex-wrap: wrap;
         }
 
-        /* ДЕТАЛЬНАЯ КАРТОЧКА КЛИЕНТА */
         .client-details-card {
             background: var(--card);
             border-radius: var(--radius);
@@ -227,7 +200,6 @@
             width: 100%;
         }
 
-        /* ЗАГОЛОВОК С КРАСНОЙ ПОЛОСОЙ */
         .client-header {
             align-items: center;
             margin-bottom: 16px;
@@ -1428,9 +1400,7 @@
                         .classList.add("active");
 
                     loadProtocols(cipherFromUrl, 0);
-
                 }
-
             }
 
             document.getElementById('searchForm').addEventListener('submit', function (e) {
@@ -1544,13 +1514,16 @@
                 body: formData,
             })
                 .then(response => {
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                    } else if (response.ok) {
-                        window.location.reload();
-                    } else {
+                    if (!response.ok) {
                         throw new Error('Ошибка при сохранении');
                     }
+
+                    closeModal('edit');
+
+                    const activeCipher = document.querySelector('.tab-button.active')?.dataset.cipher;
+                    const page = cipherState[activeCipher]?.page ?? 0;
+
+                    loadProtocols(activeCipher, page);
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -1565,13 +1538,17 @@
                 method: 'POST'
             })
                 .then(response => {
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                    } else if (response.ok) {
-                        window.location.reload();
-                    } else {
+                    if (!response.ok) {
                         throw new Error('Ошибка при удалении');
                     }
+
+                    closeModal('delete');
+
+                    const activeCipher = document.querySelector('.tab-button.active')?.dataset.cipher;
+
+                    const page = cipherState[activeCipher]?.page ?? 0;
+
+                    loadProtocols(activeCipher, page);
                 })
                 .catch(error => {
                     console.error('Error:', error);

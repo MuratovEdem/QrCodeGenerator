@@ -7,6 +7,11 @@ import controlm.qrcodegenerator.model.Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Component
 public class ClientMapper {
@@ -44,11 +49,20 @@ public class ClientMapper {
 
         client.setName(clientRequestDto.getName());
         client.setInnKpp(clientRequestDto.getInnKpp());
-        client.setContacts(contactMapper.dtosToContacts(clientRequestDto.getContacts()));
-        client.setContracts(contractMapper.dtosToContracts(clientRequestDto.getContracts()));
-        client.setConstructionSites(constructionSiteMapper.dtosToConstructionSites(clientRequestDto.getConstructionSites()));
-        client.setUniqueNumbers(uniqueNumberMapper.dtosToUniqueNumbers(clientRequestDto.getUniqueNumbers()));
+        client.setContacts(contactMapper.dtosToContacts(safeList(clientRequestDto.getContacts())));
+        client.setContracts(contractMapper.dtosToContracts(safeList(clientRequestDto.getContracts())));
+        client.setConstructionSites(constructionSiteMapper.dtosToConstructionSites(safeList(clientRequestDto.getConstructionSites())));
+        client.setUniqueNumbers(uniqueNumberMapper.dtosToUniqueNumbers(safeList(clientRequestDto.getUniqueNumbers())));
 
         return client;
+    }
+
+    private <T> List<T> safeList(List<T> list) {
+        if (list == null) {
+            return new ArrayList<>();
+        }
+        return list.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

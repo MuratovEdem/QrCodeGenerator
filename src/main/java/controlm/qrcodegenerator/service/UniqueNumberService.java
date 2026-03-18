@@ -15,6 +15,8 @@ public class UniqueNumberService {
     private final UniqueNumberRepository uniqueNumberRepository;
 
     public void saveListByClient(List<UniqueNumber> uniqueNumbers, Client client) {
+        validateUniqueNumbers(uniqueNumbers);
+
         for (UniqueNumber uniqueNumber : uniqueNumbers) {
             uniqueNumber.setClient(client);
             uniqueNumberRepository.save(uniqueNumber);
@@ -29,5 +31,13 @@ public class UniqueNumberService {
         }
 
         return uniqueNumber;
+    }
+
+    private void validateUniqueNumbers(List<UniqueNumber> uniqueNumbers) {
+        for (UniqueNumber uniqueNumber : uniqueNumbers) {
+            if (uniqueNumberRepository.existsByNumber(uniqueNumber.getNumber())) {
+                throw new IllegalArgumentException("Номер уже существует: " + uniqueNumber.getNumber());
+            }
+        }
     }
 }

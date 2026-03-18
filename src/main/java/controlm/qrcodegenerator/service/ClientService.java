@@ -71,7 +71,7 @@ public class ClientService {
             uniqueNumberService.saveListByClient(client.getUniqueNumbers(), saved);
         }
 
-        return clientRepository.save(saved);
+        return saved;
     }
 
     public Page<PublicClientDto> searchPaginatedClientsByName(String name, Pageable pageable) {

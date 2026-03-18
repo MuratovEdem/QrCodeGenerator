@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ContractMapper {
@@ -25,6 +26,8 @@ public class ContractMapper {
         }
 
         List<Contract> contracts = new ArrayList<>();
+
+        dtos = cleanContracts(dtos);
 
         for (ContractRequestDto dto : dtos) {
             contracts.add(dtoToContract(dto));
@@ -49,5 +52,12 @@ public class ContractMapper {
         }
 
         return contractResponseDtos;
+    }
+
+    private List<ContractRequestDto> cleanContracts(List<ContractRequestDto> list) {
+        return list.stream()
+                .filter(s -> s.getName() != null
+                        && !s.getName().isBlank())
+                .collect(Collectors.toList());
     }
 }

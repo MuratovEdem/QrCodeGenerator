@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ConstructionSiteMapper {
@@ -25,6 +26,8 @@ public class ConstructionSiteMapper {
         }
 
         List<ConstructionSite> constructionSites = new ArrayList<>();
+
+        dtos = cleanConstructionSites(dtos);
 
         for (ConstructionSiteRequestDto dto : dtos) {
             constructionSites.add(dtoToConstructionSite(dto));
@@ -49,5 +52,12 @@ public class ConstructionSiteMapper {
         }
 
         return constructionSiteResponseDtos;
+    }
+
+    private List<ConstructionSiteRequestDto> cleanConstructionSites(List<ConstructionSiteRequestDto> list) {
+        return list.stream()
+                .filter(s -> s.getName() != null
+                        && !s.getName().isBlank())
+                .collect(Collectors.toList());
     }
 }

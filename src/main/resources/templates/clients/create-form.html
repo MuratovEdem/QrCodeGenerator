@@ -948,7 +948,7 @@
                 </div>
             </td>
             <td>
-                <button type="button" class="btn-remove" onclick="this.closest('tr').remove()">
+                <button type="button" class="btn-remove" onclick="removeRow(this, 'contacts-body', 'contacts')">
                     <i class="bi bi-trash"></i>
                 </button>
             </td>
@@ -1025,7 +1025,7 @@
                 </div>
             </td>
             <td>
-                <button type="button" class="btn-remove" onclick="this.closest('tr').remove()">
+                <button type="button" class="btn-remove" onclick="removeRow(this, 'sites-body', 'constructionSites')">
                     <i class="bi bi-trash"></i>
                 </button>
             </td>
@@ -1053,7 +1053,7 @@
                        </div>
             </td>
             <td>
-                <button type="button" class="btn-remove" onclick="this.closest('tr').remove()">
+                <button type="button" class="btn-remove" onclick="removeRow(this, 'contracts-body', 'contracts')">
                     <i class="bi bi-trash"></i>
                 </button>
             </td>
@@ -1087,7 +1087,7 @@
                 <button type="button" class="btn-remove generate-number" onclick="generateUniqueNumber(this)" title="Сгенерировать номер">
                     <i class="bi bi-plus-circle"></i>
                 </button>
-                <button type="button" class="btn-remove" onclick="this.closest('tr').remove()" title="Удалить">
+                <button type="button" class="btn-remove" onclick="removeRow(this, 'unique-numbers-body', 'uniqueNumbers')">
                     <i class="bi bi-trash"></i>
                 </button>
             </td>
@@ -1196,6 +1196,26 @@
             });
     }
 
+    function reindex(containerId, prefix) {
+        const rows = document.querySelectorAll(`#${containerId}tr`);
+
+        rows.forEach((row, index) => {
+            row.querySelectorAll('input').forEach(input => {
+                const name = input.getAttribute('name');
+
+                if (!name) return;
+
+                const newName = name.replace(/\[\d+]/, `[${index}]`);
+                input.setAttribute('name', newName);
+            });
+        });
+    }
+
+    function removeRow(button, containerId, prefix) {
+        button.closest('tr').remove();
+        reindex(containerId, prefix);
+    }
+
     // Валидация всей формы перед отправкой
     function validateForm() {
         // Проверка основного поля name
@@ -1237,7 +1257,7 @@
 
             if (!phoneInput.value.trim()) {
                 phoneInput.classList.add('is-invalid');
-                showFieldHint(nameInput, 'Заполните имя контактного лица');
+                showFieldHint(phoneInput, 'Заполните имя контактного лица');
                 phoneInput.focus();
                 return false;
             }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class UniqueNumberMapper {
@@ -25,6 +26,8 @@ public class UniqueNumberMapper {
         }
 
         List<UniqueNumber> uniqueNumbers = new ArrayList<>();
+
+        dtos = cleanUniqueNumbers(dtos);
 
         for (UniqueNumberRequestDto dto : dtos) {
             uniqueNumbers.add(dtoToUniqueNumber(dto));
@@ -49,5 +52,11 @@ public class UniqueNumberMapper {
         }
 
         return uniqueNumberResponseDtos;
+    }
+
+    private List<UniqueNumberRequestDto> cleanUniqueNumbers(List<UniqueNumberRequestDto> list) {
+        return list.stream()
+                .filter(s -> s.getNumber() != null)
+                .collect(Collectors.toList());
     }
 }
