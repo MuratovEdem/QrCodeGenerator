@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class ContactRequestDto {
 
+    private Long id;
     @NotBlank(message = "Имя обязательно")
     private String name;
     private String post;

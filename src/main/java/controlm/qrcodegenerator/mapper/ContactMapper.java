@@ -50,11 +50,33 @@ public class ContactMapper {
         return contactResponseDto;
     }
 
+    public ContactRequestDto toRequestDto(Contact contact) {
+        ContactRequestDto contactResponseDto = new ContactRequestDto();
+
+        contactResponseDto.setId(contact.getId());
+        contactResponseDto.setEmail(contact.getEmail());
+        contactResponseDto.setName(contact.getName());
+        contactResponseDto.setPost(contact.getPost());
+        contactResponseDto.setPhoneNumber(contact.getPhoneNumber());
+
+        return contactResponseDto;
+    }
+
     public List<ContactResponseDto> toResponseDtos(List<Contact> contacts) {
         List<ContactResponseDto> contactResponseDtoList = new ArrayList<>();
 
         for (Contact contact : contacts) {
             contactResponseDtoList.add(toResponseDto(contact));
+        }
+
+        return contactResponseDtoList;
+    }
+
+    public List<ContactRequestDto> toRequestDtos(List<Contact> contacts) {
+        List<ContactRequestDto> contactResponseDtoList = new ArrayList<>();
+
+        for (Contact contact : contacts) {
+            contactResponseDtoList.add(toRequestDto(contact));
         }
 
         return contactResponseDtoList;

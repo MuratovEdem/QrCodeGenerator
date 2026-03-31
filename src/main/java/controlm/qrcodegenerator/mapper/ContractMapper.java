@@ -44,11 +44,30 @@ public class ContractMapper {
         return contractResponseDto;
     }
 
+    public ContractRequestDto toRequestDto(Contract contract) {
+        ContractRequestDto contractResponseDto = new ContractRequestDto();
+
+        contractResponseDto.setId(contract.getId());
+        contractResponseDto.setName(contract.getName());
+
+        return contractResponseDto;
+    }
+
     public List<ContractResponseDto> toResponseDtos(List<Contract> contracts) {
         List<ContractResponseDto> contractResponseDtos = new ArrayList<>();
 
         for (Contract contract : contracts) {
             contractResponseDtos.add(toResponseDto(contract));
+        }
+
+        return contractResponseDtos;
+    }
+
+    public List<ContractRequestDto> toRequestDtos(List<Contract> contracts) {
+        List<ContractRequestDto> contractResponseDtos = new ArrayList<>();
+
+        for (Contract contract : contracts) {
+            contractResponseDtos.add(toRequestDto(contract));
         }
 
         return contractResponseDtos;

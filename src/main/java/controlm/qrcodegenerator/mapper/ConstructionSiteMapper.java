@@ -44,11 +44,30 @@ public class ConstructionSiteMapper {
         return constructionSiteResponseDto;
     }
 
+    public ConstructionSiteRequestDto toRequestDto(ConstructionSite constructionSite) {
+        ConstructionSiteRequestDto constructionSiteResponseDto = new ConstructionSiteRequestDto();
+
+        constructionSiteResponseDto.setId(constructionSite.getId());
+        constructionSiteResponseDto.setName(constructionSite.getName());
+
+        return constructionSiteResponseDto;
+    }
+
     public List<ConstructionSiteResponseDto> toResponseDtos(List<ConstructionSite> constructionSites) {
         List<ConstructionSiteResponseDto> constructionSiteResponseDtos = new ArrayList<>();
 
         for (ConstructionSite constructionSite : constructionSites) {
             constructionSiteResponseDtos.add(toResponseDto(constructionSite));
+        }
+
+        return constructionSiteResponseDtos;
+    }
+
+    public List<ConstructionSiteRequestDto> toRequestDtos(List<ConstructionSite> constructionSites) {
+        List<ConstructionSiteRequestDto> constructionSiteResponseDtos = new ArrayList<>();
+
+        for (ConstructionSite constructionSite : constructionSites) {
+            constructionSiteResponseDtos.add(toRequestDto(constructionSite));
         }
 
         return constructionSiteResponseDtos;

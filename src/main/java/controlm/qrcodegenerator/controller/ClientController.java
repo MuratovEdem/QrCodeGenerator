@@ -1,21 +1,20 @@
 package controlm.qrcodegenerator.controller;
 
-import controlm.qrcodegenerator.dto.request.ClientRequestDto;
+import controlm.qrcodegenerator.dto.request.ClientCreateRequestDto;
+import controlm.qrcodegenerator.dto.request.ClientUpdateRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolUpdateDto;
 import controlm.qrcodegenerator.dto.response.ProtocolPageDto;
-import controlm.qrcodegenerator.dto.response.ProtocolResponseDto;
 import controlm.qrcodegenerator.dto.response.PublicClientDto;
 import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
 import controlm.qrcodegenerator.mapper.ClientMapper;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.model.OcrJob;
-import controlm.qrcodegenerator.model.Protocol;
 import controlm.qrcodegenerator.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,11 +36,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Controller
@@ -56,7 +53,6 @@ public class ClientController {
     private final OcrAsyncService ocrAsyncService;
     private final OcrJobService ocrJobService;
     private final ClientMapper clientMapper;
-    private final UniqueNumberService uniqueNumberService;
 
     @GetMapping
     public String listClients(@RequestParam(value = "search", required = false) String searchQuery,
@@ -86,12 +82,12 @@ public class ClientController {
 
     @GetMapping("/create")
     public String createClientForm(Model model) {
-        model.addAttribute("clientRequestDto", new ClientRequestDto());
+        model.addAttribute("clientRequestDto", new ClientCreateRequestDto());
         return "clients/create-form";
     }
 
     @PostMapping("/create")
-    public String createClient(@Valid @ModelAttribute("clientRequestDto") ClientRequestDto clientRequestDto,
+    public String createClient(@Valid @ModelAttribute("clientRequestDto") ClientCreateRequestDto createRequestDto,
                                RedirectAttributes redirectAttributes,
                                Model model,
                                BindingResult result) {
@@ -100,20 +96,54 @@ public class ClientController {
         }
 
         try {
-            clientService.createClient(clientRequestDto);
+            clientService.createClient(createRequestDto);
             redirectAttributes.addFlashAttribute("successMessage",
                     "Клиент успешно создан");
 
             return "redirect:/clients/create";
 
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("clientRequestDto", clientRequestDto);
+        } catch (IllegalArgumentException | IOException e ) {
+            model.addAttribute("clientRequestDto", createRequestDto);
             model.addAttribute("errorMessage", e.getMessage());
             return "clients/create-form";
-        } catch (Exception e) {
-            model.addAttribute("clientRequestDto", clientRequestDto);
+        }  catch (Exception e) {
+            model.addAttribute("clientRequestDto", createRequestDto);
             model.addAttribute("errorMessage", "Ошибка при создании клиента");
             return "clients/create-form";
+        }
+    }
+
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        ClientUpdateRequestDto clientUpdateRequestDto = clientService.getUpdateRequestDtoById(id);
+
+        model.addAttribute("clientId", id);
+        model.addAttribute("clientRequestDto", clientUpdateRequestDto);
+        return "clients/edit-form";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String updateClient(@PathVariable Long id,
+                               @Valid @ModelAttribute("clientRequestDto") ClientUpdateRequestDto clientUpdateRequestDto,
+                               BindingResult result,
+                               RedirectAttributes redirectAttributes) {
+
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Пожалуйста, исправьте ошибки в форме");
+            return "redirect:/clients/edit/" + id;
+        }
+
+        try {
+            clientService.updateClient(id, clientUpdateRequestDto);
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Клиент успешно обновлен");
+            return "redirect:/clients/" + id;
+        } catch (Exception e) {
+            log.error("Ошибка при обновлении клиента", e);
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Ошибка при обновлении клиента: " + e.getMessage());
+            return "redirect:/clients/edit/" + id;
         }
     }
 
@@ -125,10 +155,21 @@ public class ClientController {
         ClientProtocolsViewDto paginatedDto = protocolService
                 .findAllByClientIdWithFilter(id, search);
 
-        paginatedDto.setClient(clientService.getDtoById(id));
+        paginatedDto.setClient(clientService.getResponseDtoById(id));
         model.addAttribute("paginatedDto", paginatedDto);
 
         return "clients/protocols-view";
+    }
+
+    @GetMapping("/{clientId}/file/{clientFileId}")
+    public ResponseEntity<Resource> downloadProtocol(@PathVariable Long clientId,
+                                                     @PathVariable Long clientFileId) throws MalformedURLException {
+        Resource resource = clientService.getFileByClientFileId(clientId, clientFileId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(clientService.getContentTypeByFileId(clientId, clientFileId)))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
     @GetMapping("/{clientId}/protocols")
@@ -214,7 +255,7 @@ public class ClientController {
                          Principal principal,
                          Model model) throws IOException {
 
-        Path path = fileStorageService.saveOriginal(file, clientId);
+        Path path = fileStorageService.saveOriginal(file, clientService.getNameById(clientId), "original");
         OcrJob job = ocrJobService.create(clientId,
                 principal.getName(),
                 path.toString());

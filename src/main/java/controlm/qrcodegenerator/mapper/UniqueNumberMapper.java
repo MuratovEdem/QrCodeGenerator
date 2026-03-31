@@ -44,11 +44,30 @@ public class UniqueNumberMapper {
         return uniqueNumberResponseDto;
     }
 
+    public UniqueNumberRequestDto toRequestDto(UniqueNumber uniqueNumber) {
+        UniqueNumberRequestDto uniqueNumberResponseDto = new UniqueNumberRequestDto();
+
+        uniqueNumberResponseDto.setId(uniqueNumber.getId());
+        uniqueNumberResponseDto.setNumber(uniqueNumber.getNumber());
+
+        return uniqueNumberResponseDto;
+    }
+
     public List<UniqueNumberResponseDto> toResponseDtos(List<UniqueNumber> uniqueNumbers) {
         List<UniqueNumberResponseDto> uniqueNumberResponseDtos = new ArrayList<>();
 
         for (UniqueNumber uniqueNumber : uniqueNumbers) {
             uniqueNumberResponseDtos.add(toResponseDto(uniqueNumber));
+        }
+
+        return uniqueNumberResponseDtos;
+    }
+
+    public List<UniqueNumberRequestDto> toRequestDtos(List<UniqueNumber> uniqueNumbers) {
+        List<UniqueNumberRequestDto> uniqueNumberResponseDtos = new ArrayList<>();
+
+        for (UniqueNumber uniqueNumber : uniqueNumbers) {
+            uniqueNumberResponseDtos.add(toRequestDto(uniqueNumber));
         }
 
         return uniqueNumberResponseDtos;

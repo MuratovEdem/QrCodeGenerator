@@ -32,6 +32,7 @@ public class PdfProcessingService {
     private final TempFileStorageService tempStorage;
     private final FileStorageService finalStorage;
     private final OcrProtocolPreviewService ocrProtocolPreviewService;
+    private final ClientService clientService;
 
     public List<ProtocolPreviewDto> analyze(File pdfFile, IntConsumer progressCallback, Integer protocolSize) throws Exception {
 
@@ -110,7 +111,7 @@ public class PdfProcessingService {
 
             if (!protocolService.existByProtocolNumberAndClientId(dto, clientId)) {
                 File temp = tempStorage.get(dto.getFileName());
-                Path finalPath = finalStorage.moveToFinalStorage(temp, dto, clientId);
+                Path finalPath = finalStorage.moveToFinalStorage(temp, dto, clientService.getNameById(clientId));
 
                 protocolService.createProtocolFromPdf(
                         clientId,

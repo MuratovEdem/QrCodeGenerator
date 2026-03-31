@@ -190,16 +190,6 @@
             flex-wrap: wrap;
         }
 
-        .client-details-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 24px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            width: 100%;
-        }
-
         .client-header {
             align-items: center;
             margin-bottom: 16px;
@@ -214,6 +204,7 @@
             gap: 12px;
             position: relative;
             padding-left: 16px;
+            justify-content: space-between;
         }
 
         .section-title::before {
@@ -249,7 +240,162 @@
             line-height: 1.3;
         }
 
-        /* СЕКЦИИ ИНФОРМАЦИИ */
+        .client-details-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        .client-header-collapsible {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .client-header-collapsible:hover {
+            opacity: 0.8;
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s ease;
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .client-info-content {
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .client-info-content.collapsed {
+            display: none;
+        }
+
+        /* Секция файлов */
+        .files-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .files-section-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .files-section-title i {
+            color: var(--accent);
+            font-size: 14px;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+        }
+
+        .file-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--bg);
+            border-radius: 6px;
+            border-left: 3px solid var(--info);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .file-card:hover {
+            background: white;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .file-card .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-card .file-info i {
+            font-size: 18px;
+            color: var(--info);
+            flex-shrink: 0;
+        }
+
+        .file-card .file-name {
+            font-weight: 500;
+            font-size: 13px;
+            color: var(--text-main);
+            word-break: break-all;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-card .file-size {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        .empty-files-message {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-edit-client {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+            transition: var(--transition);
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .btn-edit-client:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: #FFF5F5;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
         .info-section {
             margin-bottom: 20px;
         }
@@ -269,7 +415,6 @@
             font-size: 14px;
         }
 
-        /* СЕТКА ДЛЯ ЭЛЕМЕНТОВ ВНУТРИ СЕКЦИЙ - ПО 3 В СТРОКУ */
         .info-items-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -328,7 +473,6 @@
             word-break: break-word;
         }
 
-        /* СООБЩЕНИЕ ОБ ОТСУТСТВИИ ИНФОРМАЦИИ */
         .no-info-message {
             text-align: center;
             padding: 20px;
@@ -654,7 +798,6 @@
             font-size: 14px;
         }
 
-        /* ПАГИНАЦИЯ */
         .pagination-container {
             margin-top: 24px;
             padding: 16px 20px;
@@ -732,7 +875,6 @@
             cursor: default;
         }
 
-        /* FOOTER */
         footer {
             margin-top: 50px;
             padding-top: 24px;
@@ -750,7 +892,6 @@
             font-weight: 500;
         }
 
-        /* МОДАЛЬНЫЕ ОКНА */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -881,6 +1022,24 @@
             position: relative;
             min-height: 400px;
         }
+
+        .client-info-content {
+            transition: all 0.3s ease;
+        }
+
+        .client-info-content.collapsed {
+            display: none;
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s ease;
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
     </style>
 </head>
 <body>
@@ -924,95 +1083,138 @@
         </div>
     </div>
 
-    <!-- Карточка клиента с подробной информацией -->
+    <!-- Карточка клиента с подробной информацией (сворачиваемая) -->
     <div class="client-details-card">
-        <div class="client-header">
-            <div class="section-title">
+        <!-- Заголовок с возможностью сворачивания -->
+        <div class="client-header-collapsible" onclick="toggleClientInfo()">
+            <div class="section-title" style="margin-bottom: 0;">
                 <div class="client-name" th:text="${paginatedDto.client.name}">ООО Пример</div>
+                <a th:href="@{/clients/edit/{id}(id=${paginatedDto.client.id})}"
+                   class="btn-edit-client"
+                   title="Редактировать информацию о клиенте"
+                   onclick="event.stopPropagation()">
+                    <i class="bi bi-pencil"></i>
+                </a>
             </div>
-            <div class="client-inn"
-                 th:if="${paginatedDto.client.innKpp != null and !paginatedDto.client.innKpp.isEmpty()}">
-                <i class="bi bi-upc-scan"></i> <span th:text="${paginatedDto.client.innKpp}">1234567890</span>
-            </div>
+            <i class="bi bi-chevron-down collapse-icon" id="collapseIcon"></i>
         </div>
 
-        <!-- Дополнительная информация в компактном виде -->
-        <div class="info-section"
-             th:if="${paginatedDto.client.contacts != null and !paginatedDto.client.contacts.isEmpty()}">
-            <div class="info-section-title">
-                <i class="bi bi-telephone"></i>
-                Контактное лицо
-            </div>
-            <div class="info-items-grid">
-                <div th:each="contact : ${paginatedDto.client.contacts}" class="info-card">
-                    <div class="info-card-name" th:text="${contact.name}">Иванов Иван</div>
-                    <div class="info-card-details">
-                        <div th:if="${contact.post}" class="info-detail-item">
-                            <i class="bi bi-briefcase"></i>
-                            <span th:text="${contact.post}">Генеральный директор</span>
-                        </div>
-                        <div th:if="${contact.phoneNumber}" class="info-detail-item">
-                            <i class="bi bi-telephone"></i>
-                            <span th:text="${contact.phoneNumber}">+7 (999) 123-45-67</span>
-                        </div>
-                        <div th:if="${contact.email}" class="info-detail-item">
-                            <i class="bi bi-envelope"></i>
-                            <span th:text="${contact.email}">mail@example.com</span>
+        <div class="client-inn" th:if="${paginatedDto.client.innKpp != null and !paginatedDto.client.innKpp.isEmpty()}">
+            <i class="bi bi-upc-scan"></i> <span th:text="${paginatedDto.client.innKpp}">1234567890</span>
+        </div>
+
+        <!-- Сворачиваемый контент -->
+        <div id="clientInfoContent" class="client-info-content">
+            <!-- Контакты -->
+            <div class="info-section"
+                 th:if="${paginatedDto.client.contacts != null and !paginatedDto.client.contacts.isEmpty()}">
+                <div class="info-section-title">
+                    <i class="bi bi-telephone"></i>
+                    Контактное лицо
+                </div>
+                <div class="info-items-grid">
+                    <div th:each="contact : ${paginatedDto.client.contacts}" class="info-card">
+                        <div class="info-card-name" th:text="${contact.name}">Иванов Иван</div>
+                        <div class="info-card-details">
+                            <div th:if="${contact.post}" class="info-detail-item">
+                                <i class="bi bi-briefcase"></i>
+                                <span th:text="${contact.post}">Генеральный директор</span>
+                            </div>
+                            <div th:if="${contact.phoneNumber}" class="info-detail-item">
+                                <i class="bi bi-telephone"></i>
+                                <span th:text="${contact.phoneNumber}">+7 (999) 123-45-67</span>
+                            </div>
+                            <div th:if="${contact.email}" class="info-detail-item">
+                                <i class="bi bi-envelope"></i>
+                                <span th:text="${contact.email}">mail@example.com</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Объект строительства -->
-        <div class="info-section"
-             th:if="${paginatedDto.client.constructionSites != null and !paginatedDto.client.constructionSites.isEmpty()}">
-            <div class="info-section-title">
-                <i class="bi bi-geo-alt"></i>
-                Объект строительства
-            </div>
-            <div class="info-items-grid">
-                <div th:each="site : ${paginatedDto.client.constructionSites}" class="info-card">
-                    <div class="info-card-name" th:text="${site.name}">ЖК Солнечный</div>
+            <!-- Объект строительства -->
+            <div class="info-section"
+                 th:if="${paginatedDto.client.constructionSites != null and !paginatedDto.client.constructionSites.isEmpty()}">
+                <div class="info-section-title">
+                    <i class="bi bi-geo-alt"></i>
+                    Объект строительства
+                </div>
+                <div class="info-items-grid">
+                    <div th:each="site : ${paginatedDto.client.constructionSites}" class="info-card">
+                        <div class="info-card-name" th:text="${site.name}">ЖК Солнечный</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Договор -->
-        <div class="info-section"
-             th:if="${paginatedDto.client.contracts != null and !paginatedDto.client.contracts.isEmpty()}">
-            <div class="info-section-title">
-                <i class="bi bi-file-text"></i>
-                Договор
-            </div>
-            <div class="info-items-grid">
-                <div th:each="contract : ${paginatedDto.client.contracts}" class="info-card">
-                    <div class="info-card-name" th:text="${contract.name}">Договор №123/2024</div>
+            <!-- Договор -->
+            <div class="info-section"
+                 th:if="${paginatedDto.client.contracts != null and !paginatedDto.client.contracts.isEmpty()}">
+                <div class="info-section-title">
+                    <i class="bi bi-file-text"></i>
+                    Договор
+                </div>
+                <div class="info-items-grid">
+                    <div th:each="contract : ${paginatedDto.client.contracts}" class="info-card">
+                        <div class="info-card-name" th:text="${contract.name}">Договор №123/2024</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Уникальный номер -->
-        <div class="info-section"
-             th:if="${paginatedDto.client.uniqueNumbers != null and !paginatedDto.client.uniqueNumbers.isEmpty()}">
-            <div class="info-section-title">
-                <i class="bi bi-hash"></i>
-                Уникальный номер
-            </div>
-            <div class="info-items-grid">
-                <div th:each="number : ${paginatedDto.client.uniqueNumbers}" class="info-card">
-                    <div class="info-card-name" th:text="${number.number}">12345</div>
+            <!-- Уникальный номер -->
+            <div class="info-section"
+                 th:if="${paginatedDto.client.uniqueNumbers != null and !paginatedDto.client.uniqueNumbers.isEmpty()}">
+                <div class="info-section-title">
+                    <i class="bi bi-hash"></i>
+                    Уникальный номер
+                </div>
+                <div class="info-items-grid">
+                    <div th:each="number : ${paginatedDto.client.uniqueNumbers}" class="info-card">
+                        <div class="info-card-name" th:text="${number.number}">12345</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Сообщение, если нет дополнительной информации -->
-        <div class="no-info-message" th:if="${(paginatedDto.client.contacts == null or paginatedDto.client.contacts.isEmpty())
+            <!-- Файлы -->
+            <div class="info-section"
+                th:if="${paginatedDto.client.files != null and !paginatedDto.client.files.isEmpty()}">
+                <div class="files-section-title">
+                    <i class="bi bi-paperclip"></i>
+                    Прикрепленные файлы
+                </div>
+                <div class="files-grid">
+                    <div th:each="file : ${paginatedDto.client.files}"
+                         class="file-card"
+                         th:data-client-id="${paginatedDto.client.id}"
+                         th:data-file-id="${file.id}"
+                         onclick="viewFile(this)">
+                        <div class="file-info">
+                            <i th:switch="${file.contentType}">
+                                <i th:case="'application/pdf'" class="bi bi-file-pdf"></i>
+                                <i th:case="'application/msword'" class="bi bi-file-word"></i>
+                                <i th:case="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'" class="bi bi-file-word"></i>
+                                <i th:case="'application/vnd.ms-excel'" class="bi bi-file-excel"></i>
+                                <i th:case="'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'" class="bi bi-file-excel"></i>
+                                <i th:case="'image/jpeg'" class="bi bi-file-image"></i>
+                                <i th:case="'image/png'" class="bi bi-file-image"></i>
+                                <i th:case="'image/gif'" class="bi bi-file-image"></i>
+                                <i th:case="*" class="bi bi-file-earmark"></i>
+                            </i>
+                            <span class="file-name" th:text="${file.getFileName()}">document.pdf</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Сообщение, если нет дополнительной информации -->
+            <div class="no-info-message" th:if="${(paginatedDto.client.contacts == null or paginatedDto.client.contacts.isEmpty())
         and (paginatedDto.client.constructionSites == null or paginatedDto.client.constructionSites.isEmpty())
         and (paginatedDto.client.contracts == null or paginatedDto.client.contracts.isEmpty())
-        and (paginatedDto.client.uniqueNumbers == null or paginatedDto.client.uniqueNumbers.isEmpty())}">
-            <i class="bi bi-info-circle"></i>
-            Дополнительная информация о клиенте отсутствует
+        and (paginatedDto.client.uniqueNumbers == null or paginatedDto.client.uniqueNumbers.isEmpty())
+        and (paginatedDto.client.files == null or paginatedDto.client.files.isEmpty())}">
+                <i class="bi bi-info-circle"></i>
+                Дополнительная информация о клиенте отсутствует
+            </div>
         </div>
     </div>
 
@@ -1155,6 +1357,32 @@
         function downloadPdf(button) {
             const protocolId = button.getAttribute('data-protocol-id');
             window.open(`/protocols/${protocolId}/file`, '_blank');
+        }
+
+        function toggleClientInfo() {
+            const content = document.getElementById('clientInfoContent');
+            const icon = document.getElementById('collapseIcon');
+
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                icon.classList.remove('collapsed');
+                localStorage.setItem('clientInfoCollapsed', 'false');
+            } else {
+                content.classList.add('collapsed');
+                icon.classList.add('collapsed');
+                localStorage.setItem('clientInfoCollapsed', 'true');
+            }
+        }
+
+        function viewFile(data) {
+            const clientId = data.getAttribute("data-client-id")
+            const fileId = data.getAttribute("data-file-id")
+            if (!clientId || !fileId) {
+                console.error('Не указан ID клиента или файла');
+                return;
+            }
+
+            window.open(`/clients/${clientId}/file/${fileId}`, '_blank');
         }
 
         function clearSearch(event) {
@@ -1337,6 +1565,15 @@
 
         // Инициализация первого таба при загрузке
         document.addEventListener('DOMContentLoaded', function () {
+            const savedState = localStorage.getItem('clientInfoCollapsed');
+            const content = document.getElementById('clientInfoContent');
+            const icon = document.getElementById('collapseIcon');
+
+            if (savedState === 'true') {
+                content.classList.add('collapsed');
+                icon.classList.add('collapsed');
+            }
+
             const firstTab = document.querySelector(".tab-button");
 
             if (!firstTab) return;

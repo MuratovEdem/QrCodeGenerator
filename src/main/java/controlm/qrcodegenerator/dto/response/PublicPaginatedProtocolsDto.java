@@ -3,7 +3,6 @@ package controlm.qrcodegenerator.dto.response;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 public class PublicPaginatedProtocolsDto {

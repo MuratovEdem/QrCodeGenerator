@@ -22,6 +22,7 @@ spring:
     multipart:
       max-request-size: 50MB
       max-file-size: 50MB
+      file-size-threshold: 0
 app:
   base-url: http://localhost:8080
   qr-code:
@@ -30,6 +31,11 @@ app:
 server:
   port: 8080
   address: 0.0.0.0
+  tomcat:
+    max-swallow-size: -1
+    max-http-form-post-size: 52428800
+    max-parameter-count: 10000
+    max-part-count: 500
 
 test:
   input:

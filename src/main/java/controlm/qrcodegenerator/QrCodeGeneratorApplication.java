@@ -1,7 +1,6 @@
 package controlm.qrcodegenerator;
 
-import controlm.qrcodegenerator.dto.request.ClientRequestDto;
-import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
+import controlm.qrcodegenerator.dto.request.ClientCreateRequestDto;
 import controlm.qrcodegenerator.dto.request.RegistrationUserDto;
 import controlm.qrcodegenerator.enums.RoleEnum;
 import controlm.qrcodegenerator.model.Client;
@@ -14,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
-import java.time.LocalDate;
 
 @SpringBootApplication
 public class QrCodeGeneratorApplication {
@@ -36,20 +34,20 @@ public class QrCodeGeneratorApplication {
 
         ClientService clientService = context.getBean(ClientService.class);
 
-        ClientRequestDto clientRequestDto = new ClientRequestDto();
-        clientRequestDto.setName("ООО Строим Как Себе");
-        Client client = clientService.createClient(clientRequestDto);
+        ClientCreateRequestDto clientCreateRequestDto = new ClientCreateRequestDto();
+        clientCreateRequestDto.setName("ООО Строим Как Себе");
+        Client client = clientService.createClient(clientCreateRequestDto);
 
-        ClientRequestDto clientRequestDto1 = new ClientRequestDto();
-        clientRequestDto1.setName("ООО Техно-стар");
-        Client client1 = clientService.createClient(clientRequestDto1);
+        ClientCreateRequestDto clientCreateRequestDto1 = new ClientCreateRequestDto();
+        clientCreateRequestDto1.setName("ООО Техно-стар");
+        Client client1 = clientService.createClient(clientCreateRequestDto1);
 
-        ClientRequestDto clientRequestDto2 = new ClientRequestDto();
-        clientRequestDto2.setName("ИП Демченко");
-        Client client2 = clientService.createClient(clientRequestDto2);
+        ClientCreateRequestDto clientCreateRequestDto2 = new ClientCreateRequestDto();
+        clientCreateRequestDto2.setName("ИП Демченко");
+        Client client2 = clientService.createClient(clientCreateRequestDto2);
 
         for (int i = 0; i < 20; i++) {
-            ClientRequestDto dto = new ClientRequestDto();
+            ClientCreateRequestDto dto = new ClientCreateRequestDto();
             dto.setName("Client" + i);
             clientService.createClient(dto);
         }

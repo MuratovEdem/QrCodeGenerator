@@ -1,5 +1,6 @@
 package controlm.qrcodegenerator.dto.response;
 
+import controlm.qrcodegenerator.dto.request.ClientFileDto;
 import lombok.Data;
 
 import java.util.List;
@@ -15,4 +16,5 @@ public class ClientResponseDto {
     private List<ConstructionSiteResponseDto> constructionSites;
     private List<ContractResponseDto> contracts;
     private List<UniqueNumberResponseDto> uniqueNumbers;
+    private List<ClientFileDto> files;
 }

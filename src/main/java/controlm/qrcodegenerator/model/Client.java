@@ -1,12 +1,6 @@
 package controlm.qrcodegenerator.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
@@ -29,20 +23,23 @@ public class Client {
 
     private String innKpp;
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Contact> contacts;
 
     @OneToMany(mappedBy = "client")
     private List<Protocol> protocols;
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<ConstructionSite> constructionSites;
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Contract> contracts;
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "client", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<UniqueNumber> uniqueNumbers;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClientFile> clientFiles;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)

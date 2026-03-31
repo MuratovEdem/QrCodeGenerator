@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class UniqueNumberRequestDto {
+
+    private Long id;
     @NotNull
     private Long number;
 }

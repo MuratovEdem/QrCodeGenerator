@@ -2,16 +2,21 @@ package controlm.qrcodegenerator.service;
 
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolUpdateDto;
-import controlm.qrcodegenerator.dto.response.*;
+import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
+import controlm.qrcodegenerator.dto.response.ProtocolPageDto;
+import controlm.qrcodegenerator.dto.response.ProtocolPreviewDto;
+import controlm.qrcodegenerator.dto.response.ProtocolResponseDto;
+import controlm.qrcodegenerator.dto.response.PublicPaginatedProtocolsDto;
+import controlm.qrcodegenerator.dto.response.PublicProtocolResponseDto;
 import controlm.qrcodegenerator.exception.NotFoundException;
 import controlm.qrcodegenerator.mapper.ProtocolMapper;
+import controlm.qrcodegenerator.mapper.SaveProtocolFileMapper;
 import controlm.qrcodegenerator.model.Protocol;
 import controlm.qrcodegenerator.repository.ProtocolRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +25,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,6 +38,8 @@ public class ProtocolService {
     private final ProtocolRepository protocolRepository;
     private final ProtocolMapper protocolMapper;
     private final FileStorageService fileStorageService;
+    private final SaveProtocolFileMapper saveProtocolFileMapper;
+
 
     public List<PublicProtocolResponseDto> findAllByClientId(Long clientId) {
         List<Protocol> protocols = protocolRepository.findByClientId(clientId);
@@ -52,7 +62,7 @@ public class ProtocolService {
             throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
         }
 
-        Path path = fileStorageService.saveProtocolFile(protocolRequestDto);
+        Path path = fileStorageService.saveProtocolFile(saveProtocolFileMapper.protocolRequestDtoToSaveProtocolFileDto(protocolRequestDto));
         protocol.setFilePath(path.toString());
         protocolRepository.save(protocol);
     }
@@ -103,7 +113,7 @@ public class ProtocolService {
             return protocolRepository.save(protocol);
         }
 
-        protocol.setFilePath(fileStorageService.replaceProtocolFile(protocol.getFilePath(), dto).toString());
+        protocol.setFilePath(fileStorageService.replaceProtocolFile(protocol.getFilePath(), saveProtocolFileMapper.protocolUpdateDtoToSaveProtocolFileDto(dto)).toString());
 
         return protocolRepository.save(protocol);
     }

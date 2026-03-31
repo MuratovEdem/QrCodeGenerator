@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class ConstructionSiteRequestDto {
 
+    private Long id;
     @NotBlank(message = "Наименование объекта обязательно")
     private String name;
 }
