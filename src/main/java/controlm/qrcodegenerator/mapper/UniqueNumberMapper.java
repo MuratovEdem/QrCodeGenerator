@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class UniqueNumberMapper {
@@ -26,6 +27,8 @@ public class UniqueNumberMapper {
 
         List<UniqueNumber> uniqueNumbers = new ArrayList<>();
 
+        dtos = cleanUniqueNumbers(dtos);
+
         for (UniqueNumberRequestDto dto : dtos) {
             uniqueNumbers.add(dtoToUniqueNumber(dto));
         }
@@ -41,6 +44,15 @@ public class UniqueNumberMapper {
         return uniqueNumberResponseDto;
     }
 
+    public UniqueNumberRequestDto toRequestDto(UniqueNumber uniqueNumber) {
+        UniqueNumberRequestDto uniqueNumberResponseDto = new UniqueNumberRequestDto();
+
+        uniqueNumberResponseDto.setId(uniqueNumber.getId());
+        uniqueNumberResponseDto.setNumber(uniqueNumber.getNumber());
+
+        return uniqueNumberResponseDto;
+    }
+
     public List<UniqueNumberResponseDto> toResponseDtos(List<UniqueNumber> uniqueNumbers) {
         List<UniqueNumberResponseDto> uniqueNumberResponseDtos = new ArrayList<>();
 
@@ -49,5 +61,21 @@ public class UniqueNumberMapper {
         }
 
         return uniqueNumberResponseDtos;
+    }
+
+    public List<UniqueNumberRequestDto> toRequestDtos(List<UniqueNumber> uniqueNumbers) {
+        List<UniqueNumberRequestDto> uniqueNumberResponseDtos = new ArrayList<>();
+
+        for (UniqueNumber uniqueNumber : uniqueNumbers) {
+            uniqueNumberResponseDtos.add(toRequestDto(uniqueNumber));
+        }
+
+        return uniqueNumberResponseDtos;
+    }
+
+    private List<UniqueNumberRequestDto> cleanUniqueNumbers(List<UniqueNumberRequestDto> list) {
+        return list.stream()
+                .filter(s -> s.getNumber() != null)
+                .collect(Collectors.toList());
     }
 }

@@ -1,6 +1,6 @@
 package controlm.qrcodegenerator.controller;
 
-import controlm.qrcodegenerator.service.UniqueNumberService;
+import controlm.qrcodegenerator.service.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class UniqueNumberController {
 
-    private final UniqueNumberService uniqueNumberService;
+    ClientService clientService;
 
     @GetMapping("/generate-unique-number")
     public ResponseEntity<String> generateUniqueNumber() {
         try {
-            Long generatedNumber = uniqueNumberService.generateUniqueNumber();
+            Long generatedNumber = clientService.generateUniqueNumber();
 
             return ResponseEntity.ok(String.valueOf(generatedNumber));
         } catch (Exception e) {

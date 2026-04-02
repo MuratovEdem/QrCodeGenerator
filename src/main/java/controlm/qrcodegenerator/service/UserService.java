@@ -7,7 +7,6 @@ import controlm.qrcodegenerator.model.Role;
 import controlm.qrcodegenerator.model.User;
 import controlm.qrcodegenerator.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,7 +1,10 @@
 package controlm.qrcodegenerator.controller;
 
-import controlm.qrcodegenerator.dto.request.ClientRequestDto;
+import controlm.qrcodegenerator.dto.request.ClientCreateRequestDto;
+import controlm.qrcodegenerator.dto.request.ClientUpdateRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
+import controlm.qrcodegenerator.dto.request.ProtocolUpdateDto;
+import controlm.qrcodegenerator.dto.response.ProtocolPageDto;
 import controlm.qrcodegenerator.dto.response.PublicClientDto;
 import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
 import controlm.qrcodegenerator.mapper.ClientMapper;
@@ -11,6 +14,7 @@ import controlm.qrcodegenerator.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.security.Principal;
 
@@ -48,7 +53,6 @@ public class ClientController {
     private final OcrAsyncService ocrAsyncService;
     private final OcrJobService ocrJobService;
     private final ClientMapper clientMapper;
-    private final UniqueNumberService uniqueNumberService;
 
     @GetMapping
     public String listClients(@RequestParam(value = "search", required = false) String searchQuery,
@@ -78,43 +82,108 @@ public class ClientController {
 
     @GetMapping("/create")
     public String createClientForm(Model model) {
-        model.addAttribute("clientRequestDto", new ClientRequestDto());
+        model.addAttribute("clientRequestDto", new ClientCreateRequestDto());
         return "clients/create-form";
     }
 
     @PostMapping("/create")
-    public String createClient(@ModelAttribute ClientRequestDto clientRequestDto, RedirectAttributes redirectAttributes) {
-        try {
-            clientService.createClient(clientRequestDto);
-            redirectAttributes.addFlashAttribute("successMessage",
-                    "Клиент успешно создан");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Ошибка при создании клиента: " + e.getMessage());
+    public String createClient(@Valid @ModelAttribute("clientRequestDto") ClientCreateRequestDto createRequestDto,
+                               RedirectAttributes redirectAttributes,
+                               Model model,
+                               BindingResult result) {
+        if (result.hasErrors()) {
+            return "clients/create-form";
         }
 
-        return "redirect:/clients/create";
+        try {
+            clientService.createClient(createRequestDto);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Клиент успешно создан");
+
+            return "redirect:/clients/create";
+
+        } catch (IllegalArgumentException | IOException e ) {
+            model.addAttribute("clientRequestDto", createRequestDto);
+            model.addAttribute("errorMessage", e.getMessage());
+            return "clients/create-form";
+        }  catch (Exception e) {
+            model.addAttribute("clientRequestDto", createRequestDto);
+            model.addAttribute("errorMessage", "Ошибка при создании клиента");
+            return "clients/create-form";
+        }
+    }
+
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        ClientUpdateRequestDto clientUpdateRequestDto = clientService.getUpdateRequestDtoById(id);
+
+        model.addAttribute("clientId", id);
+        model.addAttribute("clientRequestDto", clientUpdateRequestDto);
+        return "clients/edit-form";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String updateClient(@PathVariable Long id,
+                               @Valid @ModelAttribute("clientRequestDto") ClientUpdateRequestDto clientUpdateRequestDto,
+                               BindingResult result,
+                               RedirectAttributes redirectAttributes) {
+
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Пожалуйста, исправьте ошибки в форме");
+            return "redirect:/clients/edit/" + id;
+        }
+
+        try {
+            clientService.updateClient(id, clientUpdateRequestDto);
+
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Клиент успешно обновлен");
+            return "redirect:/clients/" + id;
+        } catch (Exception e) {
+            log.error("Ошибка при обновлении клиента", e);
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Ошибка при обновлении клиента: " + e.getMessage());
+            return "redirect:/clients/edit/" + id;
+        }
     }
 
     @GetMapping("/{id}")
     public String viewClient(@PathVariable Long id,
-                             @RequestParam(value = "search", required = false) String searchQuery,
-                             @RequestParam(required = false, value = "page", defaultValue = "0") int page,
-                             @RequestParam(required = false, value = "size", defaultValue = "20") int pageSize,
+                             @RequestParam(required = false) String search,
                              Model model) {
 
-        Pageable pageable = PageRequest.of(
-                page,
-                pageSize
-        );
+        ClientProtocolsViewDto paginatedDto = protocolService
+                .findAllByClientIdWithFilter(id, search);
 
-        ClientProtocolsViewDto paginatedDto = protocolService.findAllByClientIdWithFilter(id, searchQuery, pageable);
-
-        paginatedDto.setClient(clientService.getDtoById(id));
-
+        paginatedDto.setClient(clientService.getResponseDtoById(id));
         model.addAttribute("paginatedDto", paginatedDto);
 
         return "clients/protocols-view";
+    }
+
+    @GetMapping("/{clientId}/file/{clientFileId}")
+    public ResponseEntity<Resource> downloadProtocol(@PathVariable Long clientId,
+                                                     @PathVariable Long clientFileId) throws MalformedURLException {
+        Resource resource = clientService.getFileByClientFileId(clientId, clientFileId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(clientService.getContentTypeByFileId(clientId, clientFileId)))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+
+    @GetMapping("/{clientId}/protocols")
+    @ResponseBody
+    public ProtocolPageDto getProtocolsByCipher(
+            @PathVariable Long clientId,
+            @RequestParam String cipher,
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) String search) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return protocolService.getProtocolsByCipher(clientId, search, cipher, pageable);
     }
 
     @GetMapping("/{id}/create-protocols")
@@ -186,7 +255,7 @@ public class ClientController {
                          Principal principal,
                          Model model) throws IOException {
 
-        Path path = fileStorageService.saveOriginal(file, clientId);
+        Path path = fileStorageService.saveOriginal(file, clientService.getNameById(clientId), "original");
         OcrJob job = ocrJobService.create(clientId,
                 principal.getName(),
                 path.toString());
@@ -197,23 +266,23 @@ public class ClientController {
         model.addAttribute("clientName", clientService.getClientById(clientId).getName());
 
         return "redirect:/ocr/jobs" ;
-    } // TODO обработать ошибки
+    }
 
     @PostMapping("/{clientId}/protocols/{protocolId}/edit")
-    public String updateProtocol(@PathVariable Long clientId,
+    public ResponseEntity<Void> updateProtocol(@PathVariable Long clientId,
                                  @PathVariable Long protocolId,
-                                 @ModelAttribute ProtocolRequestDto protocolDto) {
-        log.info("Updating protocol {} for client {}", protocolId, clientId);
+                                 @ModelAttribute ProtocolUpdateDto protocolDto) throws IOException {
+
         protocolService.updateProtocol(protocolId, protocolDto);
-        return "redirect:/clients/" + clientId;
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{clientId}/protocols/{protocolId}/delete")
-    public String deleteProtocol(@PathVariable Long clientId,
-                                 @PathVariable Long protocolId) {
-        log.info("Deleting protocol {} for client {}", protocolId, clientId);
+    public ResponseEntity<Void> deleteProtocol(@PathVariable Long clientId,
+                                 @PathVariable Long protocolId) throws IOException {
+
         protocolService.deleteProtocolById(protocolId);
-        return "redirect:/clients/" + clientId;
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/qr")

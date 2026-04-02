@@ -6,12 +6,8 @@ import lombok.Data;
 public class ProtocolResponseDto {
 
     private Long id;
-    private String cipher;
-    private String uniqueNumber;
-    private String sequentialNumber;
+    private String protocolNumber;
     private String issueDate;
-
-    public String getFullProtocolNumber() {
-        return String.format("%s-%s-%s от %s", cipher, uniqueNumber, sequentialNumber, issueDate);
-    }
+    private String fullProtocolNumber;
+    private Long clientId;
 }

@@ -31,7 +31,6 @@ public class ProtocolController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
                 .body(resource);
-        // TODO обработка ошибок
     }
 
     @GetMapping("/temp/{fileName}")

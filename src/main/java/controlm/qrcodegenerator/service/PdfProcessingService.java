@@ -1,7 +1,6 @@
 package controlm.qrcodegenerator.service;
 
 import controlm.qrcodegenerator.dto.response.ProtocolPreviewDto;
-import controlm.qrcodegenerator.mapper.ProtocolMapper;
 import controlm.qrcodegenerator.model.ProtocolMetadata;
 import controlm.qrcodegenerator.utils.ProtocolRecognizer;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +32,7 @@ public class PdfProcessingService {
     private final TempFileStorageService tempStorage;
     private final FileStorageService finalStorage;
     private final OcrProtocolPreviewService ocrProtocolPreviewService;
+    private final ClientService clientService;
 
     public List<ProtocolPreviewDto> analyze(File pdfFile, IntConsumer progressCallback, Integer protocolSize) throws Exception {
 
@@ -109,9 +109,9 @@ public class PdfProcessingService {
     public void confirm(List<ProtocolPreviewDto> approved, Long clientId) throws Exception {
         for (ProtocolPreviewDto dto : approved) {
 
-            if (!protocolService.existByCipherAndUniqueNumberAndSequenceNumber(dto, clientId)) {
+            if (!protocolService.existByProtocolNumberAndClientId(dto, clientId)) {
                 File temp = tempStorage.get(dto.getFileName());
-                Path finalPath = finalStorage.moveToFinalStorage(temp, dto, clientId);
+                Path finalPath = finalStorage.moveToFinalStorage(temp, dto, clientService.getNameById(clientId));
 
                 protocolService.createProtocolFromPdf(
                         clientId,

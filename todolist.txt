@@ -21,6 +21,8 @@ selectel  regru
 кварц для работы с крон job (удаление старых файлов)
 добавить индексы в поля с поиском
 
+
+
 готовый дизайн страниц: create-form, upload-pdf-form, confirm-pdf-form, job-monitor, client-view, list, protocols-view
 
 

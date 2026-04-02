@@ -1,7 +1,7 @@
 package controlm.qrcodegenerator.service;
 
-import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.response.ProtocolPreviewDto;
+import controlm.qrcodegenerator.dto.response.SaveProtocolFileDto;
 import controlm.qrcodegenerator.utils.TransliterateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,19 +25,18 @@ import java.nio.file.StandardCopyOption;
 public class FileStorageService {
 
     private final TransliterateUtils transliterateUtils;
-    private final ClientService clientService;
     private final Path root = Paths.get("storage/clients");
 
     public Path moveToFinalStorage(File tempFile,
                                    ProtocolPreviewDto dto,
-                                   Long clientId) throws IOException {
+                                   String clientName) throws IOException {
 
         String safeNumber = transliterateUtils.transliterateToLatin(dto.getNumber());
         String safeDate = dto.getIssueDate();
 
         String fileName = safeNumber + "_" + safeDate + ".pdf";
 
-        Path target = createDirectory(clientId).resolve(fileName);
+        Path target = createDirectory(clientName).resolve(fileName);
 
         Files.move(tempFile.toPath(),
                 target,
@@ -46,13 +45,13 @@ public class FileStorageService {
         return target;
     }
 
-    public Path saveProtocolFile(ProtocolRequestDto dto) throws IOException {
+    public Path saveProtocolFile(SaveProtocolFileDto dto) throws IOException {
         String safeNumber = transliterateUtils.transliterateToLatin(dto.getFullNumber());
-        String safeDate = dto.getIssueDate().toString();
+        String safeDate = dto.getIssueDate();
 
         String fileName = safeNumber + "_" + safeDate + ".pdf";
 
-        Path target = createDirectory(dto.getClientId()).resolve(fileName);
+        Path target = createDirectory(dto.getClientName()).resolve(fileName);
 
         try (InputStream inputStream = dto.getFile().getInputStream()) {
             Files.copy(inputStream, target, StandardCopyOption.REPLACE_EXISTING);
@@ -71,7 +70,7 @@ public class FileStorageService {
         return new UrlResource(file.toUri());
     }
 
-    public Path saveOriginal(MultipartFile file, Long clientId) throws IOException {
+    public Path saveOriginal(MultipartFile file, String clientName, String target) throws IOException {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Файл пуст или не был загружен");
         }
@@ -83,7 +82,7 @@ public class FileStorageService {
 
         String safeFileName = transliterateUtils.transliterateToLatin(originalFilename);
 
-        Path targetDir = createDirectory(clientId).resolve("original");
+        Path targetDir = createDirectory(clientName).resolve(target);
         Files.createDirectories(targetDir);
 
         Path targetPath = targetDir.resolve(safeFileName);
@@ -95,12 +94,25 @@ public class FileStorageService {
         return targetPath;
     }
 
-    public void deleteFile(String filePath) throws IOException {
-        Files.deleteIfExists(Path.of(filePath));
+    public void deleteFile(String filePath){
+        try {
+            Files.deleteIfExists(Path.of(filePath));
+        } catch (IOException e) {
+            log.error("Ошибка при удалении физического файла: {}", filePath, e);
+        }
     }
 
-    private Path createDirectory(Long clientId) throws IOException {
-        String clientName = clientService.getClientById(clientId).getName();
+    public Path replaceProtocolFile(String oldFilePath, SaveProtocolFileDto dto) throws IOException {
+
+        if (oldFilePath != null && !oldFilePath.trim().isEmpty()) {
+            Path oldPath = Paths.get(oldFilePath);
+            Files.deleteIfExists(oldPath);
+        }
+
+        return saveProtocolFile(dto);
+    }
+
+    private Path createDirectory(String clientName) throws IOException {
         String safeClientFolder = transliterateUtils.transliterateToLatin(clientName);
 
         Path clientDir = root

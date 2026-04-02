@@ -1,23 +1,21 @@
 package controlm.qrcodegenerator.model;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
 @Entity
-@Table(name = "unique_numbers")
-@EqualsAndHashCode(of = {"id"})
-public class UniqueNumber {
-
+@Table(name = "client_files")
+@Data
+public class ClientFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private Long number;
+    private String fileName;
+
+    private String filePath;
+
+    private String contentType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)

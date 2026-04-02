@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ContactMapper {
@@ -26,6 +27,8 @@ public class ContactMapper {
         if (dtos == null) {
             return new ArrayList<>();
         }
+
+        dtos = cleanContacts(dtos);
 
         List<Contact> contacts = new ArrayList<>();
 
@@ -47,6 +50,18 @@ public class ContactMapper {
         return contactResponseDto;
     }
 
+    public ContactRequestDto toRequestDto(Contact contact) {
+        ContactRequestDto contactResponseDto = new ContactRequestDto();
+
+        contactResponseDto.setId(contact.getId());
+        contactResponseDto.setEmail(contact.getEmail());
+        contactResponseDto.setName(contact.getName());
+        contactResponseDto.setPost(contact.getPost());
+        contactResponseDto.setPhoneNumber(contact.getPhoneNumber());
+
+        return contactResponseDto;
+    }
+
     public List<ContactResponseDto> toResponseDtos(List<Contact> contacts) {
         List<ContactResponseDto> contactResponseDtoList = new ArrayList<>();
 
@@ -55,5 +70,23 @@ public class ContactMapper {
         }
 
         return contactResponseDtoList;
+    }
+
+    public List<ContactRequestDto> toRequestDtos(List<Contact> contacts) {
+        List<ContactRequestDto> contactResponseDtoList = new ArrayList<>();
+
+        for (Contact contact : contacts) {
+            contactResponseDtoList.add(toRequestDto(contact));
+        }
+
+        return contactResponseDtoList;
+    }
+
+    private List<ContactRequestDto> cleanContacts(List<ContactRequestDto> list) {
+        return list.stream()
+                .filter(s -> s.getName() != null
+                && !s.getName().isBlank() && s.getPhoneNumber() != null
+                && !s.getPhoneNumber().isBlank())
+                .collect(Collectors.toList());
     }
 }
