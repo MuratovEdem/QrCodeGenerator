@@ -35,3 +35,85 @@ test:
   input:
     dir: ./test-pdfs
   client-id: 1
+
+protocol:
+  templates:
+    - type: "7days"
+      name: "7 суток"
+      path: /app/test-pdfs/rnd_7s.xlsx
+      fields:
+          - source-column-name: "Номер протокола"
+            sheet-name: "Лист1"
+            cell-reference: "A12"
+          - source-column-name: "Наименование конструкции"
+            sheet-name: "Лист1"
+            cell-reference: "D18"
+          - source-column-name: "Класс бетона"
+            sheet-name: "Лист1"
+            cell-reference: "G19"
+          - source-column-name: "Дата бетонирования"
+            sheet-name: "Лист1"
+            cell-reference: "E20"
+          - source-column-name: "Дата испытания"
+            sheet-name: "Лист1"
+            cell-reference: "E21"
+
+    - type: "28days"
+      name: "28 суток"
+      sub-types:
+        - concrete-class: "B20"
+          path: /app/test-pdfs/rnd_28s_B20.xlsx
+          fields:
+            - sourceColumnName: "Номер протокола"
+              sheetName: "Лицевая"
+              cellReference: "A13"
+            - sourceColumnName: "Наименование конструкции"
+              sheetName: "Лицевая"
+              cellReference: "E17"
+            - sourceColumnName: "Класс бетона"
+              sheetName: "Лицевая"
+              cellReference: "I20"
+            - sourceColumnName: "Дата бетонирования"
+              sheetName: "Лицевая"
+              cellReference: "F21"
+            - sourceColumnName: "Дата испытания"
+              sheetName: "Лицевая"
+              cellReference: "F22"
+
+        - concreteClass: "B25"
+          path: /app/test-pdfs/rnd_28s_B25.xlsx
+          fields:
+            - sourceColumnName: "Номер протокола"
+              sheetName: "Лицевая"
+              cellReference: "A13"
+            - sourceColumnName: "Наименование конструкции"
+              sheetName: "Лицевая"
+              cellReference: "E17"
+            - sourceColumnName: "Класс бетона"
+              sheetName: "Лицевая"
+              cellReference: "I20"
+            - sourceColumnName: "Дата бетонирования"
+              sheetName: "Лицевая"
+              cellReference: "F21"
+            - sourceColumnName: "Дата испытания"
+              sheetName: "Лицевая"
+              cellReference: "F22"
+
+        - concreteClass: "B30"
+          path: /app/test-pdfs/rnd_28s_B25.xlsx
+          fields:
+            - sourceColumnName: "Номер протокола"
+              sheetName: "Лицевая"
+              cellReference: "A13"
+            - sourceColumnName: "Наименование конструкции"
+              sheetName: "Лицевая"
+              cellReference: "E17"
+            - sourceColumnName: "Класс бетона"
+              sheetName: "Лицевая"
+              cellReference: "I20"
+            - sourceColumnName: "Дата бетонирования"
+              sheetName: "Лицевая"
+              cellReference: "F21"
+            - sourceColumnName: "Дата испытания"
+              sheetName: "Лицевая"
+              cellReference: "F22"

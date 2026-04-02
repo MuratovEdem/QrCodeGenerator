@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Загрузка заявки на протоколы</title>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+            box-sizing: border-box;
+        }
+        input[type="file"]:hover {
+            border-color: #999;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            max-width: 200px;
+        }
+        .btn-7days {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-7days:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+        .btn-28days {
+            background-color: #2196F3;
+            color: white;
+        }
+        .btn-28days:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+        }
+        .error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .loading.active {
+            display: block;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .file-info {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            display: none;
+        }
+        .file-info.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Загрузка заявки на протоколы</h1>
+
+    <!-- Отображение ошибок -->
+    <div th:if="${error}" class="error" th:text="${error}"></div>
+    <div th:if="${success}" class="success" th:text="${success}"></div>
+
+    <form method="POST" action="/excel/upload" enctype="multipart/form-data" id="uploadForm">
+        <div class="form-group">
+            <label for="file">Выберите файл заявки (Excel):</label>
+            <input type="file" id="file" name="file" accept=".xlsx, .xls" required
+                   onchange="updateFileInfo(this)">
+            <div class="file-info" id="fileInfo">
+                <strong>Выбран файл:</strong> <span id="fileName"></span><br>
+                <strong>Размер:</strong> <span id="fileSize"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Выберите тип протокола:</label>
+            <div class="button-group">
+                <button type="submit" name="templateType" value="7days" class="btn btn-7days">
+                    7 суток
+                </button>
+                <button type="submit" name="templateType" value="28days" class="btn btn-28days">
+                    28 суток
+                </button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Обработка файла, пожалуйста подождите...</p>
+        </div>
+    </form>
+</div>
+
+<script>
+    function updateFileInfo(input) {
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            fileName.textContent = file.name;
+
+            // Форматируем размер файла
+            let size = file.size;
+            if (size < 1024) {
+                fileSize.textContent = size + ' байт';
+            } else if (size < 1024 * 1024) {
+                fileSize.textContent = (size / 1024).toFixed(2) + ' КБ';
+            } else {
+                fileSize.textContent = (size / (1024 * 1024)).toFixed(2) + ' МБ';
+            }
+
+            fileInfo.classList.add('active');
+        } else {
+            fileInfo.classList.remove('active');
+        }
+    }
+
+    document.getElementById('uploadForm').onsubmit = function() {
+        const fileInput = document.getElementById('file');
+        if (!fileInput.files || !fileInput.files[0]) {
+            alert('Пожалуйста, выберите файл');
+            return false;
+        }
+
+        document.getElementById('loading').classList.add('active');
+        return true;
+    };
+</script>
+<script src="/js/csrf.js"></script>
+</body>
+</html>
