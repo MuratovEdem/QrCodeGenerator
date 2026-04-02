@@ -1,12 +1,12 @@
 package controlm.qrcodegenerator.repository;
 
 import controlm.qrcodegenerator.model.Client;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface ClientRepository extends JpaRepository<Client, Long> {
-    List<Client> findByNameIsContainingIgnoreCase(String name);
+    Page<Client> findByNameIsContainingIgnoreCase(String name, Pageable pageable);
 }

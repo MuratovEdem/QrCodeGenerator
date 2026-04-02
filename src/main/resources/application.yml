@@ -4,15 +4,24 @@ spring:
       ddl-auto: create-drop
     properties:
       hibernate:
+        jdbc:
+          time_zone: Europe/Moscow
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+  jackson:
+    time-zone: Europe/Moscow
+
 
   thymeleaf:
     cache: false
     prefix: classpath:/templates/
     suffix: .html
 
+  servlet:
+    multipart:
+      max-request-size: 50MB
+      max-file-size: 50MB
 app:
   base-url: http://localhost:8080
   qr-code:
@@ -20,3 +29,9 @@ app:
 
 server:
   port: 8080
+  address: 0.0.0.0
+
+test:
+  input:
+    dir: ./test-pdfs
+  client-id: 1

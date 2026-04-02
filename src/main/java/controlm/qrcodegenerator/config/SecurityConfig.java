@@ -49,7 +49,9 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/webjars/**",
                                 "/favicon.ico",
-                                "/error"
+                                "/error",
+                                "/ws/**",
+                                "/topic/**"
                         ).permitAll()
 
                         // Требуют аутентификации
@@ -69,7 +71,7 @@ public class SecurityConfig {
                         ).hasRole("ADMIN")
 
                         .anyRequest().authenticated()
-                )
+                ) // TODO настроить доступы
 
                 .formLogin(form -> form
                         .loginPage("/auth/login")
@@ -91,7 +93,7 @@ public class SecurityConfig {
                 .rememberMe(remember -> remember
                         .key("uniqueAndSecret")
                         .tokenValiditySeconds(86400) // 24 часа
-                        .userDetailsService(userDetailsService)
+                        .userDetailsService(userDetailsService) // TODO установить время жизни токена
                 )
 
                 .sessionManagement(session -> session

@@ -8,14 +8,18 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - SERVER_ADDRESS=0.0.0.0
       - SPRING_DATASOURCE_URL=jdbc:postgresql://control_m_db:5432/control_m
       - SPRING_DATASOURCE_USERNAME=control_m
       - SPRING_DATASOURCE_PASSWORD=control_m_pass
       - SPRING_JPA_SHOW_SQL=true
+      - TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
     depends_on:
       - control_m_db
     networks:
       - control-m-network
+    volumes:
+      - ./test-pdfs:/app/test-pdfs
 
   control_m_db:
     image: postgres:16

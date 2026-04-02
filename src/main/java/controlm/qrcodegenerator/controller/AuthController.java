@@ -58,9 +58,7 @@ public class AuthController {
                                BindingResult result,
                                Model model) {
 
-        // Проверка на существующего пользователя
-        Optional<User> existingUser = userService.findByUsername(user.getUsername());
-        if (existingUser.isPresent()) {
+        if (userService.existByUsername(user.getUsername())) {
             result.rejectValue("username", "error.user",
                     "Пользователь с таким именем уже существует");
         }
