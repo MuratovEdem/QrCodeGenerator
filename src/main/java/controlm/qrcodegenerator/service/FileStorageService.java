@@ -60,7 +60,6 @@ public class FileStorageService {
         return target;
     }
 
-
     public Resource loadAsResource(String path) throws MalformedURLException {
         Path file = Paths.get(path);
 
