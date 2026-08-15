@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,8 +16,7 @@
     <!-- Шрифты -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-
-<!--    TODO сделать кнопку отменить когда нет распознанных протоколов-->
+    <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
 
     <style>
         :root {
@@ -382,7 +382,6 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
             padding: 8px 14px;
             border-radius: 6px;
             font-size: 13px;
@@ -476,6 +475,43 @@
             color: var(--text-main);
         }
 
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: none;
+            position: relative;
+            background: var(--card);
+            border-left: 4px solid;
+            box-shadow: var(--shadow);
+        }
+
+        .alert-danger {
+            border-left-color: var(--danger);
+            background: #FEF2F2;
+            color: #991B1B;
+        }
+
+        .btn-close {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 8px;
+            color: var(--text-secondary);
+        }
+
+        tr.duplicate-row {
+            background-color: #FEE2E2 !important;
+        }
+
+        tr.duplicate-row:hover {
+            background-color: #FECACA !important;
+        }
+
         /* FOOTER */
         footer {
             margin-top: 50px;
@@ -493,92 +529,6 @@
         .footer-left {
             font-weight: 500;
         }
-
-        /* АДАПТИВНОСТЬ */
-        @media (max-width: 992px) {
-            th:first-child {
-                width: 30%;
-            }
-
-            th:nth-child(2) {
-                width: 20%;
-            }
-
-            th:last-child {
-                width: 50%;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px 16px 40px;
-            }
-
-            .header-inner {
-                flex-direction: row;
-                align-items: center;
-                gap: 12px;
-            }
-
-            .logo-block {
-                flex: 0 0 auto;
-            }
-
-            .logo-block img {
-                height: 35px;
-            }
-
-            .logo-title {
-                font-size: 18px;
-            }
-
-            .main-nav {
-                flex: 1 1 auto;
-                justify-content: flex-end;
-            }
-
-            .nav-link {
-                padding: 6px 10px;
-                font-size: 13px;
-            }
-
-            .card {
-                padding: 20px;
-            }
-
-            .stats-bar {
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .action-buttons {
-                flex-wrap: wrap;
-                min-width: 0;
-            }
-
-            .btn-sm {
-                flex: 1 1 auto;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .block-title {
-                font-size: 18px;
-            }
-
-            .file-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .stat-value {
-                font-size: 20px;
-            }
-
-            table {
-                table-layout: auto;
-            }
-        }
     </style>
 </head>
 <body>
@@ -586,7 +536,7 @@
 <header>
     <div class="header-inner">
         <div class="logo-block">
-            <img th:src="@{/images/logo3.png}"
+            <img th:src="@{/images/logo.png}"
                  src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
                  alt="Логотип Control-M">
             <div class="logo-text">
@@ -601,6 +551,12 @@
             <a th:href="@{/ocr/jobs}" class="nav-link">
                 Загрузки
             </a>
+            <a th:href="@{/admins}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Пользователи
+            </a>
+            <a th:href="@{/admins/statistics}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Статистика
+            </a>
         </nav>
     </div>
 </header>
@@ -610,15 +566,26 @@
     <div class="card">
         <div class="block-title">ПОДТВЕРЖДЕНИЕ ПРОТОКОЛОВ</div>
 
+        <div id="duplicateAlert" class="alert alert-danger" style="display: none;">
+            <span id="duplicateMessage"></span>
+            <button type="button" class="btn-close" onclick="this.closest('.alert').style.display='none'">×</button>
+        </div>
+
         <!-- Информация о файле -->
         <div class="file-header">
             <div class="file-header-icon">
                 <i class="bi bi-file-earmark-pdf"></i>
             </div>
-            <div class="file-header-info">
+            <div class="file-header-info" style="display: flex; justify-content: space-between; align-items: center;">
                 <div class="file-header-name" th:text="${ocrJob.originalFileName} ?: 'Загруженный файл'">
                     protocol_2025_03_15.pdf
                 </div>
+                <a th:href="@{/protocols/original/{id}(id=${ocrJob.id})}"
+                   class="btn btn-outline btn-sm"
+                   target="_blank"
+                   title="Просмотреть исходный файл">
+                    <i></i> Просмотр
+                </a>
             </div>
         </div>
 
@@ -755,26 +722,26 @@
                 </table>
             </div>
 
-            <!-- Кнопки основного действия -->
-            <div style="display: flex; gap: 16px; margin-top: 32px;">
-                <form id="confirmForm"
-                      th:action="@{/ocr/confirm-pdf/{jobId}(jobId=${ocrJob.id})}"
-                      method="post"
-                      style="flex: 1;">
-                    <button type="submit" class="btn btn-primary" style="width: 100%;" onclick="prepareConfirmForm(event)">
-                        Сохранить протоколы
-                    </button>
-                </form>
+        </div>
+        <!-- Кнопки основного действия -->
+        <div style="display: flex; gap: 16px; margin-top: 32px;">
+            <form id="confirmForm"
+                  th:action="@{/ocr/confirm-pdf/{jobId}(jobId=${ocrJob.id})}"
+                  method="post"
+                  style="flex: 1;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;" onclick="prepareConfirmForm(event)">
+                    Сохранить протоколы
+                </button>
+            </form>
 
-                <form id="cancelForm"
-                      th:action="@{/ocr/cancel-pdf/{jobId}(jobId=${ocrJob.id})}"
-                      method="post"
-                      style="flex: 1;">
-                    <button type="submit" class="btn btn-outline-danger" style="width: 100%;" onclick="prepareCancelForm(event)">
-                        Отменить загрузку
-                    </button>
-                </form>
-            </div>
+            <form id="cancelForm"
+                  th:action="@{/ocr/cancel-pdf/{jobId}(jobId=${ocrJob.id})}"
+                  method="post"
+                  style="flex: 1;">
+                <button type="submit" class="btn btn-outline-danger" style="width: 100%;" onclick="prepareCancelForm(event)">
+                    Отменить загрузку
+                </button>
+            </form>
         </div>
     </div>
 
@@ -836,6 +803,9 @@
     // Включение режима редактирования
     function enableEdit(button) {
         const index = button.getAttribute('data-index');
+
+        const row = document.getElementById(`protocol-row-${index}`);
+        if (row) row.classList.remove('duplicate-row');
 
         // Скрываем режим просмотра
         document.getElementById(`protocol-number-view-${index}`).style.display = 'none';
@@ -964,6 +934,11 @@
     function prepareConfirmForm(event) {
         event.preventDefault();
 
+        // Проверка на дубликаты перед отправкой
+        if (!validateNoDuplicates()) {
+            return;
+        }
+
         sessionStorage.removeItem('confirmPageLoaded');
         history.replaceState(null, '', '/ocr/jobs');
 
@@ -1002,6 +977,50 @@
         });
 
         form.submit();
+    }
+
+    function validateNoDuplicates() {
+        document.querySelectorAll('#protocolsTable tbody tr').forEach(row => {
+            row.classList.remove('duplicate-row');
+        });
+
+        const activeProtocols = protocolsData.filter(p => p && !p.deleted);
+        const numberCounts = {};
+        activeProtocols.forEach(protocol => {
+            const num = protocol.number.trim();
+            numberCounts[num] = (numberCounts[num] || 0) + 1;
+        });
+
+        const duplicateNumbers = Object.keys(numberCounts).filter(num => numberCounts[num] > 1);
+
+        if (duplicateNumbers.length === 0) {
+            const alert = document.getElementById('duplicateAlert');
+            if (alert) alert.style.display = 'none';
+            return true;
+        }
+
+        // Показываем сообщение
+        const alert = document.getElementById('duplicateAlert');
+        const messageEl = document.getElementById('duplicateMessage');
+        messageEl.textContent = 'Найдены протоколы с одинаковыми номерами: ' + duplicateNumbers.join(', ') + '. Пожалуйста, исправьте перед сохранением.';
+        alert.style.display = 'flex';
+
+        // Подсвечиваем строки с дубликатами
+        protocolsData.forEach((protocol, index) => {
+            if (protocol && !protocol.deleted && duplicateNumbers.includes(protocol.number.trim())) {
+                const row = document.getElementById(`protocol-row-${index}`);
+                if (row) row.classList.add('duplicate-row');
+            }
+        });
+
+        // Прокручиваем к первому дубликату
+        const firstDuplicateIndex = protocolsData.findIndex(p => p && !p.deleted && duplicateNumbers.includes(p.number.trim()));
+        if (firstDuplicateIndex !== -1) {
+            const firstRow = document.getElementById(`protocol-row-${firstDuplicateIndex}`);
+            if (firstRow) firstRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        return false;
     }
 
     // Подготовка данных для отмены

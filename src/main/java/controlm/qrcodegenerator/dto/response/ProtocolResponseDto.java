@@ -10,4 +10,7 @@ public class ProtocolResponseDto {
     private String issueDate;
     private String fullProtocolNumber;
     private Long clientId;
+
+    private String createdInfo;
+    private String updatedInfo;
 }

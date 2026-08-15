@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Optional;
 
 public class SecurityUtils {
-    public static Optional<String> getCurrentUsername() {
+    public Optional<String> getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.isAuthenticated()) {
@@ -25,7 +25,7 @@ public class SecurityUtils {
         return Optional.empty();
     }
 
-    public static boolean hasRole(String roleName) {
+    public boolean hasRole(String roleName) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.isAuthenticated()) {
@@ -37,7 +37,7 @@ public class SecurityUtils {
         return false;
     }
 
-    public static boolean isAdmin() {
+    public boolean isAdmin() {
         return hasRole(RoleEnum.ADMIN.getName());
     }
 }

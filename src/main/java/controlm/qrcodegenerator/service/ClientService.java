@@ -49,6 +49,12 @@ public class ClientService {
                 .orElseThrow(() -> new NotFoundException("Client not found with id: " + id));
     }
 
+    public PublicClientDto getPublicClientById(Long id) {
+        Client clientById = getClientById(id);
+
+        return clientMapper.toPublicClientDto(clientById);
+    }
+
     public String getNameById(Long id) {
         return clientRepository.findNameById(id);
     }

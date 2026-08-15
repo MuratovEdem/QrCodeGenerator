@@ -2,7 +2,8 @@ package controlm.qrcodegenerator.enums;
 
 public enum RoleEnum {
 
-    ADMIN("ADMIN");
+    ADMIN("ADMIN"),
+    USER("USER");
 
     private final String name;
 

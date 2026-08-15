@@ -28,6 +28,7 @@ public class OcrJobMapper {
         dto.setUserId(ocrJob.getUserId());
         dto.setFinishedAt(ocrJob.getFinishedAt());
         dto.setOriginalFileName(path.getFileName().toString());
+        dto.setPath(path.toString());
         dto.setClientName(clientService.getClientById(ocrJob.getClientId()).getName());
         dto.setProgress(0);
 

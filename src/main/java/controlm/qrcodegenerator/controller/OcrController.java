@@ -10,6 +10,7 @@ import controlm.qrcodegenerator.service.FileStorageService;
 import controlm.qrcodegenerator.service.OcrJobService;
 import controlm.qrcodegenerator.service.OcrProtocolPreviewService;
 import controlm.qrcodegenerator.service.PdfProcessingService;
+import controlm.qrcodegenerator.service.TempFileStorageService;
 import controlm.qrcodegenerator.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ public class OcrController {
     private final OcrProtocolPreviewService ocrProtocolPreviewService;
     private final PdfProcessingService pdfProcessingService;
     private final FileStorageService fileStorageService;
+    private final TempFileStorageService  tempFileStorageService;
 
 
     @GetMapping("/jobs")
@@ -61,7 +63,6 @@ public class OcrController {
         Page<OcrJobResponseDto> jobsPage = ocrJobService.getPaginatedDtoByUserIdAndStatusNotSaved(user.getId(), pageable);
         Map<String, Long> statusCounts = ocrJobService.getStatusCountsByUserId(user.getId());
 
-
         model.addAttribute("userId", user.getId());
         model.addAttribute("userName", user.getUsername());
         model.addAttribute("jobsPage", jobsPage);
@@ -78,7 +79,6 @@ public class OcrController {
         List<OcrProtocolPreview> protocols = ocrProtocolPreviewService.findAllByOcrJobId(jobId);
         OcrJobResponseDto byId = ocrJobService.getDtoById(jobId);
 
-        // TODO  обработать ошибки
         model.addAttribute("protocols", protocols);
         model.addAttribute("ocrJob", byId);
 
@@ -93,9 +93,7 @@ public class OcrController {
     public String confirmPdf(@PathVariable Long jobId,
                              @RequestParam("protocolNumbers") String[] numbers,
                              @RequestParam("protocolDates") String[] dates,
-                             @RequestParam(value = "fileName", required = false) String[] fileName,
-                             Model model,
-                             HttpServletResponse response) {
+                             @RequestParam(value = "fileName", required = false) String[] fileName) {
         OcrJob ocrJob = ocrJobService.findById(jobId);
         List<ProtocolPreviewDto> protocols = new ArrayList<>();
 
@@ -114,26 +112,22 @@ public class OcrController {
 
             ocrJob.setStatus(OcrJobStatus.SAVED);
             ocrJobService.save(ocrJob);
-
         } catch (Exception e) {
             log.error(e.getMessage());
             e.printStackTrace();
             return "redirect:/clients/" + ocrJob.getClientId();
         }
         return "redirect:/ocr/jobs";
-
-        // TODO обработать ошибки и сделать редирект
     }
 
     @PostMapping("/cancel-pdf/{jobId}")
     public String cancelPdf(@PathVariable Long jobId) throws IOException {
         OcrJob ocrJob = ocrJobService.findById(jobId);
 
-        ocrProtocolPreviewService.deleteAllByOcrJobId(jobId);
         fileStorageService.deleteFile(ocrJob.getOriginalFilePath());
+        ocrProtocolPreviewService.deleteAllByOcrJobId(jobId);
         ocrJobService.deleteById(jobId);
 
-        return "redirect:/clients/" + ocrJob.getClientId();
-        // TODO обработать ошибки и сделать редирект
+        return "redirect:/ocr/jobs";
     }
 }

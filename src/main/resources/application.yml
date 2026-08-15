@@ -1,7 +1,13 @@
 spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/control_m
+    username: control_m
+    password: control_m_pass
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     properties:
       hibernate:
         jdbc:
@@ -11,7 +17,6 @@ spring:
     show-sql: true
   jackson:
     time-zone: Europe/Moscow
-
 
   thymeleaf:
     cache: false
@@ -23,10 +28,18 @@ spring:
       max-request-size: 50MB
       max-file-size: 50MB
       file-size-threshold: 0
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
 app:
+  storage:
+    path: /app/storage
   base-url: http://localhost:8080
-  qr-code:
-    directory: ./qr-codes
+
+logging:
+  level:
+    liquibase: DEBUG
 
 server:
   port: 8080
@@ -36,8 +49,3 @@ server:
     max-http-form-post-size: 52428800
     max-parameter-count: 10000
     max-part-count: 500
-
-test:
-  input:
-    dir: ./test-pdfs
-  client-id: 1

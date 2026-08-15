@@ -29,6 +29,11 @@ public class OcrProtocolPreviewService {
 
     @Transactional
     public void deleteAllByOcrJobId(Long ocrJobId) throws IOException {
+        List<OcrProtocolPreview> allByOcrJobId = findAllByOcrJobId(ocrJobId);
+        for (OcrProtocolPreview ocrProtocolPreview : allByOcrJobId) {
+            tempFileStorageService.delete(ocrProtocolPreview.getFileName());
+        }
+
         ocrProtocolPreviewRepository.deleteAllByOcrJobId(ocrJobId);
     }
 

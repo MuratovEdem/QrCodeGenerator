@@ -2,6 +2,7 @@ package controlm.qrcodegenerator.service;
 
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolUpdateDto;
+import controlm.qrcodegenerator.dto.response.CipherDto;
 import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
 import controlm.qrcodegenerator.dto.response.ProtocolPageDto;
 import controlm.qrcodegenerator.dto.response.ProtocolPreviewDto;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,24 +41,16 @@ public class ProtocolService {
     private final ProtocolMapper protocolMapper;
     private final FileStorageService fileStorageService;
     private final SaveProtocolFileMapper saveProtocolFileMapper;
-
-
-    public List<PublicProtocolResponseDto> findAllByClientId(Long clientId) {
-        List<Protocol> protocols = protocolRepository.findByClientId(clientId);
-
-        return protocolMapper.protocolsToPublicProtocolsDto(protocols);
-    }
+    private final CipherService cipherService;
 
     public Protocol findById(Long id) {
         return protocolRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Client not found with id: " + id));
+                .orElseThrow(() -> new NotFoundException("Protocol not found with id: " + id));
     }
 
     @Transactional
     public void createProtocol(ProtocolRequestDto protocolRequestDto) throws IOException {
-        Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(
-                protocolRequestDto,
-                protocolRequestDto.getSequentialNumber());
+        Protocol protocol = protocolMapper.protocolRequestDtoToProtocol(protocolRequestDto);
 
         if (existProtocol(protocol, protocolRequestDto.getClientId())) {
             throw new IllegalArgumentException("Протокол с наименованием " + protocol.getFullProtocolNumber() + " уже существует");
@@ -156,12 +150,28 @@ public class ProtocolService {
                 );
     }
 
-    public ProtocolPageDto getProtocolsByCipher(Long clientId, String search, String cipher, Pageable pageable) {
+    public Protocol getByNumber(String number) {
+        return protocolRepository.findByProtocolNumber(number)
+                .orElseThrow(() -> new NotFoundException("Protocol not found with number: " + number));
+    }
+
+    public ProtocolPageDto getProtocolsByCipher(Long clientId,
+                                                String search,
+                                                String cipher,
+                                                Pageable pageable,
+                                                boolean isAdmin) {
         Page<Protocol> pageProtocols = findProtocolsByClientIdWithSearchAndCipher(clientId, search, cipher, pageable);
 
-        List<ProtocolResponseDto> protocols = pageProtocols
-                .map(protocolMapper::protocolToProtocolResponseDto)
-                .toList();
+        List<ProtocolResponseDto> protocols = new ArrayList<>();
+        if (isAdmin) {
+            protocols = pageProtocols
+                    .map(protocolMapper::protocolToProtocolResponseDtoForAdmin)
+                    .toList();
+        } else {
+            protocols = pageProtocols
+                    .map(protocolMapper::protocolToProtocolResponseDto)
+                    .toList();
+        }
 
         ProtocolPageDto protocolPageDto = new ProtocolPageDto();
 
@@ -175,28 +185,29 @@ public class ProtocolService {
     public PublicPaginatedProtocolsDto getFilteredAndPaginatedDtoForPublic(Long clientId,
                                                                            String filter,
                                                                            Pageable pageable) {
+        Page<Protocol> protocolPage = protocolRepository.findProtocolsByClientIdWithSearch(clientId, filter, pageable);
 
-//        Page<Protocol> pageProtocols = protocolRepository.findProtocolsByClientIdWithSearchAndCipher(
-//                clientId,
-//                filter,
-//                pageable);
-//
-//        List<PublicProtocolResponseDto> protocols = new ArrayList<>();
-//
-//        if (!pageProtocols.getContent().isEmpty()) {
-//            protocols = pageProtocols
-//                    .map(protocolMapper::protocolToPublicProtocolResponseDto)
-//                    .get().toList();
-//        }
+        List<CipherDto> allCiphers = cipherService.findAll();
+        Map<String, String> cipherDescMap = allCiphers.stream()
+                .collect(Collectors.toMap(
+                        c -> c.getName().trim().toUpperCase(),
+                        CipherDto::getDescription,
+                        (a, b) -> a));
+
+        List<PublicProtocolResponseDto> protocols = protocolPage
+                .map(protocol -> protocolMapper.protocolToPublicProtocolResponseDto(protocol, cipherDescMap))
+                .toList();
 
         PublicPaginatedProtocolsDto dto = new PublicPaginatedProtocolsDto();
-//        dto.setProtocols(protocols);
-//        dto.setCountProtocols(pageProtocols.getTotalElements());
-//        dto.setCurrentPage(pageProtocols.getNumber());
-//        dto.setPageSize(pageProtocols.getSize());
-//        dto.setTotalPages(pageProtocols.getTotalPages());
-//        dto.setSearchQuery(filter);
+        dto.setProtocols(protocols);
+        dto.setCurrentPage(protocolPage.getNumber());
+        dto.setTotalPages(protocolPage.getTotalPages());
+        dto.setSearchQuery(filter);
         return dto;
+    }
+
+    public long getNumberProtocolsByCreatedBy(String username) {
+        return protocolRepository.countByCreatedBy(username);
     }
 
     public boolean existByProtocolNumberAndClientId(ProtocolPreviewDto dto, Long clientId) {

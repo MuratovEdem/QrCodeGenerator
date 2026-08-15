@@ -18,6 +18,7 @@ public class OcrJobResponseDto {
     private Long userId;
 
     private String originalFileName;
+    private String path;
 
     private OcrJobStatus status;
 

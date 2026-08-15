@@ -1,7 +1,9 @@
 package controlm.qrcodegenerator.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -9,7 +11,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +24,7 @@ import java.util.List;
 @Entity
 @Table(name = "clients")
 @EqualsAndHashCode(of = {"id"})
+@EntityListeners(AuditingEntityListener.class)
 public class Client {
 
     @Id
@@ -47,10 +54,17 @@ public class Client {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClientFile> clientFiles;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(updatable = false)
+    @CreatedBy
+    private String createdBy;
+
+    @Column(updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
 
-//    TODO кем создан
-    // TODO кем и когда отредактирован
+    @LastModifiedBy
+    private String updatedBy;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }

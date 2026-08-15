@@ -24,6 +24,8 @@ public class ProtocolRecognizer {
             Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
     );
 // TODO поработать над паттернами
+    // TODO никакая страница не должна быть просто утеряна
+    // TODO улучшить качество
     public ProtocolMetadata extract(String text) {
         String normalizeText = normalizeOcrText(text);
         Matcher fallBack = FALLBACK_PATTERN.matcher(normalizeText);

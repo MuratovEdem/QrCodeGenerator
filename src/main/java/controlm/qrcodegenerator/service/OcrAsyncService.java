@@ -34,9 +34,7 @@ public class OcrAsyncService {
             File pdf = new File(job.getOriginalFilePath());
 
             List<ProtocolPreviewDto> previews = pdfProcessingService.analyze(pdf,
-                    progress -> wsNotifier.sendToUser(job.getCreatedBy(), new  OcrJobEvent(ocrJobId, OcrJobStatus.PROCESSING.getName(), null, progress)),
-                    0);
-            // TODO СДЕЛАТЬ ОБРАБОТКУ РЕЗУЛЬТАТА Добавить protocolSize
+                    progress -> wsNotifier.sendToUser(job.getCreatedBy(), new  OcrJobEvent(ocrJobId, OcrJobStatus.PROCESSING.getName(), null, progress)));
 
             ocrProtocolPreviewService.save(ocrJobId, previews);
 

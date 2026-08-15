@@ -1,6 +1,5 @@
 package controlm.qrcodegenerator.config;
 
-import controlm.qrcodegenerator.enums.RoleEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
@@ -22,8 +21,10 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomUserDetailService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
+    private final CustomAuthSuccessHandler customAuthSuccessHandler;
+    private final ForcePasswordChangeFilter forcePasswordChangeFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,10 +41,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Публичные ресурсы
                         .requestMatchers(
-                                "/",
-                                "/login",
-                                "/client/**", // публичный доступ к просмотру клиента по QR
-                                "/public/**", // публичный доступ к просмотру клиента по QR
+                                "/public/**",
+                                "/auth/login",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
@@ -56,30 +55,31 @@ public class SecurityConfig {
 
                         // Требуют аутентификации
                         .requestMatchers(
-                                "/register",
+                                "/auth/**",
                                 "/dashboard/**",
                                 "/clients/**",
+                                "/ocr/**",
                                 "/protocols/**",
-                                "/qr/**",
-                                "/api/**"
+                                "/generate-unique-number"
                         ).authenticated()
 
                         // Только для администраторов
                         .requestMatchers(
-                                "/admin/**",
+                                "/admins/**",
                                 "/users/**"
                         ).hasRole("ADMIN")
 
                         .anyRequest().authenticated()
-                ) // TODO настроить доступы
+                )
 
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
-                        .successHandler(authenticationSuccessHandler())
+                        .successHandler(customAuthSuccessHandler)
                         .failureUrl("/auth/login?error=true")
                         .permitAll()
                 )
+                .addFilterAfter(forcePasswordChangeFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -92,8 +92,8 @@ public class SecurityConfig {
 
                 .rememberMe(remember -> remember
                         .key("uniqueAndSecret")
-                        .tokenValiditySeconds(86400) // 24 часа
-                        .userDetailsService(userDetailsService) // TODO установить время жизни токена
+                        .tokenValiditySeconds(86400)
+                        .userDetailsService(userDetailsService)
                 )
 
                 .sessionManagement(session -> session
@@ -109,24 +109,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return (request, response, authentication) -> {
-            // Логика после успешной аутентификации
-            String redirectUrl = "/clients";
-
-            // Проверяем роль пользователя
-            boolean isAdmin = authentication.getAuthorities().stream()
-                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(RoleEnum.ADMIN.getName()));
-
-            if (isAdmin) {
-                redirectUrl = "/clients";
-            }
-
-            response.sendRedirect(redirectUrl);
-        };
-    }
-
-    @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder);
@@ -138,5 +120,4 @@ public class SecurityConfig {
             AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
-
 }

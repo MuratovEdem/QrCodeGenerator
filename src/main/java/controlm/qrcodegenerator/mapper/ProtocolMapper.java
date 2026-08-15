@@ -10,7 +10,12 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -23,29 +28,39 @@ public class ProtocolMapper {
     private final Pattern PROTOCOL_PATTERN =
             Pattern.compile("^([А-ЯA-Z]{1,5})-([А-ЯA-Za-zа-яА-Я0-9]+)-(\\d+)$");
 
-    public List<PublicProtocolResponseDto> protocolsToPublicProtocolsDto(List<Protocol> protocols) {
-        List<PublicProtocolResponseDto> publicProtocolResponseDtos = new ArrayList<>();
-        for (Protocol protocol : protocols) {
-            publicProtocolResponseDtos.add(protocolToPublicProtocolResponseDto(protocol));
-        }
-        return publicProtocolResponseDtos;
-    }
 
-    public PublicProtocolResponseDto protocolToPublicProtocolResponseDto(Protocol protocol) {
-        PublicProtocolResponseDto publicProtocolResponseDto = new PublicProtocolResponseDto();
+    public PublicProtocolResponseDto protocolToPublicProtocolResponseDto(Protocol protocol, Map<String, String> cipherDescriptions) {
+        PublicProtocolResponseDto dto = new PublicProtocolResponseDto();
+        dto.setId(protocol.getId());
+        dto.setProtocolNumber(protocol.getProtocolNumber());
 
-        publicProtocolResponseDto.setId(protocol.getId());
-        publicProtocolResponseDto.setProtocolNumber(protocol.getProtocolNumber());
+        String[] parts = protocol.getProtocolNumber().split("-");
+        String cipher = parts.length > 0 ? parts[0].trim().toUpperCase() : "";
+        dto.setCipher(cipher);
 
-        return publicProtocolResponseDto;
+        String description = cipherDescriptions.getOrDefault(cipher, "");
+        dto.setCipherDescription(description);
+        return dto;
     }
 
     public List<ProtocolResponseDto> protocolsToProtocolsDto(List<Protocol> protocols) {
         List<ProtocolResponseDto> protocolResponseDtos = new ArrayList<>();
         for (Protocol protocol : protocols) {
-            protocolResponseDtos.add(protocolToProtocolResponseDto(protocol));
+            protocolResponseDtos.add(protocolToProtocolResponseDtoForAdmin(protocol));
         }
         return protocolResponseDtos;
+    }
+
+    public ProtocolResponseDto protocolToProtocolResponseDtoForAdmin(Protocol protocol) {
+        ProtocolResponseDto protocolResponseDto = protocolToProtocolResponseDto(protocol);
+
+        protocolResponseDto.setCreatedInfo(protocol.getCreatedBy() + " " + protocol.getCreatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
+
+        if (!protocol.getCreatedAt().equals(protocol.getUpdatedAt())) {
+            protocolResponseDto.setUpdatedInfo(protocol.getUpdatedBy() + " " + protocol.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")));
+        }
+
+        return protocolResponseDto;
     }
 
     public ProtocolResponseDto protocolToProtocolResponseDto(Protocol protocol) {
@@ -60,10 +75,10 @@ public class ProtocolMapper {
         return protocolResponseDto;
     }
 
-    public Protocol protocolRequestDtoToProtocol(ProtocolRequestDto protocolRequestDto, String sequentialNumber) {
+    public Protocol protocolRequestDtoToProtocol(ProtocolRequestDto protocolRequestDto) {
         Protocol protocol = new Protocol();
 
-        protocol.setProtocolNumber(protocolRequestDto.getUniqueNumber().replaceAll(" ", ""));
+        protocol.setProtocolNumber(protocolRequestDto.getProtocolNumber());
         protocol.setClient(clientService.getClientById(protocolRequestDto.getClientId()));
         protocol.setIssueDate(LocalDate.parse(protocolRequestDto.getIssueDate(), DateTimeFormatter.ofPattern("dd.MM.yyyy")));
 

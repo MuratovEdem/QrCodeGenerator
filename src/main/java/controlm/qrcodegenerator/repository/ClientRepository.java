@@ -15,8 +15,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     @Query("select c.name from Client c where c.id = :id")
     String findNameById(@Param("id") Long id);
 
-    @Query("select max(u.number) from Client c " +
-            "join UniqueNumber u on u.client.id = c.id")
+    @Query("select max(u.number) from UniqueNumber u")
     Long getMaxUniqueNumber();
 
     @Query("select f.filePath from Client c " +

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
 
     <!-- Шрифты Control-M -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+    <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
@@ -136,12 +137,6 @@
             border-bottom: 2px solid var(--accent);
         }
 
-        .nav-link.active {
-            background: rgba(255, 255, 255, 0.15);
-            opacity: 1;
-            border-bottom: 2px solid var(--accent);
-        }
-
         /* CARD */
         .card {
             background: var(--card);
@@ -189,39 +184,6 @@
             gap: 16px;
         }
 
-        .filters-bar {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .filter-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        /* СТИЛИЗАЦИЯ ФИЛЬТРОВ - КАК В ТАБЛИЦЕ */
-        .filter-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 14px;
-            border-radius: 25px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid transparent;
-            box-shadow: var(--shadow);
-            letter-spacing: 0.2px;
-            text-transform: uppercase;
-            height: 32px;
-        }
-
         .filter-badge i {
             font-size: 12px;
         }
@@ -230,154 +192,24 @@
             line-height: 1;
         }
 
-        /* СТИЛИ ДЛЯ ALL - ТЕМНО-СИНИЙ */
-        .filter-badge[data-filter="all"] {
-            background: var(--border-light);
-            color: var(--text-secondary);
-            border-color: var(--border);
-            padding: 5px 16px;
-        }
-
-        .filter-badge[data-filter="all"]:hover {
-            background: #E2E8F0;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .filter-badge[data-filter="all"].active {
-            background: var(--primary-dark);
-            color: white;
-            border-color: var(--primary-dark);
-            box-shadow: 0 4px 8px rgba(30, 42, 56, 0.25);
-        }
-
-        /* PENDING - ЖЕЛТЫЙ */
-        .filter-badge.status-pending-filter {
-            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-            color: #92400E;
-            border-color: #F59E0B;
-        }
-
-        .filter-badge.status-pending-filter:hover {
-            background: linear-gradient(135deg, #FDE68A, #FCD34D);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.25);
-        }
-
-        .filter-badge.status-pending-filter.active {
-            background: #F59E0B;
-            color: white;
-            border-color: #F59E0B;
-            box-shadow: 0 4px 8px rgba(245, 158, 11, 0.25);
-        }
-
         .filter-badge.status-pending-filter.active i {
             color: white;
-        }
-
-        /* PROCESSING - СИНИЙ */
-        .filter-badge.status-processing-filter {
-            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
-            color: #1E40AF;
-            border-color: #3B82F6;
-        }
-
-        .filter-badge.status-processing-filter:hover {
-            background: linear-gradient(135deg, #BFDBFE, #93C5FD);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
-        }
-
-        .filter-badge.status-processing-filter.active {
-            background: #3B82F6;
-            color: white;
-            border-color: #3B82F6;
-            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.25);
         }
 
         .filter-badge.status-processing-filter.active i {
             color: white;
         }
 
-        /* DONE - ЗЕЛЕНЫЙ */
-        .filter-badge.status-done-filter {
-            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
-            color: #065F46;
-            border-color: #10B981;
-        }
-
-        .filter-badge.status-done-filter:hover {
-            background: linear-gradient(135deg, #A7F3D0, #6EE7B7);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.25);
-        }
-
-        .filter-badge.status-done-filter.active {
-            background: #10B981;
-            color: white;
-            border-color: #10B981;
-            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.25);
-        }
-
         .filter-badge.status-done-filter.active i {
             color: white;
-        }
-
-        /* ERROR - КРАСНЫЙ */
-        .filter-badge.status-error-filter {
-            background: linear-gradient(135deg, #FEE2E2, #FECACA);
-            color: #991B1B;
-            border-color: #EF4444;
-        }
-
-        .filter-badge.status-error-filter:hover {
-            background: linear-gradient(135deg, #FECACA, #FCA5A5);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
-        }
-
-        .filter-badge.status-error-filter.active {
-            background: #EF4444;
-            color: white;
-            border-color: #EF4444;
-            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
         }
 
         .filter-badge.status-error-filter.active i {
             color: white;
         }
 
-        /* SAVED - ФИОЛЕТОВЫЙ */
-        .filter-badge.status-saved-filter {
-            background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
-            color: #5B21B6;
-            border-color: #8B5CF6;
-        }
-
-        .filter-badge.status-saved-filter:hover {
-            background: linear-gradient(135deg, #DDD6FE, #C4B5FD);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(139, 92, 246, 0.25);
-        }
-
-        .filter-badge.status-saved-filter.active {
-            background: #8B5CF6;
-            color: white;
-            border-color: #8B5CF6;
-            box-shadow: 0 4px 8px rgba(139, 92, 246, 0.25);
-        }
-
         .filter-badge.status-saved-filter.active i {
             color: white;
-        }
-
-        .filter-label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-right: 6px;
         }
 
         /* WEBSOCKET ИНДИКАТОР - ТОЛЬКО ИКОНКА */
@@ -395,36 +227,10 @@
             font-size: 14px;
         }
 
-        .websocket-connected {
-            color: var(--success);
-            border-color: var(--success);
-            background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
-        }
-
         .websocket-disconnected {
             color: var(--danger);
             border-color: var(--danger);
             background: linear-gradient(135deg, #FEF2F2, #FEE2E2);
-        }
-
-        .ws-status-text {
-            display: none;
-        }
-
-        /* СТАТУС БЕЙДЖИ - СТИЛИЗАЦИЯ КНОПОК */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 12px;
-            line-height: 1;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-            border: 1px solid transparent;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
         }
 
         .done-row td, .saved-row td {
@@ -441,46 +247,6 @@
 
         .error-row:hover td {
             background-color: rgba(239, 68, 68, 0.05) !important;
-        }
-
-        .status-badge:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .status-pending {
-            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-            color: #92400E;
-            border-color: #F59E0B;
-        }
-
-        .status-processing {
-            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
-            color: #1E40AF;
-            border-color: #3B82F6;
-        }
-
-        .status-done {
-            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
-            color: #065F46;
-            border-color: #10B981;
-        }
-
-        .status-error {
-            background: linear-gradient(135deg, #FEE2E2, #FECACA);
-            color: #991B1B;
-            border-color: #EF4444;
-        }
-
-        .status-saved {
-            background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
-            color: #5B21B6;
-            border-color: #8B5CF6;
-        }
-
-        .status-badge i {
-            margin-right: 6px;
-            font-size: 12px;
         }
 
         .table-responsive {
@@ -579,16 +345,6 @@
             animation: gradientMove 1.5s ease infinite;
         }
 
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
 
         .progress-text {
             font-size: 11px;
@@ -602,71 +358,6 @@
             display: flex;
             align-items: center;
             gap: 4px;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid transparent;
-            background: transparent;
-            text-decoration: none;
-            white-space: nowrap;
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #0EA271;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #E67E22;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .btn-outline {
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: var(--text-secondary);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .btn-outline-danger {
-            border: 1px solid var(--border);
-            color: var(--danger);
-        }
-
-        .btn-outline-danger:hover {
-            border-color: var(--danger);
-            background: #FEF2F2;
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
         }
 
         .empty-table-message {
@@ -728,286 +419,6 @@
             background: #2A3A4A;
             transform: rotate(180deg);
             box-shadow: var(--shadow-md);
-        }
-
-        @media (max-width: 992px) {
-            .filters-section {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-
-        @media screen and (max-width: 768px) {
-            .container {
-                padding: 30px 20px 60px;
-            }
-
-            .card {
-                padding: 16px;
-            }
-
-            .block-title {
-                font-size: 18px;
-                padding-bottom: 10px;
-                margin-bottom: 12px;
-            }
-
-            .block-title::before {
-                height: 20px;
-            }
-
-            .filters-section {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 12px;
-                margin-bottom: 16px;
-            }
-
-            .filters-bar {
-                gap: 8px;
-                justify-content: flex-start;
-                flex-wrap: wrap;
-            }
-
-            .filter-label {
-                width: 100%;
-                margin-bottom: 4px;
-                font-size: 11px;
-            }
-
-            .filter-badge {
-                padding: 4px 10px;
-                font-size: 11px;
-                height: 28px;
-                gap: 4px;
-            }
-
-            .filter-badge i {
-                font-size: 10px;
-            }
-
-            .filter-badge[data-filter="all"] {
-                padding: 4px 12px;
-            }
-
-            .websocket-indicator {
-                align-self: flex-start;
-            }
-
-            .table-responsive {
-                border: none;
-                border-radius: 0;
-                margin: 0 -12px;
-                width: calc(100% + 24px);
-            }
-
-            table {
-                font-size: 12px;
-            }
-
-            th {
-                padding: 12px 12px;
-                font-size: 11px;
-                white-space: nowrap;
-            }
-
-            td {
-                padding: 12px 12px;
-            }
-
-            th:nth-child(1), td:nth-child(1) { min-width: 100px; }
-            th:nth-child(2), td:nth-child(2) { min-width: 140px; }
-            th:nth-child(3), td:nth-child(3) { min-width: 110px; }
-            th:nth-child(4), td:nth-child(4) { min-width: 90px; }
-            th:nth-child(5), td:nth-child(5) { min-width: 100px; }
-
-            .filename-cell {
-                max-width: 130px;
-                font-size: 11px;
-            }
-
-            .status-badge {
-                padding: 4px 10px;
-                font-size: 11px;
-                gap: 4px;
-            }
-
-            .status-badge i {
-                font-size: 11px;
-                margin-right: 4px;
-            }
-
-            .progress-container {
-                width: 80px;
-                height: 4px;
-            }
-
-            .progress-text {
-                font-size: 10px;
-            }
-
-            .error-message-cell {
-                font-size: 11px;
-            }
-
-            .error-message-cell span {
-                max-width: 120px !important;
-            }
-
-            .refresh-btn {
-                bottom: 20px;
-                right: 20px;
-                width: 44px;
-                height: 44px;
-                font-size: 18px;
-            }
-
-            footer {
-                margin-top: 30px;
-                padding-top: 16px;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-                font-size: 11px;
-            }
-
-            .footer-left {
-                width: 100%;
-            }
-
-            #status-info {
-                font-size: 11px !important;
-            }
-        }
-
-        @media screen and (max-width: 480px) {
-            .container {
-                padding: 12px 10px 30px;
-            }
-
-            .card {
-                padding: 12px;
-            }
-
-            .block-title {
-                font-size: 16px;
-            }
-
-            .filters-bar {
-                gap: 6px;
-            }
-
-            .filter-badge {
-                padding: 3px 8px;
-                font-size: 10px;
-                height: 26px;
-            }
-
-            .table-responsive {
-                margin: 0 -10px;
-                width: calc(100% + 20px);
-            }
-
-            th {
-                padding: 10px 8px;
-                font-size: 10px;
-            }
-
-            td {
-                padding: 10px 8px;
-            }
-
-            th:nth-child(1), td:nth-child(1) { min-width: 90px; }
-            th:nth-child(2), td:nth-child(2) { min-width: 120px; }
-            th:nth-child(3), td:nth-child(3) { min-width: 100px; }
-            th:nth-child(4), td:nth-child(4) { min-width: 80px; }
-            th:nth-child(5), td:nth-child(5) { min-width: 90px; }
-
-            .filename-cell {
-                max-width: 110px;
-                font-size: 10px;
-            }
-
-            .status-badge {
-                padding: 3px 8px;
-                font-size: 10px;
-            }
-
-            .progress-container {
-                width: 70px;
-                height: 4px;
-            }
-
-            .refresh-btn {
-                bottom: 15px;
-                right: 15px;
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-
-            .websocket-indicator {
-                font-size: 12px;
-            }
-        }
-
-        @media screen and (max-width: 360px) {
-            .filter-badge {
-                padding: 3px 6px;
-                font-size: 9px;
-                height: 24px;
-            }
-
-            .filter-badge i {
-                font-size: 9px;
-            }
-
-            th {
-                font-size: 9px;
-                padding: 8px 6px;
-            }
-
-            td {
-                padding: 8px 6px;
-            }
-
-            .filename-cell {
-                max-width: 90px;
-            }
-
-            .status-badge {
-                padding: 2px 6px;
-                font-size: 9px;
-            }
-
-            .progress-container {
-                width: 60px;
-            }
-
-            .error-message-cell span {
-                max-width: 80px !important;
-            }
-
-            .refresh-btn {
-                bottom: 10px;
-                right: 10px;
-                width: 36px;
-                height: 36px;
-                font-size: 14px;
-            }
-        }
-
-        @media (hover: none) and (pointer: coarse) {
-            .filter-badge:hover,
-            .status-badge:hover,
-            .btn:hover,
-            .refresh-btn:hover {
-                transform: none !important;
-            }
-
-            .filter-badge.active {
-                transform: none !important;
-            }
         }
 
         .pagination {
@@ -1075,22 +486,55 @@
             background: var(--border-light);
         }
 
-        @media (max-width: 768px) {
-            .pagination {
-                flex-direction: column;
-                gap: 16px;
-                align-items: flex-start;
-            }
+        /* ========== СТАТУС-БЕЙДЖИ ДЛЯ ТАБЛИЦЫ ========== */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            line-height: 1;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
 
-            .pagination-controls {
-                flex-wrap: wrap;
-            }
+        .status-pending {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+            border-color: #F59E0B;
+            gap: 4px;
+        }
 
-            .page-btn {
-                min-width: 32px;
-                height: 32px;
-                font-size: 12px;
-            }
+        .status-processing {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+            color: #1E40AF;
+            border-color: #3B82F6;
+            gap: 4px;
+        }
+
+        .status-done {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            color: #065F46;
+            border-color: #10B981;
+            gap: 4px;
+        }
+
+        .status-error {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            color: #991B1B;
+            border-color: #EF4444;
+            gap: 4px;
+        }
+
+        .status-saved {
+            background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+            color: #5B21B6;
+            border-color: #8B5CF6;
+            gap: 4px;
         }
     </style>
 </head>
@@ -1099,7 +543,7 @@
 <header>
     <div class="header-inner">
         <div class="logo-block">
-            <img th:src="@{/images/logo3.png}"
+            <img th:src="@{/images/logo.png}"
                  src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
                  alt="Логотип Control-M">
             <div class="logo-text">
@@ -1114,6 +558,12 @@
             <a th:href="@{/ocr/jobs}" class="nav-link">
                 Загрузки
             </a>
+            <a th:href="@{/admins}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Пользователи
+            </a>
+            <a th:href="@{/admins/statistics}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Статистика
+            </a>
         </nav>
     </div>
 </header>
@@ -1123,7 +573,6 @@
         <div class="block-title">
             ОБРАБОТКА PDF-ДОКУМЕНТОВ
         </div>
-
 
         <div class="filters-section">
             <p style="color: var(--text-secondary); margin-bottom: 24px;">
@@ -1191,7 +640,7 @@
 
                     <td>
                         <span th:class="'status-badge status-' + ${#strings.toLowerCase(job.status)}">
-                            <i th:switch="${job.status.name}" style="margin-right: 6px;">
+                            <i th:switch="${job.status.name}">
                                 <i th:case="'PENDING'" class="bi bi-hourglass"></i>
                                 <i th:case="'PROCESSING'" class="bi bi-gear-wide-connected"></i>
                                 <i th:case="'DONE'" class="bi bi-check-circle"></i>

@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control-M — Управление пользователями</title>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <!-- Шрифты Control-M -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap"
+          rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
+
+    <style>
+        :root {
+            --primary-dark: #1E2A38;
+            --accent: #FF0000;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --border-light: #F1F5F9;
+            --radius: 10px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--primary-dark);
+            color: white;
+            padding: 20px 0;
+            border-bottom: 3px solid var(--accent);
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-block img {
+            height: 45px;
+            width: auto;
+            display: block;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: white;
+            line-height: 1.2;
+        }
+
+        /* НАВИГАЦИЯ */
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: var(--transition);
+            opacity: 0.9;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            opacity: 1;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        /* КАРТОЧКА */
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .block-title {
+            font-weight: 600;
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .block-title::before {
+            content: "";
+            width: 5px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* ЗАГОЛОВОК И КНОПКА ДОБАВЛЕНИЯ */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background: #2A3A4A;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ТАБЛИЦА */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            background: var(--bg);
+            border-bottom: 2px solid var(--border);
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background: #F8FAFC;
+        }
+
+        /* СТАТУС-БЕЙДЖИ */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065F46;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-blocked {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991B1B;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-temp-password {
+            background: rgba(245, 158, 11, 0.1);
+            color: #92400E;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* КНОПКИ ДЕЙСТВИЙ */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .btn-icon:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-icon.reset:hover {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: #FFF5F5;
+        }
+
+        .btn-icon.block:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: #FEF2F2;
+        }
+
+        .btn-icon.unblock:hover {
+            border-color: var(--success);
+            color: var(--success);
+            background: #F0FDF4;
+        }
+
+        .btn-icon.delete:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: #FEF2F2;
+        }
+
+        /* ПУСТОЕ СОСТОЯНИЕ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 50px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left {
+            font-weight: 500;
+        }
+
+        /* МОДАЛЬНОЕ ОКНО */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            background: var(--card);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-title i {
+            color: var(--success);
+            font-size: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .credentials-card {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-light);
+        }
+
+        .credential-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .credential-item:last-child {
+            border-bottom: none;
+        }
+
+        .credential-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .credential-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            color: var(--text-main);
+            font-size: 14px;
+            background: var(--card);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .btn-copy {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-copy:hover {
+            border-color: var(--info);
+            color: var(--info);
+            background: #EFF6FF;
+        }
+
+        .btn-copy.copied {
+            border-color: var(--success);
+            color: var(--success);
+            background: #F0FDF4;
+        }
+
+        .btn-modal-primary {
+            background: var(--primary-dark);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-modal-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Стили для выпадающего списка ролей */
+        .role-select {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            background: var(--card);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition);
+            min-width: 130px;
+        }
+
+        .role-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .role-select:disabled {
+            background: var(--border-light);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Кнопка сохранения роли */
+        .btn-icon.role-save {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .btn-icon.role-save:hover {
+            background: #0EA271;
+            border-color: #0EA271;
+        }
+
+        /* Режим редактирования роли */
+        .role-edit-mode {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .role-view-mode {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .role-name {
+            font-weight: 500;
+        }
+
+        .btn-modal-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Стили для формы в модальном окне */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo-block">
+            <img th:src="@{/images/logo.png}"
+                 src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
+                 alt="Логотип Control-M">
+            <div class="logo-text">
+                <div class="logo-title">CONTROL-M</div>
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <a th:href="@{/clients}" class="nav-link">
+                Клиенты
+            </a>
+            <a th:href="@{/ocr/jobs}" class="nav-link">
+                Загрузки
+            </a>
+            <a th:href="@{/admins}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Пользователи
+            </a>
+            <a th:href="@{/admins/statistics}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Статистика
+            </a>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <div class="card">
+        <div class="page-header">
+            <div class="block-title">
+                УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ
+            </div>
+            <a th:href="@{/auth/register}" class="btn-primary" sec:authorize="hasRole('ADMIN')">
+                <i class="bi bi-plus-circle"></i>
+                Новый пользователь
+            </a>
+        </div>
+
+        <!-- Таблица пользователей -->
+        <div th:if="${users != null and !users.isEmpty()}" class="table-responsive">
+            <table>
+                <thead>
+                <tr>
+                    <th>ФИО</th>
+                    <th>Логин</th>
+                    <th>Роль</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}" th:attr="data-user-id=${user.id}">
+                    <td>
+                        <strong th:text="${user.fullName}">Иванов Иван Иванович</strong>
+                    </td>
+                    <td>
+                        <span th:text="${user.username}">ivanov_i</span>
+                    </td>
+                    <td class="role-cell">
+                        <!-- Режим просмотра -->
+                        <div class="role-view-mode">
+                            <span class="role-name" th:text="${user.roleName}">Пользователь</span>
+                            <button class="btn-icon" style="padding: 4px 8px;" onclick="editRole(this)" title="Изменить роль">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </div>
+                        <!-- Режим редактирования -->
+                        <div class="role-edit-mode" style="display: none;">
+                            <select class="role-select">
+                                <option th:each="role : ${availableRoles}" th:value="${role}" th:text="${role}">ROLE_USER</option>
+                            </select>
+                            <button class="btn-icon role-save" style="padding: 4px 8px;" onclick="saveRole(this)" title="Сохранить">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                            <button class="btn-icon" style="padding: 4px 8px;" onclick="cancelRoleEdit(this)" title="Отмена">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+        <span th:class="'status-badge ' + (${user.enabled} ? 'status-active' : 'status-blocked')">
+            <span th:if="${user.enabled}">Активен</span>
+            <span th:unless="${user.enabled}">Заблокирован</span>
+        </span>
+                        <span th:if="${user.passwordTemporary}" class="status-badge status-temp-password" style="margin-left: 8px;">
+            Временный пароль
+        </span>
+                    </td>
+                    <td class="action-buttons">
+                        <!-- Сброс пароля -->
+                        <button class="btn-icon reset"
+                                th:data-user-id="${user.id}"
+                                th:data-user-name="${user.fullName}"
+                                onclick="resetPassword(this)">
+                            <i class="bi bi-key"></i>
+                            Сброс пароля
+                        </button>
+
+                        <!-- Блокировка/Разблокировка -->
+                        <button th:if="${user.enabled}"
+                                class="btn-icon block"
+                                th:data-user-id="${user.id}"
+                                th:data-user-name="${user.fullName}"
+                                onclick="blockUser(this)">
+                            <i class="bi bi-lock"></i>
+                            Заблокировать
+                        </button>
+                        <button th:unless="${user.enabled}"
+                                class="btn-icon unblock"
+                                th:data-user-id="${user.id}"
+                                th:data-user-name="${user.fullName}"
+                                onclick="unblockUser(this)">
+                            <i class="bi bi-unlock"></i>
+                            Разблокировать
+                        </button>
+
+                        <!-- Удаление пользователя -->
+                        <button class="btn-icon delete"
+                                th:data-user-id="${user.id}"
+                                th:data-user-name="${user.fullName}"
+                                onclick="deleteUser(this)">
+                            <i class="bi bi-trash"></i>
+                            Удалить
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Пустое состояние -->
+        <div th:if="${users == null or users.isEmpty()}" class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="empty-state-title">Нет зарегистрированных пользователей</div>
+            <p style="color: var(--text-secondary); margin-top: 8px;">
+                Создайте первого пользователя, нажав кнопку "Новый пользователь"
+            </p>
+        </div>
+    </div>
+
+    <a th:href="@{/admins/storage/archive}" class="btn-primary" sec:authorize="hasRole('ADMIN')">
+        Скачать архив
+    </a>
+
+    <!-- Раздел управления шифрами -->
+    <div class="card" style="margin-top: 24px;">
+        <div class="page-header" style="margin-bottom: 16px;">
+            <div class="block-title" style="margin-bottom: 0;">
+                УПРАВЛЕНИЕ ШИФРАМИ
+            </div>
+            <button class="btn-primary" onclick="showCreateCipherModal()">
+                <i class="bi bi-plus-circle"></i>
+                Добавить шифр
+            </button>
+        </div>
+        <div class="table-responsive" id="ciphersContainer">
+            <table id="ciphersTable">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Шифр</th>
+                    <th>Описание</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody id="ciphersBody">
+                <tr><td colspan="4" style="text-align: center;">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Блок с логами действий -->
+    <div class="card" style="margin-top: 32px;">
+        <div class="block-title">
+            ЖУРНАЛ ДЕЙСТВИЙ
+        </div>
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+            <button id="refreshLogsBtn" class="btn-primary" style="background: var(--primary-dark); padding: 6px 12px; font-size: 12px;">
+                <i class="bi bi-arrow-repeat"></i> Обновить
+            </button>
+        </div>
+        <div class="table-responsive" id="logsContainer">
+            <table id="logsTable">
+                <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Действие</th>
+                    <th>Пользователь</th>
+                    <th>Детали</th>
+                    <th>Кто выполнил</th>
+                </tr>
+                </thead>
+                <tbody id="logsBody">
+                <tr><td colspan="5" style="text-align: center;">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-left">
+            © Control-M • Внутренняя система протоколов
+        </div>
+    </footer>
+</div>
+
+<!-- Модальное окно подтверждения -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h5 class="modal-title" id="confirmModalTitle">Подтверждение действия</h5>
+            <button type="button" class="modal-close" onclick="closeConfirmModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmModalMessage">Вы уверены, что хотите выполнить это действие?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-secondary" onclick="closeConfirmModal()">Отмена</button>
+            <button type="button" class="btn-modal-primary" id="confirmModalAction">Подтвердить</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="resultModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h5 class="modal-title">
+                <i class="bi bi-check-circle-fill"></i>
+                Пароль сброшен
+            </h5>
+            <button type="button" class="modal-close" onclick="closeResultModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom: 16px; color: var(--text-secondary);">
+                Сохраните данные для входа:
+            </p>
+
+            <div class="credentials-card">
+                <div class="credential-item">
+                    <span class="credential-label">Логин:</span>
+                    <span class="credential-value" id="resultLogin">-</span>
+                </div>
+                <div class="credential-item">
+                    <span class="credential-label">Пароль:</span>
+                    <span class="credential-value" id="resultPassword">-</span>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: center;">
+                <button class="btn-copy" id="copyCredentialsBtn" onclick="copyCredentials()">
+                    <i class="bi bi-clipboard"></i>
+                    Скопировать логин и пароль
+                </button>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="closeResultModal()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для создания/редактирования шифра -->
+<div class="modal-overlay" id="cipherModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h5 class="modal-title" id="cipherModalTitle">
+                <i class="bi bi-plus-circle"></i>
+                Создание шифра
+            </h5>
+            <button type="button" class="modal-close" onclick="closeCipherModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="cipherForm">
+                <input type="hidden" id="cipherId">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label" for="cipherName">Шифр</label>
+                    <input type="text" class="form-control" id="cipherName" placeholder="Введите шифр" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="cipherDescription">Описание</label>
+                    <textarea class="form-control" id="cipherDescription" rows="3" placeholder="Введите описание"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-secondary" onclick="closeCipherModal()">Отмена</button>
+            <button type="button" class="btn-modal-primary" id="saveCipherBtn">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/csrf.js"></script>
+<script>
+    let pendingAction = null;
+    let pendingUserId = null;
+    let pendingUserName = null;
+    let currentLogin = '';
+    let currentPassword = '';
+    let currentCipherId = null;
+
+    // Закрытие модального окна
+    function closeResultModal() {
+        document.getElementById('resultModal').classList.remove('show');
+    }
+
+    // Копирование логина и пароля
+    async function copyCredentials() {
+        const textToCopy = `Логин: ${currentLogin} Пароль: ${currentPassword}`;
+
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            const copyBtn = document.getElementById('copyCredentialsBtn');
+            const originalHtml = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="bi bi-check-lg"></i> Скопировано!';
+            copyBtn.classList.add('copied');
+
+            setTimeout(() => {
+                copyBtn.innerHTML = originalHtml;
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        } catch (err) {
+            console.error('Ошибка копирования:', err);
+            alert('Не удалось скопировать данные');
+        }
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirmModal').classList.remove('show');
+        pendingAction = null;
+        pendingUserId = null;
+        pendingUserName = null;
+    }
+
+    function showConfirmModal(title, message, onConfirm) {
+        document.getElementById('confirmModalTitle').textContent = title;
+        document.getElementById('confirmModalMessage').textContent = message;
+        const confirmBtn = document.getElementById('confirmModalAction');
+
+        // Удаляем старый обработчик
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+        newConfirmBtn.addEventListener('click', function () {
+            onConfirm();
+            closeConfirmModal();
+        });
+
+        document.getElementById('confirmModal').classList.add('show');
+    }
+
+    // Сброс пароля
+    function resetPassword(button) {
+        const userId = button.getAttribute('data-user-id');
+        const userName = button.getAttribute('data-user-name');
+
+        const row = button.closest('tr');
+        const loginCell = row.querySelector('td:nth-child(2)');
+        const userLogin = loginCell ? loginCell.textContent.trim() : userName;
+
+        showConfirmModal(
+            'Сброс пароля',
+            `Вы уверены, что хотите сбросить пароль пользователя "${userName}"? Новый временный пароль будет сгенерирован.`,
+            function () {
+                const headers = { 'Content-Type': 'application/json' };
+                fetch(`/admins/${userId}/reset-password`, {
+                    method: 'POST',
+                    headers: headers
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Ошибка при сбросе пароля');
+                    })
+                    .then(data => {
+                        currentLogin = data.username || userLogin;
+                        currentPassword = data.password;
+                        document.getElementById('resultLogin').textContent = currentLogin;
+                        document.getElementById('resultPassword').textContent = currentPassword;
+                        document.getElementById('resultModal').classList.add('show');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Ошибка при сбросе пароля');
+                    });
+            }
+        );
+    }
+
+    // Блокировка пользователя
+    function blockUser(button) {
+        const userId = button.getAttribute('data-user-id');
+        const userName = button.getAttribute('data-user-name');
+
+        showConfirmModal(
+            'Блокировка пользователя',
+            `Вы уверены, что хотите заблокировать пользователя "${userName}"?`,
+            function () {
+
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+
+                fetch(`/admins/${userId}/block`, {
+                    method: 'POST',
+                    headers: headers
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            throw new Error('Ошибка при блокировке пользователя');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Ошибка при блокировке пользователя');
+                    });
+            }
+        );
+    }
+
+    // Разблокировка пользователя
+    function unblockUser(button) {
+        const userId = button.getAttribute('data-user-id');
+        const userName = button.getAttribute('data-user-name');
+
+        showConfirmModal(
+            'Разблокировка пользователя',
+            `Вы уверены, что хотите разблокировать пользователя "${userName}"?`,
+            function () {
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+
+                fetch(`/admins/${userId}/unblock`, {
+                    method: 'POST',
+                    headers: headers
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            throw new Error('Ошибка при разблокировке пользователя');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Ошибка при разблокировке пользователя');
+                    });
+            }
+        );
+    }
+
+    // Переключение режима редактирования роли
+    function editRole(button) {
+        const row = button.closest('tr');
+        const roleCell = row.querySelector('.role-cell');
+        const roleView = roleCell.querySelector('.role-view-mode');
+        const roleEdit = roleCell.querySelector('.role-edit-mode');
+        const currentRole = roleView.querySelector('.role-name').textContent;
+
+        roleView.style.display = 'none';
+        roleEdit.style.display = 'flex';
+
+        const select = roleEdit.querySelector('.role-select');
+        if (select) {
+            select.value = currentRole;
+            select.focus();
+        }
+    }
+
+    function cancelRoleEdit(button) {
+        const row = button.closest('tr');
+        const roleCell = row.querySelector('.role-cell');
+        const roleView = roleCell.querySelector('.role-view-mode');
+        const roleEdit = roleCell.querySelector('.role-edit-mode');
+
+        roleEdit.style.display = 'none';
+        roleView.style.display = 'flex';
+    }
+
+    function saveRole(button) {
+        const row = button.closest('tr');
+        const userId = row.getAttribute('data-user-id');
+        const roleCell = row.querySelector('.role-cell');
+        const select = roleCell.querySelector('.role-select');
+        const newRole = select.value;
+
+        const roleView = roleCell.querySelector('.role-view-mode');
+        const roleEdit = roleCell.querySelector('.role-edit-mode');
+        const roleNameSpan = roleCell.querySelector('.role-name');
+
+        // Сохраняем оригинальную роль на случай ошибки
+        const originalRole = roleNameSpan.textContent;
+
+        // Показываем индикатор загрузки
+        button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+        button.disabled = true;
+
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        fetch(`/admins/${userId}/role`, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify({role: newRole})
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Обновляем отображение роли
+                    roleNameSpan.textContent = newRole;
+                    roleEdit.style.display = 'none';
+                    roleView.style.display = 'flex';
+                } else {
+                    throw new Error('Ошибка при изменении роли');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при изменении роли пользователя');
+                // Восстанавливаем отображение
+                roleEdit.style.display = 'none';
+                roleView.style.display = 'flex';
+            })
+            .finally(() => {
+                button.innerHTML = '<i class="bi bi-check-lg"></i>';
+                button.disabled = false;
+            });
+    }
+
+    // Удаление пользователя
+    function deleteUser(button) {
+        const userId = button.getAttribute('data-user-id');
+        const userName = button.getAttribute('data-user-name');
+
+        showConfirmModal(
+            'Удаление пользователя',
+            `Вы уверены, что хотите удалить пользователя "${userName}"? Это действие нельзя отменить!`,
+            function () {
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+
+
+                fetch(`/admins/${userId}/delete`, {
+                    method: 'DELETE',
+                    headers: headers
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            throw new Error('Ошибка при удалении пользователя');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Ошибка при удалении пользователя');
+                    });
+            }
+        );
+    }
+
+    async function loadCiphers() {
+        const tbody = document.getElementById('ciphersBody');
+        try {
+            const response = await fetch('/admins/ciphers');
+            if (!response.ok) throw new Error('Ошибка загрузки шифров');
+            const ciphers = await response.json();
+            if (ciphers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Нет шифров</td></tr>';
+                return;
+            }
+            tbody.innerHTML = ciphers.map(cipher => `
+            <tr>
+                <td>${cipher.id}</td>
+                <td><strong>${escapeHtml(cipher.name)}</strong></td>
+                <td>${escapeHtml(cipher.description || '')}</td>
+                <td style="display: flex; gap: 8px;">
+                    <button class="btn-icon" style="padding: 4px 8px;" onclick="showEditCipherModal(${cipher.id}, '${escapeHtml(cipher.name)}', '${escapeHtml(cipher.description || '')}')" title="Редактировать">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn-icon delete" style="padding: 4px 8px;" onclick="deleteCipher(${cipher.id}, '${escapeHtml(cipher.name)}')" title="Удалить">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+        } catch (error) {
+            console.error('Ошибка:', error);
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Ошибка загрузки шифров</td></tr>';
+        }
+    }
+
+    function showCreateCipherModal() {
+        document.getElementById('cipherModalTitle').innerHTML = '<i class="bi bi-plus-circle"></i> Создание шифра';
+        document.getElementById('cipherId').value = '';
+        document.getElementById('cipherName').value = '';
+        document.getElementById('cipherDescription').value = '';
+        document.getElementById('saveCipherBtn').textContent = 'Создать';
+        document.getElementById('cipherModal').classList.add('show');
+        document.getElementById('cipherName').focus();
+    }
+
+    // Показать модальное окно редактирования
+    function showEditCipherModal(id, name, description) {
+        document.getElementById('cipherModalTitle').innerHTML = '<i class="bi bi-pencil"></i> Редактирование шифра';
+        document.getElementById('cipherId').value = id;
+        document.getElementById('cipherName').value = name;
+        document.getElementById('cipherDescription').value = description;
+        document.getElementById('saveCipherBtn').textContent = 'Сохранить';
+        document.getElementById('cipherModal').classList.add('show');
+        document.getElementById('cipherName').focus();
+    }
+
+    // Закрыть модальное окно шифра
+    function closeCipherModal() {
+        document.getElementById('cipherModal').classList.remove('show');
+        document.getElementById('cipherForm').reset();
+    }
+
+    function saveCipher() {
+        const id = document.getElementById('cipherId').value.trim();
+        const name = document.getElementById('cipherName').value.trim();
+        const description = document.getElementById('cipherDescription').value.trim();
+
+        if (!name) {
+            alert('Пожалуйста, введите шифр');
+            document.getElementById('cipherName').focus();
+            return;
+        }
+
+        const data = { name, description };
+        let method = 'POST';
+        if (id) {
+            const parsedId = parseInt(id, 10);
+            if (!isNaN(parsedId) && parsedId > 0) {
+                data.id = parsedId;
+                method = 'PUT';
+            }
+        }
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+        const headers = { 'Content-Type': 'application/json' };
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+        }
+
+        const btn = document.getElementById('saveCipherBtn');
+        const originalText = btn.textContent;
+        btn.textContent = 'Сохранение...';
+        btn.disabled = true;
+
+        fetch('/admins/ciphers', {
+            method: method,
+            headers: headers,
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (response.ok) {
+                    closeCipherModal();
+                    loadCiphers();
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(`Ошибка ${response.status}: ${text}`);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка при сохранении шифра: ' + error.message);
+            })
+            .finally(() => {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            });
+    }
+
+    // Удаление шифра
+    function deleteCipher(id, name) {
+        showConfirmModal(
+            'Удаление шифра',
+            `Вы уверены, что хотите удалить шифр "${name}"? Это действие нельзя отменить!`,
+            function () {
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+                const headers = {};
+                if (csrfToken && csrfHeader) {
+                    headers[csrfHeader] = csrfToken;
+                }
+
+                fetch(`/admins/ciphers?id=${id}`, {
+                    method: 'DELETE',
+                    headers: headers
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            loadCiphers();
+                        } else {
+                            throw new Error('Ошибка при удалении шифра');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Ошибка при удалении шифра');
+                    });
+            }
+        );
+    }
+
+    // Загрузка логов
+    async function loadLogs() {
+        const tbody = document.getElementById('logsBody');
+        try {
+            const response = await fetch('/admins/logs');
+            if (!response.ok) throw new Error('Ошибка загрузки логов');
+            const logs = await response.json();
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Нет записей</td></tr>';
+                return;
+            }
+            tbody.innerHTML = logs.map(log => `
+            <tr>
+                <td style="white-space: nowrap;">${new Date(log.createdAt).toLocaleString()}</td>
+                <td>${getActionText(log.action)}</td>
+                <td>${escapeHtml(log.targetUsername)}</td>
+                <td>${escapeHtml(log.details || '')}</td>
+                <td>${escapeHtml(log.createdBy)}</td>
+            </tr>
+        `).join('');
+        } catch (error) {
+            console.error('Ошибка:', error);
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Ошибка загрузки логов</td></tr>';
+        }
+    }
+
+    function getActionText(action) {
+        const actions = {
+            'CREATE': 'Создание',
+            'DELETE': 'Удаление',
+            'PASSWORD_RESET': 'Сброс пароля',
+            'ROLE_CHANGE': 'Изменение роли',
+            'BLOCK': 'Блокировка',
+            'UNBLOCK': 'Разблокировка'
+        };
+        return actions[action] || action;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        loadLogs();
+        loadCiphers();
+        document.getElementById('refreshLogsBtn').addEventListener('click', loadLogs);
+        document.getElementById('saveCipherBtn').addEventListener('click', saveCipher);
+    });
+
+    document.getElementById('cipherModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeCipherModal();
+        }
+    });
+
+    document.getElementById('confirmModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeConfirmModal();
+        }
+    });
+
+    document.getElementById('resultModal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeResultModal();
+        }
+    });
+</script>
+
+</body>
+</html>

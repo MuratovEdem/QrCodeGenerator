@@ -4,13 +4,18 @@ import controlm.qrcodegenerator.dto.request.ClientCreateRequestDto;
 import controlm.qrcodegenerator.dto.request.ClientUpdateRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolUpdateDto;
+import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
 import controlm.qrcodegenerator.dto.response.ProtocolPageDto;
 import controlm.qrcodegenerator.dto.response.PublicClientDto;
-import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
 import controlm.qrcodegenerator.mapper.ClientMapper;
 import controlm.qrcodegenerator.model.Client;
 import controlm.qrcodegenerator.model.OcrJob;
-import controlm.qrcodegenerator.service.*;
+import controlm.qrcodegenerator.service.ClientService;
+import controlm.qrcodegenerator.service.FileStorageService;
+import controlm.qrcodegenerator.service.OcrAsyncService;
+import controlm.qrcodegenerator.service.OcrJobService;
+import controlm.qrcodegenerator.service.ProtocolService;
+import controlm.qrcodegenerator.service.QRCodeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,6 +45,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.security.Principal;
+import java.util.Objects;
 
 @Slf4j
 @Controller
@@ -179,11 +186,15 @@ public class ClientController {
             @RequestParam String cipher,
             @RequestParam int page,
             @RequestParam int size,
-            @RequestParam(required = false) String search) {
+            @RequestParam(required = false) String search,
+            Authentication authentication) {
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> Objects.equals(a.getAuthority(), "ROLE_ADMIN"));
 
         Pageable pageable = PageRequest.of(page, size);
 
-        return protocolService.getProtocolsByCipher(clientId, search, cipher, pageable);
+        return protocolService.getProtocolsByCipher(clientId, search, cipher, pageable, isAdmin);
     }
 
     @GetMapping("/{id}/create-protocols")
@@ -209,7 +220,6 @@ public class ClientController {
     @PostMapping("/{id}/create-protocols")
     public String createProtocolByClientId(@PathVariable Long id,
                                            @Valid @ModelAttribute("protocolForm") ProtocolRequestDto formDto,
-
                                            BindingResult bindingResult,
                                            Model model,
                                            RedirectAttributes redirectAttributes) {
@@ -218,9 +228,7 @@ public class ClientController {
             Client client = clientService.getClientById(id);
             formDto.setClientId(id);
 
-
             if (bindingResult.hasErrors()) {
-
                 model.addAttribute("client", client);
                 model.addAttribute("pageTitle", "Добавить протокол для " + client.getName());
 
@@ -230,8 +238,6 @@ public class ClientController {
 
             protocolService.createProtocol(formDto);
 
-            log.info("Протокол сохранен для клиента ID: {}, шифр: {}, номер: {}",
-                    id, formDto.getCipher(), formDto.getUniqueNumber());
             redirectAttributes.addFlashAttribute("successMessage",
                     "Протокол успешно добавлен");
         } catch (Exception e) {
@@ -253,19 +259,22 @@ public class ClientController {
     public String upload(@PathVariable Long clientId,
                          @RequestParam("pdfFile") MultipartFile file,
                          Principal principal,
-                         Model model) throws IOException {
+                         Model model) {
 
-        Path path = fileStorageService.saveOriginal(file, clientService.getNameById(clientId), "original");
-        OcrJob job = ocrJobService.create(clientId,
-                principal.getName(),
-                path.toString());
+        try {
+            Path path = fileStorageService.saveOriginal(file, clientService.getNameById(clientId), "original");
+            OcrJob job = ocrJobService.create(clientId, principal.getName(), path.toString());
+            ocrAsyncService.start(job.getId());
 
-        ocrAsyncService.start(job.getId());
+            model.addAttribute("successMessage",
+                    "Файл успешно загружен и поставлен в очередь на обработку");
+        } catch (Exception e) {
+            model.addAttribute("errorMessage",
+                    "Ошибка при загрузке файла: " + e.getMessage());
+        }
 
-        model.addAttribute("ocrJob", job);
-        model.addAttribute("clientName", clientService.getClientById(clientId).getName());
-
-        return "redirect:/ocr/jobs" ;
+        model.addAttribute("clientId", clientId);
+        return "clients/upload-pdf-form";
     }
 
     @PostMapping("/{clientId}/protocols/{protocolId}/edit")

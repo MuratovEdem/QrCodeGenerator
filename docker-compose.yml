@@ -12,16 +12,23 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://control_m_db:5432/control_m
       - SPRING_DATASOURCE_USERNAME=control_m
       - SPRING_DATASOURCE_PASSWORD=control_m_pass
-      - SPRING_JPA_SHOW_SQL=true
       - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=50MB
       - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=50MB
-      - TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+      - TESSDATA_PREFIX=/usr/share/tessdata
+      - SPRING_LIQUIBASE_CHANGE_LOG=classpath:db/changelog/db.changelog-master.xml
     depends_on:
       - control_m_db
     networks:
       - control-m-network
     volumes:
       - ./test-pdfs:/app/test-pdfs
+      - ./pdfs:/app/pdfs
+      - storage-data:/app/storage
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
 
   control_m_db:
     image: postgres:16
@@ -38,6 +45,7 @@ services:
 
 volumes:
   db-data:
+  storage-data:
 
 networks:
   control-m-network:

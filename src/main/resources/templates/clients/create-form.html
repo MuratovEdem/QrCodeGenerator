@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,7 @@
     <!-- Шрифты Control-M -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet">
-
+    <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
@@ -622,83 +623,6 @@
         .footer-left {
             font-weight: 500;
         }
-
-        /* АДАПТИВНОСТЬ */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px 16px 40px;
-            }
-
-            .header-inner {
-                flex-direction: row;
-                align-items: center;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .logo-block img {
-                height: 35px;
-            }
-
-            .logo-title {
-                font-size: 18px;
-            }
-
-            .main-nav {
-                order: 2;
-                width: 100%;
-            }
-
-            .form-card {
-                padding: 20px;
-            }
-
-            .form-actions {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .items-table {
-                font-size: 12px;
-            }
-
-            .items-table th,
-            .items-table td {
-                padding: 8px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .form-title {
-                font-size: 18px;
-            }
-
-            .form-title::before {
-                height: 20px;
-            }
-
-            .form-label {
-                font-size: 12px;
-            }
-
-            .form-control {
-                padding: 10px 14px;
-            }
-
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-
-            .btn-add {
-                width: 100%;
-                justify-content: center;
-            }
-        }
     </style>
 </head>
 <body>
@@ -706,7 +630,7 @@
 <header>
     <div class="header-inner">
         <div class="logo-block">
-            <img th:src="@{/images/logo3.png}"
+            <img th:src="@{/images/logo.png}"
                  src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
                  alt="Логотип Control-M">
             <div class="logo-text">
@@ -720,6 +644,12 @@
             </a>
             <a th:href="@{/ocr/jobs}" class="nav-link">
                 Загрузки
+            </a>
+            <a th:href="@{/admins}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Пользователи
+            </a>
+            <a th:href="@{/admins/statistics}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Статистика
             </a>
         </nav>
     </div>

@@ -6,6 +6,8 @@ import controlm.qrcodegenerator.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class RoleService {
@@ -25,5 +27,9 @@ public class RoleService {
         Role role = new Role();
         role.setName(roleName);
         return roleRepository.save(role);
+    }
+
+    public List<String> findAll() {
+        return  roleRepository.findAll().stream().map(Role::getName).toList();
     }
 }

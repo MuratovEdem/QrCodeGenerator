@@ -10,19 +10,17 @@ import java.awt.image.BufferedImage;
 @Slf4j
 @Service
 public class FastOcrService {
-    private final Tesseract tesseract;
-
-    public FastOcrService() {
-        tesseract = new Tesseract();
-        tesseract.setDatapath(System.getenv("TESSDATA_PREFIX"));
-        tesseract.setLanguage("rus");
-        tesseract.setPageSegMode(6);
-        tesseract.setOcrEngineMode(1);
-    }
+    private final String tessDataPath = System.getenv("TESSDATA_PREFIX");
 
     public String recognizeHeader(BufferedImage pageImage) throws TesseractException {
+        Tesseract tesseract = new Tesseract();
+        tesseract.setDatapath(tessDataPath);
+        tesseract.setLanguage("rus");
+        tesseract.setPageSegMode(3);
+        tesseract.setOcrEngineMode(1);
         BufferedImage top = safeCrop(pageImage);
         BufferedImage gray = toGray(top);
+
         return tesseract.doOCR(gray);
     }
 
@@ -53,7 +51,6 @@ public class FastOcrService {
 
         return img.getSubimage(x, y, cw, ch);
     }
-    // TODO сделать возможность регулировать диапазон сканирования
 
     private BufferedImage toGray(BufferedImage img) {
         BufferedImage gray = new BufferedImage(
@@ -63,4 +60,5 @@ public class FastOcrService {
         gray.getGraphics().drawImage(img, 0, 0, null);
         return gray;
     }
+
 }

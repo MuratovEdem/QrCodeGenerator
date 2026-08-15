@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,7 @@
     <!-- Шрифты Control-M -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet">
-
+    <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
@@ -634,6 +635,18 @@
             padding-right: 70px;
         }
 
+        .protocol-meta {
+            margin-left: auto;
+            margin-right: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            opacity: 0.7;
+            text-align: right;
+            white-space: nowrap;
+            line-height: 1.4;
+            flex-shrink: 0;
+        }
+
         .protocol-actions {
             display: flex;
             gap: 8px;
@@ -1045,7 +1058,7 @@
 <header>
     <div class="header-inner">
         <div class="logo-block">
-            <img th:src="@{/images/logo3.png}"
+            <img th:src="@{/images/logo.png}"
                  src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
                  alt="Логотип Control-M">
             <div class="logo-text">
@@ -1059,6 +1072,12 @@
             </a>
             <a th:href="@{/ocr/jobs}" class="nav-link">
                 Загрузки
+            </a>
+            <a th:href="@{/admins}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Пользователи
+            </a>
+            <a th:href="@{/admins/statistics}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Статистика
             </a>
         </nav>
     </div>
@@ -1175,7 +1194,7 @@
 
             <!-- Файлы -->
             <div class="info-section"
-                th:if="${paginatedDto.client.files != null and !paginatedDto.client.files.isEmpty()}">
+                 th:if="${paginatedDto.client.files != null and !paginatedDto.client.files.isEmpty()}">
                 <div class="files-section-title">
                     <i class="bi bi-paperclip"></i>
                     Прикрепленные файлы
@@ -1190,9 +1209,11 @@
                             <i th:switch="${file.contentType}">
                                 <i th:case="'application/pdf'" class="bi bi-file-pdf"></i>
                                 <i th:case="'application/msword'" class="bi bi-file-word"></i>
-                                <i th:case="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'" class="bi bi-file-word"></i>
+                                <i th:case="'application/vnd.openxmlformats-officedocument.wordprocessingml.document'"
+                                   class="bi bi-file-word"></i>
                                 <i th:case="'application/vnd.ms-excel'" class="bi bi-file-excel"></i>
-                                <i th:case="'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'" class="bi bi-file-excel"></i>
+                                <i th:case="'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'"
+                                   class="bi bi-file-excel"></i>
                                 <i th:case="'image/jpeg'" class="bi bi-file-image"></i>
                                 <i th:case="'image/png'" class="bi bi-file-image"></i>
                                 <i th:case="'image/gif'" class="bi bi-file-image"></i>
@@ -1522,43 +1543,41 @@
                 return;
             }
 
-            list.innerHTML = protocols.map(p =>
-                `<div class="protocol-card">
-                    <div class="protocol-info">
-                        <span class="protocol-number">${p.fullProtocolNumber}</span>
-                    </div>
+            list.innerHTML = protocols.map(p => {
+                // Формируем блок с аудитом, если есть createdInfo (значит пользователь ADMIN)
+                let metaHtml = '';
+                if (p.createdInfo) {
+                    let metaText = `Создано: ${p.createdInfo}`;
+                    if (p.updatedInfo) {
+                        metaText += `<br>Изменено: ${p.updatedInfo}`;
+                    }
+                    metaHtml = `<div class="protocol-meta">${metaText}</div>`;
+                }
 
-                    <div class="protocol-actions">
-
-                        <!-- Скачать PDF -->
-                        <button class="action-btn"
-                                data-protocol-id="${p.id}"
-                                onclick="downloadPdf(this)">
-                            <i class="bi bi-file-pdf"></i>
-                        </button>
-
-                        <!-- Редактировать -->
-                        <button class="action-btn"
-                                data-protocol-id="${p.id}"
-                                data-client-id="${p.clientId}"
-                                data-protocol-number="${p.protocolNumber}"
-                                data-issue-date="${p.issueDate}"
-                                onclick="openEditModal(this)">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-
-                        <!-- Удалить -->
-                        <button class="action-btn"
-                                data-protocol-id="${p.id}"
-                                data-client-id="${p.clientId}"
-                                data-protocol-number="${p.fullProtocolNumber}"
-                                onclick="openDeleteModal(this)">
-                            <i class="bi bi-trash"></i>
-                        </button>
-
-                    </div>
-                </div>`
-            ).join("");
+                return `
+            <div class="protocol-card">
+                <div class="protocol-info">
+                    <span class="protocol-number">${p.fullProtocolNumber}</span>
+                </div>
+                ${metaHtml}
+                <div class="protocol-actions">
+                    <!-- кнопки без изменений -->
+                    <button class="action-btn" data-protocol-id="${p.id}" onclick="downloadPdf(this)">
+                        <i class="bi bi-file-pdf"></i>
+                    </button>
+                    <button class="action-btn" data-protocol-id="${p.id}" data-client-id="${p.clientId}"
+                            data-protocol-number="${p.protocolNumber}" data-issue-date="${p.issueDate}"
+                            onclick="openEditModal(this)">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="action-btn" data-protocol-id="${p.id}" data-client-id="${p.clientId}"
+                            data-protocol-number="${p.fullProtocolNumber}" onclick="openDeleteModal(this)">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+            }).join("");
         }
 
         // Инициализация первого таба при загрузке

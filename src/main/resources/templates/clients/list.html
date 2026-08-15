@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,9 +11,11 @@
 
     <!-- Шрифты Control-M -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+    <link rel="icon" type="image/png" th:href="@{/images/logo.png}">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+<!--    TODO только админ может удалять клиентов-->
 
     <style>
         :root {
@@ -137,24 +140,78 @@
             margin-left: auto;
         }
 
-        .logout-btn {
+        /* User menu styles */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-btn {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
+            border-radius: 30px;
+            padding: 6px 16px;
             color: white;
-            font-size: 14px;
-            font-weight: 500;
             cursor: pointer;
+            font-size: 14px;
             transition: var(--transition);
         }
 
-        .logout-btn:hover {
+        .user-menu-btn:hover {
             background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .user-menu-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: var(--card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-md);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .user-menu:hover .user-menu-dropdown {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg);
+            color: var(--accent);
+        }
+
+        .logout-item {
+            color: var(--danger);
+        }
+
+        .logout-item:hover {
+            background: #FEF2F2;
+            color: var(--danger);
         }
 
         /* CARD */
@@ -597,117 +654,6 @@
         .footer-left {
             font-weight: 500;
         }
-
-        /* АДАПТИВНОСТЬ */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px 16px 40px;
-            }
-
-            .header-inner {
-                flex-direction: row;
-                align-items: center;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .logo-block img {
-                height: 35px;
-            }
-
-            .logo-title {
-                font-size: 18px;
-            }
-
-            .main-nav {
-                order: 2;
-                width: 100%;
-            }
-
-            .logout-wrapper {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            .logout-btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
-            }
-
-            .search-input-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-input-wrapper {
-                min-width: 100%;
-            }
-
-            .search-actions {
-                flex-direction: column;
-            }
-
-            .btn-search, .btn-clear {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .pagination {
-                flex-direction: column;
-                gap: 16px;
-                align-items: flex-start;
-            }
-
-            .pagination-controls {
-                flex-wrap: wrap;
-            }
-
-            th, td {
-                padding: 12px 16px;
-            }
-
-            th:nth-child(1) { width: 35%; }
-            th:nth-child(2) { width: 15%; }
-            th:nth-child(3) { width: 15%; }
-            th:nth-child(4) { width: 15%; }
-            th:nth-child(5) { width: 20%; }
-
-            .action-buttons {
-                flex-wrap: wrap;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .block-title {
-                font-size: 18px;
-            }
-
-            th {
-                font-size: 12px;
-            }
-
-            td {
-                font-size: 13px;
-            }
-
-            .btn-icon {
-                width: 32px;
-                height: 32px;
-                font-size: 14px;
-            }
-
-            .page-btn {
-                min-width: 32px;
-                height: 32px;
-                font-size: 12px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -715,7 +661,7 @@
 <header>
     <div class="header-inner">
         <div class="logo-block">
-            <img th:src="@{/images/logo3.png}"
+            <img th:src="@{/images/logo.png}"
                  src="https://via.placeholder.com/45x45/1E2A38/FFFFFF?text=CM"
                  alt="Логотип Control-M">
             <div class="logo-text">
@@ -730,16 +676,35 @@
             <a th:href="@{/ocr/jobs}" class="nav-link">
                 Загрузки
             </a>
+            <a th:href="@{/admins}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Пользователи
+            </a>
+            <a th:href="@{/admins/statistics}" class="nav-link" sec:authorize="hasRole('ADMIN')">
+                Статистика
+            </a>
         </nav>
 
         <div class="logout-wrapper">
-            <form th:action="@{/logout}" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <button type="submit" class="logout-btn" onclick="return confirm('Вы уверены, что хотите выйти из системы?')">
-                    <i class="bi bi-box-arrow-right"></i>
-                    Выйти
+            <div class="user-menu">
+                <button class="user-menu-btn">
+                    <i class="bi bi-person-circle"></i>
+                    <span th:text="${#authentication.name}"></span>
+                    <i class="bi bi-chevron-down"></i>
                 </button>
-            </form>
+                <div class="user-menu-dropdown">
+                    <a th:href="@{/auth/change-password}" class="dropdown-item">
+                        <i class="bi bi-key"></i>
+                        Сменить пароль
+                    </a>
+                    <form th:action="@{/logout}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="dropdown-item logout-item">
+                            <i class="bi bi-box-arrow-right"></i>
+                            Выйти
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </header>
@@ -784,7 +749,7 @@
 
                 <div class="search-stats">
                     <span>
-                        Отображено клиентов: <strong th:text="${page.totalElements}"></strong>
+                        Всего клиентов: <strong th:text="${page.totalElements}"></strong>
                     </span>
                 </div>
             </form>
