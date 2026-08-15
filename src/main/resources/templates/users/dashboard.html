@@ -835,6 +835,28 @@
         </div>
     </div>
 
+    <!-- Блок "Файлы, которые не удалось обработать (все клиенты)" -->
+    <div class="card" style="margin-top: 32px;">
+        <div class="block-title">
+            ФАЙЛЫ, КОТОРЫЕ НЕ УДАЛОСЬ ОБРАБОТАТЬ (ВСЕ КЛИЕНТЫ)
+        </div>
+        <div class="table-responsive">
+            <table id="adminFailedFilesTable">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Клиент</th>
+                    <th>Файл</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody id="adminFailedFilesBody">
+                <tr><td colspan="4" style="text-align: center;">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <footer>
         <div class="footer-left">
             © Control-M • Внутренняя система протоколов
@@ -1394,9 +1416,42 @@
         return div.innerHTML;
     }
 
+    async function loadAdminFailedFiles() {
+        const tbody = document.getElementById('adminFailedFilesBody');
+        try {
+            const response = await fetch('/admins/failed-files');
+            if (!response.ok) throw new Error('Ошибка загрузки');
+            const files = await response.json();
+            if (files.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Нет файлов</td></tr>';
+                return;
+            }
+            tbody.innerHTML = files.map(file => `
+            <tr>
+                <td>${file.id}</td>
+                <td>${escapeHtml(file.clientName)}</td>
+                <td>${escapeHtml(file.fileName)}</td>
+                <td>
+                    <button class="btn-icon" style="padding: 4px 8px;" onclick="viewAdminFailedFile(${file.clientId}, ${file.id})" title="Просмотр">
+                        <i class="bi bi-eye"></i> Просмотр
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+        } catch (error) {
+            console.error('Ошибка:', error);
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Ошибка загрузки файлов</td></tr>';
+        }
+    }
+
+    function viewAdminFailedFile(clientId, fileId) {
+        window.open(`/clients/${clientId}/failed-files/${fileId}`, '_blank');
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         loadLogs();
         loadCiphers();
+        loadAdminFailedFiles();
         document.getElementById('refreshLogsBtn').addEventListener('click', loadLogs);
         document.getElementById('saveCipherBtn').addEventListener('click', saveCipher);
     });

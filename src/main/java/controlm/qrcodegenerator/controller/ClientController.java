@@ -5,10 +5,12 @@ import controlm.qrcodegenerator.dto.request.ClientUpdateRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolRequestDto;
 import controlm.qrcodegenerator.dto.request.ProtocolUpdateDto;
 import controlm.qrcodegenerator.dto.response.ClientProtocolsViewDto;
+import controlm.qrcodegenerator.dto.response.FailedFileDto;
 import controlm.qrcodegenerator.dto.response.ProtocolPageDto;
 import controlm.qrcodegenerator.dto.response.PublicClientDto;
 import controlm.qrcodegenerator.mapper.ClientMapper;
 import controlm.qrcodegenerator.model.Client;
+import controlm.qrcodegenerator.model.FailedFile;
 import controlm.qrcodegenerator.model.OcrJob;
 import controlm.qrcodegenerator.service.ClientService;
 import controlm.qrcodegenerator.service.FileStorageService;
@@ -20,10 +22,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,8 +47,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -313,5 +320,49 @@ public class ClientController {
         model.addAttribute("qrCode", qrCodeBase64);
         model.addAttribute("clientId", id);
         return "clients/qr-display";
+    }
+
+    @GetMapping("/{id}/failed-files")
+    @ResponseBody
+    public List<FailedFileDto> getFailedFiles(@PathVariable Long id) {
+        return clientService.getFailedFiles(id);
+    }
+
+    @PostMapping("/{id}/failed-files")
+    @ResponseBody
+    public ResponseEntity<FailedFileDto> uploadFailedFile(@PathVariable Long id,
+                                                          @RequestParam("file") MultipartFile file) {
+        try {
+            return ResponseEntity.ok(clientService.uploadFailedFile(id, file));
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{clientId}/failed-files/{fileId}")
+    public ResponseEntity<Resource> viewFile(@PathVariable Long clientId,
+                                             @PathVariable Long fileId) {
+        FailedFile file = clientService.findFailedFileById(fileId);
+
+        // Проверка, что файл принадлежит данному клиенту
+        if (!file.getClient().getId().equals(clientId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            Path path = Paths.get(file.getFilePath());
+            Resource resource = new UrlResource(path.toUri());
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(file.getContentType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            ContentDisposition.inline()
+                                    .filename(file.getFileName(), StandardCharsets.UTF_8)
+                                    .build()
+                                    .toString())
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

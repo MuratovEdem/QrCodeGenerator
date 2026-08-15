@@ -729,11 +729,34 @@
         return div.innerHTML;
     }
 
+    function getTodayLocalDate() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     // Инициализация страницы
     document.addEventListener('DOMContentLoaded', function() {
         const params = getFilterParams();
-        if (params.dateFrom) document.getElementById('dateFrom').value = params.dateFrom;
-        if (params.dateTo) document.getElementById('dateTo').value = params.dateTo;
+
+        // Если параметров дат в URL нет — устанавливаем сегодняшний день
+        if (!params.dateFrom && !params.dateTo) {
+            const today = getTodayLocalDate();
+            document.getElementById('dateFrom').value = today;
+            document.getElementById('dateTo').value = today;
+
+            // Обновляем URL без перезагрузки, чтобы loadStatistics() считала параметры
+            const url = new URL(window.location.href);
+            url.searchParams.set('dateFrom', today);
+            url.searchParams.set('dateTo', today);
+            window.history.replaceState({}, '', url);
+        } else {
+            // Если даты пришли в URL — заполняем поля
+            if (params.dateFrom) document.getElementById('dateFrom').value = params.dateFrom;
+            if (params.dateTo) document.getElementById('dateTo').value = params.dateTo;
+        }
 
         loadStatistics();
     });

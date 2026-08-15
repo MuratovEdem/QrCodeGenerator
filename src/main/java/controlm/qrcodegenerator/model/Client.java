@@ -54,6 +54,9 @@ public class Client {
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ClientFile> clientFiles;
 
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FailedFile> failedFiles;
+
     @Column(updatable = false)
     @CreatedBy
     private String createdBy;

@@ -8,6 +8,7 @@ import controlm.qrcodegenerator.dto.request.ContactRequestDto;
 import controlm.qrcodegenerator.dto.request.ContractRequestDto;
 import controlm.qrcodegenerator.dto.request.UniqueNumberRequestDto;
 import controlm.qrcodegenerator.dto.response.ClientResponseDto;
+import controlm.qrcodegenerator.dto.response.FailedFileDto;
 import controlm.qrcodegenerator.dto.response.PublicClientDto;
 import controlm.qrcodegenerator.exception.NotFoundException;
 import controlm.qrcodegenerator.mapper.ClientMapper;
@@ -16,6 +17,7 @@ import controlm.qrcodegenerator.model.ClientFile;
 import controlm.qrcodegenerator.model.ConstructionSite;
 import controlm.qrcodegenerator.model.Contact;
 import controlm.qrcodegenerator.model.Contract;
+import controlm.qrcodegenerator.model.FailedFile;
 import controlm.qrcodegenerator.model.UniqueNumber;
 import controlm.qrcodegenerator.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,7 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final ClientMapper clientMapper;
     private final FileStorageService fileStorageService;
+    private final FailedFileService failedFileService;
 
     public Client getClientById(Long id) {
         return clientRepository.findById(id)
@@ -137,6 +140,18 @@ public class ClientService {
             return 1L;
         }
         return clientRepository.getMaxUniqueNumber() + 1L;
+    }
+
+    public List<FailedFileDto> getFailedFiles(Long clientId) {
+        return failedFileService.getFailedFiles(clientId);
+    }
+
+    public FailedFileDto uploadFailedFile(Long clientId, MultipartFile file) throws IOException {
+        return failedFileService.saveFailedFile(getClientById(clientId), file);
+    }
+
+    public FailedFile findFailedFileById(Long fileId) {
+        return failedFileService.findById(fileId);
     }
 
     private void updateFiles(Client client, List<ClientFileDto> retainedFileIds, List<MultipartFile> newFiles) throws IOException {

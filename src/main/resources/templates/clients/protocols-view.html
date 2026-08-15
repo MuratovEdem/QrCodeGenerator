@@ -1296,7 +1296,26 @@
 
             <div class="pagination-container"></div>
         </div>
+    </div>
 
+    <!-- Блок "Файлы, которые не удалось обработать" -->
+    <div class="client-details-card">
+        <div class="section-title" style="margin-bottom: 16px;">
+            <div class="client-name" style="font-size: 18px;">Файлы, которые не удалось обработать</div>
+        </div>
+        <div style="margin-bottom: 16px;">
+            <button type="button" class="btn btn-primary" id="uploadFailedFileBtn">
+                <i class="bi bi-upload"></i> Загрузить файл
+            </button>
+            <input type="file" id="failedFileInput"
+                   accept=".pdf,image/*,.doc,.docx,.xls,.xlsx"
+                   style="display: none;">
+        </div>
+        <div id="failedFilesList" class="files-grid">
+            <div class="empty-files-message">
+                <i class="bi bi-info-circle"></i> Загрузка...
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -1371,6 +1390,7 @@
         let currentClientId = null;
         let currentDeleteProtocolId = null;
         const cipherState = {};
+        const failedFilesClientId = getClientIdFromUrl();
 
         // Функция для скачивания PDF
         function downloadPdf(button) {
@@ -1580,6 +1600,93 @@
             }).join("");
         }
 
+        async function loadFailedFiles() {
+            const container = document.getElementById('failedFilesList');
+            container.innerHTML = '<div class="empty-files-message"><i class="bi bi-info-circle"></i> Загрузка...</div>';
+            try {
+                const response = await fetch(`/clients/${failedFilesClientId}/failed-files`);
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                const files = await response.json();
+                renderFailedFiles(files);
+            } catch (e) {
+                container.innerHTML = '<div class="empty-files-message"><i class="bi bi-exclamation-triangle"></i> Ошибка загрузки файлов</div>';
+            }
+        }
+
+        function renderFailedFiles(files) {
+            const container = document.getElementById('failedFilesList');
+            if (!files || files.length === 0) {
+                container.innerHTML = '<div class="empty-files-message"><i class="bi bi-inbox"></i> Нет файлов</div>';
+                return;
+            }
+
+            container.innerHTML = files.map(file => `
+        <div class="file-card" data-file-id="${file.id}" onclick="viewFailedFile(this)">
+            <div class="file-info">
+                <i class="bi ${getFailedFileIcon(file.contentType)}"></i>
+                <span class="file-name">${file.fileName}</span>
+            </div>
+            <i class="bi bi-eye" style="color: var(--text-secondary);"></i>
+        </div>
+    `).join('');
+        }
+
+        function getFailedFileIcon(contentType) {
+            if (!contentType) return 'bi-file-earmark';
+            if (contentType === 'application/pdf') return 'bi-file-pdf';
+            if (contentType.startsWith('image/')) return 'bi-file-image';
+            if (contentType.includes('word')) return 'bi-file-word';
+            if (contentType.includes('excel') || contentType.includes('spreadsheetml')) return 'bi-file-excel';
+            return 'bi-file-earmark';
+        }
+
+        function viewFailedFile(card) {
+            const fileId = card.getAttribute('data-file-id');
+            if (fileId) {
+                window.open(`/clients/${failedFilesClientId}/failed-files/${fileId}`, '_blank');
+            }
+        }
+
+        document.getElementById('uploadFailedFileBtn').addEventListener('click', function () {
+            document.getElementById('failedFileInput').click();
+        });
+
+        document.getElementById('failedFileInput').addEventListener('change', async function () {
+            if (this.files.length === 0) return;
+
+            const file = this.files[0];
+            const maxSize = 50 * 1024 * 1024; // 50 МБ
+            if (file.size > maxSize) {
+                alert('Файл слишком большой! Максимальный размер: 50 МБ');
+                this.value = '';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+            try {
+                const response = await fetch(`/clients/${failedFilesClientId}/failed-files`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        [csrfHeader]: csrfToken
+                    }
+                });
+
+                if (!response.ok) throw new Error('Ошибка загрузки');
+
+                this.value = '';
+                loadFailedFiles();
+            } catch (e) {
+                alert('Ошибка при загрузке файла');
+                this.value = '';
+            }
+        });
+
         // Инициализация первого таба при загрузке
         document.addEventListener('DOMContentLoaded', function () {
             const savedState = localStorage.getItem('clientInfoCollapsed');
@@ -1629,6 +1736,7 @@
                     const page = cipherState[cipher]?.page ?? 0;
 
                     loadProtocols(cipher, page)
+                    loadFailedFiles();
                 });
 
             });
@@ -1809,7 +1917,9 @@
                     alert('Произошла ошибка при удалении протокола');
                 });
         }
-
+        document.addEventListener('DOMContentLoaded', function () {
+            loadFailedFiles();
+        });
     </script>
 </body>
 </html>

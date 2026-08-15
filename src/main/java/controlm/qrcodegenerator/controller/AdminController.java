@@ -2,11 +2,13 @@ package controlm.qrcodegenerator.controller;
 
 import controlm.qrcodegenerator.dto.response.AuditLogDto;
 import controlm.qrcodegenerator.dto.response.CipherDto;
+import controlm.qrcodegenerator.dto.response.FailedFileAdminDto;
 import controlm.qrcodegenerator.dto.response.RegistrationUserResponseDto;
 import controlm.qrcodegenerator.dto.response.UserDashboardResponseDto;
 import controlm.qrcodegenerator.dto.response.UserStatisticsResponseDto;
 import controlm.qrcodegenerator.service.AuditLogService;
 import controlm.qrcodegenerator.service.CipherService;
+import controlm.qrcodegenerator.service.FailedFileService;
 import controlm.qrcodegenerator.service.RoleService;
 import controlm.qrcodegenerator.service.StorageArchiveService;
 import controlm.qrcodegenerator.service.UserService;
@@ -51,6 +53,7 @@ public class AdminController {
     private final AuditLogService auditLogService;
     private final StorageArchiveService storageArchiveService;
     private final CipherService cipherService;
+    private final FailedFileService failedFileService;
 
     @GetMapping
     public String getDashboard(Model model) {
@@ -167,5 +170,11 @@ public class AdminController {
 
 
         storageArchiveService.archiveStorage(response.getOutputStream());
+    }
+
+    @GetMapping("/failed-files")
+    @ResponseBody
+    public List<FailedFileAdminDto> getAllFailedFiles() {
+        return failedFileService.getAllFailedFiles();
     }
 }
